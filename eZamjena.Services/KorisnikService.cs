@@ -120,16 +120,14 @@ namespace eZamjena.Services
         {
             var korisnik = Context.Korisniks.FirstOrDefault(x => x.KorisnickoIme == username);
             var uloga = Context.Ulogas.FirstOrDefault(x => x.Id==korisnik.UlogaId);
-            var entity=Context.Korisniks.Include(k=>k.Uloga).FirstOrDefault(x=>x.KorisnickoIme==username);//.Include("UlogaId").Include("Uloga")
-            System.Console.WriteLine("Ulogica u loginu " + entity.Uloga.Naziv);
-            System.Console.WriteLine("ULOGA PUTANJA-> " + Context.Korisniks.Include("Uloga"));
+            var entity=Context.Korisniks.Include(k=>k.Uloga).FirstOrDefault(x=>x.KorisnickoIme==username);
 
             if (entity == null)
             {
                 return null;
             }
             var hash = GenerateHash(entity.LozinkaSalt, password);
-            System.Console.WriteLine("Hash-> "+hash);
+          
             if (hash != entity.LozinkaHash)
             {
                 

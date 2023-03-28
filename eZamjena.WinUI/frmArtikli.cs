@@ -15,14 +15,20 @@ namespace eZamjena.WinUI
     public partial class frmArtikli : Form
     {
         public APIService ProizvodService { get; set; } = new APIService("Proizvod");
+        private string trenutnaKategorija = null;
+        private List<string> _selectedCategories = new List<string>();
+        private bool? _novo;
+        
         public frmArtikli()
         {
             InitializeComponent();
-            txtNaziv.TextChanged += txtNaziv_TextChanged;
+            txtNaziv.TextChanged += txtNaziv_TextChanged_1;
+            dgvArtikli.AutoGenerateColumns = false;
+            // _novo = false;
         }
-    
 
-        private  void btnProfili_Click(object sender, EventArgs e)
+
+        private void btnProfili_Click(object sender, EventArgs e)
         {
             frmKorisnici frm = new frmKorisnici();
             frm.ShowDialog();
@@ -30,55 +36,154 @@ namespace eZamjena.WinUI
 
         private async void frmArtikli_Load(object sender, EventArgs e)
         {
-            //var searchObject = new ProizvodSearchObject();
-            //searchObject.Naziv = txtNaziv.Text;
-
-
-            //var lista = await ProizvodService.Get<List<Proizvod>>(searchObject);
-            //dgvArtikli.DataSource = lista;
             await UcitajPodatke();
         }
 
         private void btnTehnika_Click(object sender, EventArgs e)
         {
+            SetTrenutnaKategorija("Tehnika");
             FilterByCategory("Tehnika");
         }
 
         private void btnOdjećaObuća_Click(object sender, EventArgs e)
         {
+            SetTrenutnaKategorija("Odjeća i obuća");
             FilterByCategory("Odjeća i obuća");
         }
 
         private async void FilterByCategory(string category)
         {
+            Button clickedButton = null;
+            if (category == "Tehnika")
+            {
+                clickedButton = btnTehnika;
+            }
+            else if (category == "Odjeća i obuća")
+            {
+                clickedButton = btnOdjećaObuća;
+            }
+            // Dodajemo/uklanjamo odabranu kategoriju iz liste odabranih
+            if (_selectedCategories.Contains(category) && clickedButton != null)
+            {
+                _selectedCategories.Remove(category);
+                clickedButton.BackColor = Color.White;
+            }
+            else if (clickedButton != null)
+            {
+                _selectedCategories.Add(category);
+                clickedButton.BackColor = Color.LightBlue;
+            }
+           
+            // Kreiramo novi objekt za pretragu proizvoda
             var searchObject = new ProizvodSearchObject();
-            searchObject.NazivKategorije = category;
+
+            // Dodajemo kategorije u pretragu
+            if (_selectedCategories.Count > 0)
+            {
+                searchObject.NazivKategorijeList = _selectedCategories;
+            }
+
+            // Dodajemo naziv proizvoda u pretragu ako postoji
             if (!string.IsNullOrEmpty(txtNaziv.Text))
             {
                 searchObject.Naziv = txtNaziv.Text;
             }
+            if (_novo!=null)
+            {
+                searchObject.Novo = _novo;
+            }
+
+            // Pretražujemo proizvode i ažuriramo DataSource DataGridView kontrole
             var lista = await ProizvodService.Get<List<Proizvod>>(searchObject);
-            dgvArtikli.DataSource = lista.Where(p => p.KategorijaProizvoda.Naziv == category).ToList();
+
+            //if (_selectedCategories.Count > 0)
+            //{
+            //    lista = lista.Where(p => _selectedCategories.Contains(p.KategorijaProizvoda.Naziv)).ToList();
+            //}
+            //if (_novo != null)
+            //{
+            //    lista = lista.Where(p => p.StanjeNovo == _novo).ToList();
+            //}
+
+            //if (!string.IsNullOrEmpty(txtNaziv.Text))
+            //{
+            //    lista = lista.Where(p => p.Naziv.ToLower().Contains(txtNaziv.Text.ToLower())).ToList();
+            //}
+
+            dgvArtikli.DataSource = lista;
         }
 
-
+        
+        private void SetTrenutnaKategorija(string kategorija)
+        {
+            if (trenutnaKategorija == kategorija)
+            {
+                trenutnaKategorija = null;
+            }
+            else
+            {
+                trenutnaKategorija = kategorija;
+               
+            }
+        }
+     
         private async Task UcitajPodatke()
         {
             var searchObject = new ProizvodSearchObject();
-            searchObject.Naziv = txtNaziv.Text;
+
+            // Dodajemo kategorije u pretragu
+            if (_selectedCategories.Count > 0)
+            {
+                searchObject.NazivKategorijeList = _selectedCategories;
+            }
+
+            // Dodajemo naziv proizvoda u pretragu ako postoji
+            if (!string.IsNullOrEmpty(txtNaziv.Text))
+            {
+                searchObject.Naziv = txtNaziv.Text;
+            }
+            if (_novo != null) 
+            {
+                searchObject.Novo = _novo;
+            }
+              
             var lista = await ProizvodService.Get<List<Proizvod>>(searchObject);
             dgvArtikli.DataSource = lista;
         }
+
+
 
         private async void btnArtikli_Click(object sender, EventArgs e)
         {
             await UcitajPodatke();
         }
 
-        private async void txtNaziv_TextChanged(object sender, EventArgs e)
+        private async void txtNaziv_TextChanged_1(object sender, EventArgs e)
         {
+            FilterByCategory(trenutnaKategorija);
+            //await UcitajPodatke();
+        }
+        
+      
+        private async void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBox1.Checked) _novo = true;
+            else _novo = false;
+            //FilterByCategory(trenutnaKategorija);
             await UcitajPodatke();
         }
-      
+
+        private void dgvArtikli_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            Proizvod? proizvod = dgvArtikli.SelectedRows[0].DataBoundItem as Proizvod;
+            if (proizvod != null)
+            {
+                if (e.ColumnIndex == 5)
+                {
+                    frmArtikliDetails frm = new frmArtikliDetails(proizvod);
+                    frm.ShowDialog();
+                }
+            }
+        }
     }
 }

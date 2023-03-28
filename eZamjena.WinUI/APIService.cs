@@ -14,8 +14,9 @@ namespace eZamjena.WinUI
     public class APIService
     {
         private string _resource = null;
-        public string _endpoint = "https://localhost:49153/"; //"https://localhost:49153/"; //"http://localhost:49156/"
-       
+        public string _endpoint = "https://localhost:49155/";// https://localhost:49153/";//"https://localhost:49157/"; //"https://localhost:49153/"; //"https://localhost:49153/"; //"http://localhost:49156/"
+
+
         public static string Username = null;
         public static string Password = null;
 

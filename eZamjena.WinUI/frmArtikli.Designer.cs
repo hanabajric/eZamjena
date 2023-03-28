@@ -33,7 +33,6 @@
             this.btnHistorijaRazmjena = new System.Windows.Forms.Button();
             this.btnHistorijaKupovina = new System.Windows.Forms.Button();
             this.btnProfili = new System.Windows.Forms.Button();
-            this.txtNaziv = new System.Windows.Forms.TextBox();
             this.btnBiciklaRoleri = new System.Windows.Forms.Button();
             this.btnNamještaj = new System.Windows.Forms.Button();
             this.btnIgračke = new System.Windows.Forms.Button();
@@ -42,10 +41,17 @@
             this.btnOstalo = new System.Windows.Forms.Button();
             this.btnStvariZaKuću = new System.Windows.Forms.Button();
             this.btnKnjige = new System.Windows.Forms.Button();
-            this.btnPolovno = new System.Windows.Forms.Button();
-            this.btnNovo = new System.Windows.Forms.Button();
             this.btnOdjava = new System.Windows.Forms.Button();
             this.dgvArtikli = new System.Windows.Forms.DataGridView();
+            this.Naziv = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Kategorija = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Opis = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Cijena = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Slika = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Uredi = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.Obriši = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.txtNaziv = new System.Windows.Forms.TextBox();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.dgvArtikli)).BeginInit();
             this.SuspendLayout();
             // 
@@ -53,7 +59,7 @@
             // 
             this.btnArtikli.BackColor = System.Drawing.SystemColors.Window;
             this.btnArtikli.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnArtikli.Location = new System.Drawing.Point(191, 38);
+            this.btnArtikli.Location = new System.Drawing.Point(202, 12);
             this.btnArtikli.Name = "btnArtikli";
             this.btnArtikli.Size = new System.Drawing.Size(94, 29);
             this.btnArtikli.TabIndex = 0;
@@ -65,7 +71,7 @@
             // 
             this.btnZahtjevi.BackColor = System.Drawing.SystemColors.Window;
             this.btnZahtjevi.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnZahtjevi.Location = new System.Drawing.Point(282, 38);
+            this.btnZahtjevi.Location = new System.Drawing.Point(302, 12);
             this.btnZahtjevi.Name = "btnZahtjevi";
             this.btnZahtjevi.Size = new System.Drawing.Size(94, 29);
             this.btnZahtjevi.TabIndex = 1;
@@ -76,7 +82,7 @@
             // 
             this.btnHistorijaRazmjena.BackColor = System.Drawing.SystemColors.Window;
             this.btnHistorijaRazmjena.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnHistorijaRazmjena.Location = new System.Drawing.Point(371, 38);
+            this.btnHistorijaRazmjena.Location = new System.Drawing.Point(402, 12);
             this.btnHistorijaRazmjena.Name = "btnHistorijaRazmjena";
             this.btnHistorijaRazmjena.Size = new System.Drawing.Size(153, 29);
             this.btnHistorijaRazmjena.TabIndex = 2;
@@ -87,7 +93,7 @@
             // 
             this.btnHistorijaKupovina.BackColor = System.Drawing.SystemColors.Window;
             this.btnHistorijaKupovina.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnHistorijaKupovina.Location = new System.Drawing.Point(523, 38);
+            this.btnHistorijaKupovina.Location = new System.Drawing.Point(561, 12);
             this.btnHistorijaKupovina.Name = "btnHistorijaKupovina";
             this.btnHistorijaKupovina.Size = new System.Drawing.Size(145, 29);
             this.btnHistorijaKupovina.TabIndex = 3;
@@ -98,7 +104,7 @@
             // 
             this.btnProfili.BackColor = System.Drawing.SystemColors.Window;
             this.btnProfili.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnProfili.Location = new System.Drawing.Point(666, 38);
+            this.btnProfili.Location = new System.Drawing.Point(712, 12);
             this.btnProfili.Name = "btnProfili";
             this.btnProfili.Size = new System.Drawing.Size(94, 29);
             this.btnProfili.TabIndex = 4;
@@ -106,22 +112,11 @@
             this.btnProfili.UseVisualStyleBackColor = false;
             this.btnProfili.Click += new System.EventHandler(this.btnProfili_Click);
             // 
-            // txtNaziv
-            // 
-            this.txtNaziv.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.txtNaziv.Location = new System.Drawing.Point(403, 96);
-            this.txtNaziv.Name = "txtNaziv";
-            this.txtNaziv.PlaceholderText = "🔍 pretraži po nazivu";
-            this.txtNaziv.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.txtNaziv.Size = new System.Drawing.Size(161, 27);
-            this.txtNaziv.TabIndex = 5;
-            this.txtNaziv.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
             // btnBiciklaRoleri
             // 
             this.btnBiciklaRoleri.BackColor = System.Drawing.SystemColors.Window;
             this.btnBiciklaRoleri.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnBiciklaRoleri.Location = new System.Drawing.Point(485, 148);
+            this.btnBiciklaRoleri.Location = new System.Drawing.Point(522, 60);
             this.btnBiciklaRoleri.Name = "btnBiciklaRoleri";
             this.btnBiciklaRoleri.Size = new System.Drawing.Size(130, 29);
             this.btnBiciklaRoleri.TabIndex = 10;
@@ -132,7 +127,7 @@
             // 
             this.btnNamještaj.BackColor = System.Drawing.SystemColors.Window;
             this.btnNamještaj.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnNamještaj.Location = new System.Drawing.Point(372, 148);
+            this.btnNamještaj.Location = new System.Drawing.Point(395, 60);
             this.btnNamještaj.Name = "btnNamještaj";
             this.btnNamještaj.Size = new System.Drawing.Size(121, 29);
             this.btnNamještaj.TabIndex = 9;
@@ -143,7 +138,7 @@
             // 
             this.btnIgračke.BackColor = System.Drawing.SystemColors.Window;
             this.btnIgračke.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnIgračke.Location = new System.Drawing.Point(279, 148);
+            this.btnIgračke.Location = new System.Drawing.Point(294, 60);
             this.btnIgračke.Name = "btnIgračke";
             this.btnIgračke.Size = new System.Drawing.Size(95, 29);
             this.btnIgračke.TabIndex = 8;
@@ -154,7 +149,7 @@
             // 
             this.btnOdjećaObuća.BackColor = System.Drawing.SystemColors.Window;
             this.btnOdjećaObuća.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnOdjećaObuća.Location = new System.Drawing.Point(141, 148);
+            this.btnOdjećaObuća.Location = new System.Drawing.Point(147, 60);
             this.btnOdjećaObuća.Name = "btnOdjećaObuća";
             this.btnOdjećaObuća.Size = new System.Drawing.Size(141, 29);
             this.btnOdjećaObuća.TabIndex = 7;
@@ -166,7 +161,7 @@
             // 
             this.btnTehnika.BackColor = System.Drawing.SystemColors.Window;
             this.btnTehnika.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnTehnika.Location = new System.Drawing.Point(50, 148);
+            this.btnTehnika.Location = new System.Drawing.Point(47, 60);
             this.btnTehnika.Name = "btnTehnika";
             this.btnTehnika.Size = new System.Drawing.Size(94, 29);
             this.btnTehnika.TabIndex = 6;
@@ -178,7 +173,7 @@
             // 
             this.btnOstalo.BackColor = System.Drawing.SystemColors.Window;
             this.btnOstalo.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnOstalo.Location = new System.Drawing.Point(828, 148);
+            this.btnOstalo.Location = new System.Drawing.Point(898, 60);
             this.btnOstalo.Name = "btnOstalo";
             this.btnOstalo.Size = new System.Drawing.Size(94, 29);
             this.btnOstalo.TabIndex = 13;
@@ -189,7 +184,7 @@
             // 
             this.btnStvariZaKuću.BackColor = System.Drawing.SystemColors.Window;
             this.btnStvariZaKuću.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnStvariZaKuću.Location = new System.Drawing.Point(689, 148);
+            this.btnStvariZaKuću.Location = new System.Drawing.Point(747, 60);
             this.btnStvariZaKuću.Name = "btnStvariZaKuću";
             this.btnStvariZaKuću.Size = new System.Drawing.Size(145, 29);
             this.btnStvariZaKuću.TabIndex = 12;
@@ -200,38 +195,16 @@
             // 
             this.btnKnjige.BackColor = System.Drawing.SystemColors.Window;
             this.btnKnjige.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnKnjige.Location = new System.Drawing.Point(610, 148);
+            this.btnKnjige.Location = new System.Drawing.Point(658, 60);
             this.btnKnjige.Name = "btnKnjige";
             this.btnKnjige.Size = new System.Drawing.Size(83, 29);
             this.btnKnjige.TabIndex = 11;
             this.btnKnjige.Text = "Knjige";
             this.btnKnjige.UseVisualStyleBackColor = false;
             // 
-            // btnPolovno
-            // 
-            this.btnPolovno.BackColor = System.Drawing.SystemColors.Window;
-            this.btnPolovno.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnPolovno.Location = new System.Drawing.Point(470, 197);
-            this.btnPolovno.Name = "btnPolovno";
-            this.btnPolovno.Size = new System.Drawing.Size(94, 29);
-            this.btnPolovno.TabIndex = 15;
-            this.btnPolovno.Text = "Polovno";
-            this.btnPolovno.UseVisualStyleBackColor = false;
-            // 
-            // btnNovo
-            // 
-            this.btnNovo.BackColor = System.Drawing.SystemColors.Window;
-            this.btnNovo.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnNovo.Location = new System.Drawing.Point(379, 197);
-            this.btnNovo.Name = "btnNovo";
-            this.btnNovo.Size = new System.Drawing.Size(94, 29);
-            this.btnNovo.TabIndex = 14;
-            this.btnNovo.Text = "Novo";
-            this.btnNovo.UseVisualStyleBackColor = false;
-            // 
             // btnOdjava
             // 
-            this.btnOdjava.Location = new System.Drawing.Point(887, 12);
+            this.btnOdjava.Location = new System.Drawing.Point(899, 2);
             this.btnOdjava.Name = "btnOdjava";
             this.btnOdjava.Size = new System.Drawing.Size(94, 29);
             this.btnOdjava.TabIndex = 16;
@@ -241,36 +214,126 @@
             // dgvArtikli
             // 
             this.dgvArtikli.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvArtikli.Location = new System.Drawing.Point(50, 250);
+            this.dgvArtikli.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.Naziv,
+            this.Kategorija,
+            this.Opis,
+            this.Cijena,
+            this.Slika,
+            this.Uredi,
+            this.Obriši});
+            this.dgvArtikli.Location = new System.Drawing.Point(12, 209);
             this.dgvArtikli.Name = "dgvArtikli";
             this.dgvArtikli.RowHeadersWidth = 51;
             this.dgvArtikli.RowTemplate.Height = 29;
-            this.dgvArtikli.Size = new System.Drawing.Size(872, 315);
+            this.dgvArtikli.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgvArtikli.Size = new System.Drawing.Size(969, 343);
             this.dgvArtikli.TabIndex = 17;
+            this.dgvArtikli.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvArtikli_CellContentClick);
+            // 
+            // Naziv
+            // 
+            this.Naziv.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Naziv.DataPropertyName = "Naziv";
+            this.Naziv.HeaderText = "Naziv";
+            this.Naziv.MinimumWidth = 6;
+            this.Naziv.Name = "Naziv";
+            // 
+            // Kategorija
+            // 
+            this.Kategorija.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Kategorija.DataPropertyName = "NazivKategorijeProizvoda";
+            this.Kategorija.HeaderText = "Kategorija";
+            this.Kategorija.MinimumWidth = 6;
+            this.Kategorija.Name = "Kategorija";
+            // 
+            // Opis
+            // 
+            this.Opis.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Opis.DataPropertyName = "Opis";
+            this.Opis.HeaderText = "Opis";
+            this.Opis.MinimumWidth = 6;
+            this.Opis.Name = "Opis";
+            // 
+            // Cijena
+            // 
+            this.Cijena.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Cijena.DataPropertyName = "Cijena";
+            this.Cijena.HeaderText = "Procjenjena cijena";
+            this.Cijena.MinimumWidth = 6;
+            this.Cijena.Name = "Cijena";
+            // 
+            // Slika
+            // 
+            this.Slika.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Slika.DataPropertyName = "Slika";
+            this.Slika.HeaderText = "Fotografija";
+            this.Slika.MinimumWidth = 6;
+            this.Slika.Name = "Slika";
+            this.Slika.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.Slika.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            // 
+            // Uredi
+            // 
+            this.Uredi.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Uredi.HeaderText = "Uredi";
+            this.Uredi.MinimumWidth = 6;
+            this.Uredi.Name = "Uredi";
+            this.Uredi.Text = "🖊️";
+            this.Uredi.UseColumnTextForButtonValue = true;
+            // 
+            // Obriši
+            // 
+            this.Obriši.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.Obriši.HeaderText = "Obriši";
+            this.Obriši.MinimumWidth = 6;
+            this.Obriši.Name = "Obriši";
+            this.Obriši.Text = "🗑";
+            this.Obriši.UseColumnTextForButtonValue = true;
+            // 
+            // txtNaziv
+            // 
+            this.txtNaziv.Location = new System.Drawing.Point(385, 109);
+            this.txtNaziv.Name = "txtNaziv";
+            this.txtNaziv.PlaceholderText = "🔍 pretraži po nazivu";
+            this.txtNaziv.Size = new System.Drawing.Size(161, 27);
+            this.txtNaziv.TabIndex = 16;
+            this.txtNaziv.TextChanged += new System.EventHandler(this.txtNaziv_TextChanged_1);
+            // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.checkBox1.Location = new System.Drawing.Point(418, 155);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(79, 29);
+            this.checkBox1.TabIndex = 18;
+            this.checkBox1.Text = "Novo";
+            this.checkBox1.UseVisualStyleBackColor = true;
+            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
             // frmArtikli
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(993, 586);
+            this.Controls.Add(this.checkBox1);
+            this.Controls.Add(this.btnTehnika);
+            this.Controls.Add(this.btnHistorijaRazmjena);
+            this.Controls.Add(this.btnArtikli);
             this.Controls.Add(this.dgvArtikli);
+            this.Controls.Add(this.btnZahtjevi);
             this.Controls.Add(this.btnOdjava);
-            this.Controls.Add(this.btnPolovno);
-            this.Controls.Add(this.btnNovo);
+            this.Controls.Add(this.btnHistorijaKupovina);
             this.Controls.Add(this.btnOstalo);
+            this.Controls.Add(this.btnProfili);
+            this.Controls.Add(this.btnNamještaj);
+            this.Controls.Add(this.txtNaziv);
+            this.Controls.Add(this.btnOdjećaObuća);
+            this.Controls.Add(this.btnIgračke);
             this.Controls.Add(this.btnStvariZaKuću);
             this.Controls.Add(this.btnKnjige);
             this.Controls.Add(this.btnBiciklaRoleri);
-            this.Controls.Add(this.btnNamještaj);
-            this.Controls.Add(this.btnIgračke);
-            this.Controls.Add(this.btnOdjećaObuća);
-            this.Controls.Add(this.btnTehnika);
-            this.Controls.Add(this.txtNaziv);
-            this.Controls.Add(this.btnProfili);
-            this.Controls.Add(this.btnHistorijaKupovina);
-            this.Controls.Add(this.btnHistorijaRazmjena);
-            this.Controls.Add(this.btnZahtjevi);
-            this.Controls.Add(this.btnArtikli);
             this.Name = "frmArtikli";
             this.Text = "frmArtikli";
             this.Load += new System.EventHandler(this.frmArtikli_Load);
@@ -287,7 +350,6 @@
         private Button btnHistorijaRazmjena;
         private Button btnHistorijaKupovina;
         private Button btnProfili;
-        private TextBox txtNaziv;
         private Button btnBiciklaRoleri;
         private Button btnNamještaj;
         private Button btnIgračke;
@@ -296,9 +358,16 @@
         private Button btnOstalo;
         private Button btnStvariZaKuću;
         private Button btnKnjige;
-        private Button btnPolovno;
-        private Button btnNovo;
         private Button btnOdjava;
         private DataGridView dgvArtikli;
+        private TextBox txtNaziv;
+        private CheckBox checkBox1;
+        private DataGridViewTextBoxColumn Naziv;
+        private DataGridViewTextBoxColumn Kategorija;
+        private DataGridViewTextBoxColumn Opis;
+        private DataGridViewTextBoxColumn Cijena;
+        private DataGridViewTextBoxColumn Slika;
+        private DataGridViewButtonColumn Uredi;
+        private DataGridViewButtonColumn Obriši;
     }
 }

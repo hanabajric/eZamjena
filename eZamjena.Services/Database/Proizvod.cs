@@ -15,8 +15,8 @@ namespace eZamjena.Services.Database
 
         public int Id { get; set; }
         public string Naziv { get; set; }
-        public decimal? Cijena { get; set; }
-        public bool? StanjeNovo { get; set; }
+        public decimal Cijena { get; set; }
+        public bool StanjeNovo { get; set; }
         public string? Opis { get; set; }
         public byte[]? Slika { get; set; }
         public int KorisnikId { get; set; }
