@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace eZamjena.Model.Requests
 {
     public class ProizvodUpsertRequest
     {
+        [Required(AllowEmptyStrings = false)]
         public string Naziv { get; set; }
+
         public decimal Cijena { get; set; }
         public bool StanjeNovo { get; set; }
         public string Opis { get; set; }

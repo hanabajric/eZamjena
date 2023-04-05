@@ -28,9 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.txtNaziv = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.pbSlikaArtikla = new System.Windows.Forms.PictureBox();
             this.cmbKategorija = new System.Windows.Forms.ComboBox();
             this.txtCijena = new System.Windows.Forms.TextBox();
             this.txtKorisnik = new System.Windows.Forms.TextBox();
@@ -44,7 +45,10 @@
             this.txtOpis = new System.Windows.Forms.TextBox();
             this.btnOdustani = new System.Windows.Forms.Button();
             this.btnSpremi = new System.Windows.Forms.Button();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
+            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            ((System.ComponentModel.ISupportInitialize)(this.pbSlikaArtikla)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
             this.SuspendLayout();
             // 
             // txtNaziv
@@ -53,6 +57,7 @@
             this.txtNaziv.Name = "txtNaziv";
             this.txtNaziv.Size = new System.Drawing.Size(125, 27);
             this.txtNaziv.TabIndex = 0;
+            this.txtNaziv.Validating += new System.ComponentModel.CancelEventHandler(this.txtNaziv_Validating);
             // 
             // label1
             // 
@@ -64,14 +69,16 @@
             this.label1.TabIndex = 1;
             this.label1.Text = "Pregled /uređivanje podataka o artiklu ";
             // 
-            // pictureBox1
+            // pbSlikaArtikla
             // 
-            this.pictureBox1.Location = new System.Drawing.Point(23, 76);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(161, 219);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.pictureBox1.TabIndex = 2;
-            this.pictureBox1.TabStop = false;
+            this.pbSlikaArtikla.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.pbSlikaArtikla.Location = new System.Drawing.Point(23, 76);
+            this.pbSlikaArtikla.Name = "pbSlikaArtikla";
+            this.pbSlikaArtikla.Size = new System.Drawing.Size(161, 219);
+            this.pbSlikaArtikla.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pbSlikaArtikla.TabIndex = 2;
+            this.pbSlikaArtikla.TabStop = false;
+            this.pbSlikaArtikla.Click += new System.EventHandler(this.pbSlikaArtikla_Click);
             // 
             // cmbKategorija
             // 
@@ -187,6 +194,14 @@
             this.btnSpremi.UseVisualStyleBackColor = true;
             this.btnSpremi.Click += new System.EventHandler(this.btnSpremi_Click);
             // 
+            // errorProvider1
+            // 
+            this.errorProvider1.ContainerControl = this;
+            // 
+            // openFileDialog1
+            // 
+            this.openFileDialog1.FileName = "openFileDialog1";
+            // 
             // frmArtikliDetails
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
@@ -205,13 +220,14 @@
             this.Controls.Add(this.txtKorisnik);
             this.Controls.Add(this.txtCijena);
             this.Controls.Add(this.cmbKategorija);
-            this.Controls.Add(this.pictureBox1);
+            this.Controls.Add(this.pbSlikaArtikla);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.txtNaziv);
             this.Name = "frmArtikliDetails";
             this.Text = "frmArtikliDetails";
             this.Load += new System.EventHandler(this.frmArtikliDetails_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbSlikaArtikla)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -221,7 +237,7 @@
 
         private TextBox txtNaziv;
         private Label label1;
-        private PictureBox pictureBox1;
+        private PictureBox pbSlikaArtikla;
         private ComboBox cmbKategorija;
         private TextBox txtCijena;
         private TextBox txtKorisnik;
@@ -235,5 +251,7 @@
         private TextBox txtOpis;
         private Button btnOdustani;
         private Button btnSpremi;
+        private ErrorProvider errorProvider1;
+        private OpenFileDialog openFileDialog1;
     }
 }

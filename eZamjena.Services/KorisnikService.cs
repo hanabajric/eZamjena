@@ -65,6 +65,10 @@ namespace eZamjena.Services
 
         public override Model.Korisnik Insert(KorisnikInsertRequest insert)
         {
+            //if(insert.Password!= insert.PasswordPotvrda)
+            //{
+            //    throw new UserException("Password and confirmation must be the same");
+            //} KAD BUDEM RADILA POTVRDU PASSWORDA
             var entity= base.Insert(insert);
             entity.UlogaID = insert.UlogaID;
             /*foreach(var ulogaId in insert.UlogeIdList)

@@ -43,15 +43,15 @@
             this.btnKnjige = new System.Windows.Forms.Button();
             this.btnOdjava = new System.Windows.Forms.Button();
             this.dgvArtikli = new System.Windows.Forms.DataGridView();
+            this.txtNaziv = new System.Windows.Forms.TextBox();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.Naziv = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Kategorija = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Opis = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Cijena = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Slika = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Slika = new System.Windows.Forms.DataGridViewImageColumn();
             this.Uredi = new System.Windows.Forms.DataGridViewButtonColumn();
             this.Obriši = new System.Windows.Forms.DataGridViewButtonColumn();
-            this.txtNaziv = new System.Windows.Forms.TextBox();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.dgvArtikli)).BeginInit();
             this.SuspendLayout();
             // 
@@ -231,6 +231,27 @@
             this.dgvArtikli.TabIndex = 17;
             this.dgvArtikli.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvArtikli_CellContentClick);
             // 
+            // txtNaziv
+            // 
+            this.txtNaziv.Location = new System.Drawing.Point(385, 109);
+            this.txtNaziv.Name = "txtNaziv";
+            this.txtNaziv.PlaceholderText = "🔍 pretraži po nazivu";
+            this.txtNaziv.Size = new System.Drawing.Size(161, 27);
+            this.txtNaziv.TabIndex = 16;
+            this.txtNaziv.TextChanged += new System.EventHandler(this.txtNaziv_TextChanged_1);
+            // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.checkBox1.Location = new System.Drawing.Point(418, 155);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(79, 29);
+            this.checkBox1.TabIndex = 18;
+            this.checkBox1.Text = "Novo";
+            this.checkBox1.UseVisualStyleBackColor = true;
+            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            // 
             // Naziv
             // 
             this.Naziv.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
@@ -268,10 +289,10 @@
             this.Slika.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
             this.Slika.DataPropertyName = "Slika";
             this.Slika.HeaderText = "Fotografija";
+            this.Slika.ImageLayout = System.Windows.Forms.DataGridViewImageCellLayout.Stretch;
             this.Slika.MinimumWidth = 6;
             this.Slika.Name = "Slika";
             this.Slika.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.Slika.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             // 
             // Uredi
             // 
@@ -290,27 +311,6 @@
             this.Obriši.Name = "Obriši";
             this.Obriši.Text = "🗑";
             this.Obriši.UseColumnTextForButtonValue = true;
-            // 
-            // txtNaziv
-            // 
-            this.txtNaziv.Location = new System.Drawing.Point(385, 109);
-            this.txtNaziv.Name = "txtNaziv";
-            this.txtNaziv.PlaceholderText = "🔍 pretraži po nazivu";
-            this.txtNaziv.Size = new System.Drawing.Size(161, 27);
-            this.txtNaziv.TabIndex = 16;
-            this.txtNaziv.TextChanged += new System.EventHandler(this.txtNaziv_TextChanged_1);
-            // 
-            // checkBox1
-            // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.checkBox1.Location = new System.Drawing.Point(418, 155);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(79, 29);
-            this.checkBox1.TabIndex = 18;
-            this.checkBox1.Text = "Novo";
-            this.checkBox1.UseVisualStyleBackColor = true;
-            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
             // frmArtikli
             // 
@@ -366,7 +366,7 @@
         private DataGridViewTextBoxColumn Kategorija;
         private DataGridViewTextBoxColumn Opis;
         private DataGridViewTextBoxColumn Cijena;
-        private DataGridViewTextBoxColumn Slika;
+        private DataGridViewImageColumn Slika;
         private DataGridViewButtonColumn Uredi;
         private DataGridViewButtonColumn Obriši;
     }

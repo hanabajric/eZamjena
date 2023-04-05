@@ -35,6 +35,7 @@ namespace eZamjena.WinUI
                 txtOpis.Text = _proizvod.Opis;
                 cbStanje.Checked = _proizvod.StanjeNovo;
                 cmbKategorija.SelectedValue = _proizvod.KategorijaProizvodaId;
+                 pbSlikaArtikla.Image = ImageHelper.FromByteToImage(_proizvod.Slika);
 
             }
         }
@@ -52,17 +53,64 @@ namespace eZamjena.WinUI
 
         private async void btnSpremi_Click(object sender, EventArgs e)
         {
-            var Kategorija = cmbKategorija.SelectedValue as KategorijaProizvodum;
-            ProizvodUpsertRequest updateRequest = new ProizvodUpsertRequest()
+            if (ValidateChildren())
             {
-                Naziv = txtNaziv.Text,
-                Cijena=Convert.ToDecimal(txtCijena.Text),
-                Opis=txtOpis.Text,
-                StanjeNovo=cbStanje.Checked,
-                KategorijaProizvodaId=Kategorija.Id
-                
+
+                var korisnik = _proizvod.KorisnikId;
+                var status = _proizvod.StatusProizvodaId;
+                ProizvodUpsertRequest updateRequest = new ProizvodUpsertRequest()
+                {
+                    Naziv = txtNaziv.Text,
+                    Cijena = Convert.ToDecimal(txtCijena.Text),
+                   
+                    StanjeNovo = cbStanje.Checked,
+                    Opis = txtOpis.Text,
+                    Slika = ImageHelper.FromImageToByte(pbSlikaArtikla.Image),
+                    KorisnikId = korisnik,
+                    StatusProizvodaId = status,
+                    KategorijaProizvodaId = (int)cmbKategorija.SelectedValue
+                 
+
             };
-            _proizvod = await ProizvodService.Put<Proizvod>(_proizvod.Id, updateRequest);
+               
+                _proizvod = await ProizvodService.Put<Proizvod>(_proizvod.Id, updateRequest);
+                MessageBox.Show("Uspješno izmijenjeni podaci o proizvodu "+_proizvod.Naziv);
+                DialogResult = DialogResult.OK;// da je sve okej 
+                Close();
+            }
+           
+        }
+
+        private void txtNaziv_Validating(object sender, CancelEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtNaziv.Text))
+            {
+                e.Cancel = true;
+                txtNaziv.Focus();
+                errorProvider1.SetError(txtNaziv, "Naziv proizvoda je obavezno polje!");
+            }
+            else
+            {
+                e.Cancel = false;
+                errorProvider1.SetError(txtNaziv, "");
+            }
+        }
+
+        
+
+        private void pbSlikaArtikla_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (openFileDialog1.ShowDialog() == DialogResult.OK)
+                {
+                    pbSlikaArtikla.Image = Image.FromFile(openFileDialog1.FileName);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Greska -> {ex.Message}");
+            }
         }
     }
 }

@@ -8,6 +8,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing;
+using System.Drawing.Imaging;
+
+
 
 namespace eZamjena.Services
 {
@@ -19,10 +23,33 @@ namespace eZamjena.Services
         {
             
         }
+        private byte[] GetDefaultImage()
+        {
+            string imagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Image", "default-image-300x169.png");
+
+            if (File.Exists(imagePath))
+            {
+                return File.ReadAllBytes(imagePath);
+            }
+            else
+            {
+                throw new Exception("Default image not found");
+            }
+        }
+        public override Model.Proizvod Insert(ProizvodUpsertRequest insert)
+        {
+            // Ukoliko je slika null ili prazna, dodajte default sliku
+            if (insert.Slika == null || insert.Slika.Length == 0)
+            {
+                insert.Slika = GetDefaultImage();
+            }
+
+            return base.Insert(insert);
+        }
         public override IEnumerable<Model.Proizvod> Get(ProizvodSearchObject search = null)
         {
             var entity = Context.Proizvods.Include(k => k.KategorijaProizvoda).Include(x => x.Korisnik).AsQueryable();
-
+          
             entity = AddFilter(entity, search);
 
             if (search?.Page.HasValue == true && search?.PageSize.HasValue == true)
@@ -31,13 +58,14 @@ namespace eZamjena.Services
             }
 
             var list = entity.ToList();
+            
 
             return Mapper.Map<IList<Model.Proizvod>>(list);
         }
-        public override Model.Proizvod Update(int id, ProizvodUpsertRequest update)
-        {
-            return base.Update(id, update);
-        }
+        //public override Model.Proizvod Update(int id, ProizvodUpsertRequest update)
+        //{
+        //    return base.Update(id, update);
+        //}
 
         public override IQueryable<Proizvod> AddFilter(IQueryable<Proizvod> query, ProizvodSearchObject search = null)
         {

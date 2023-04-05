@@ -18,7 +18,7 @@ namespace eZamjena.WinUI
         private string trenutnaKategorija = null;
         private List<string> _selectedCategories = new List<string>();
         private bool? _novo;
-        
+       
         public frmArtikli()
         {
             InitializeComponent();
@@ -173,7 +173,7 @@ namespace eZamjena.WinUI
             await UcitajPodatke();
         }
 
-        private void dgvArtikli_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        private async void dgvArtikli_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             Proizvod? proizvod = dgvArtikli.SelectedRows[0].DataBoundItem as Proizvod;
             if (proizvod != null)
@@ -182,8 +182,33 @@ namespace eZamjena.WinUI
                 {
                     frmArtikliDetails frm = new frmArtikliDetails(proizvod);
                     frm.ShowDialog();
+
+                    await UcitajPodatke();
                 }
             }
         }
+        private void dgvArtikli_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (e.ColumnIndex == dgvArtikli.Columns["Slika"].Index && e.Value != null)
+            {
+                byte[] bytes = (byte[])e.Value;
+                if (bytes.Length > 0)
+                {
+                    e.Value = Image.FromStream(new MemoryStream(bytes));
+                }
+                else
+                {
+                    Bitmap emptyImage = new Bitmap(100, 100);
+                    using (Graphics g = Graphics.FromImage(emptyImage))
+                    {
+                        g.Clear(Color.White);
+                    }
+                    e.Value = emptyImage;
+                }
+            }
+        }
+
+
+
     }
 }

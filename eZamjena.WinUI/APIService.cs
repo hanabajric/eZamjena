@@ -14,7 +14,7 @@ namespace eZamjena.WinUI
     public class APIService
     {
         private string _resource = null;
-        public string _endpoint = "https://localhost:49155/";// https://localhost:49153/";//"https://localhost:49157/"; //"https://localhost:49153/"; //"https://localhost:49153/"; //"http://localhost:49156/"
+        public string _endpoint = "https://localhost:49153/";// https://localhost:49153/";//"https://localhost:49157/"; //"https://localhost:49153/"; //"https://localhost:49153/"; //"http://localhost:49156/"
 
 
         public static string Username = null;
@@ -44,13 +44,29 @@ namespace eZamjena.WinUI
         }
         public async Task<T> Post<T>(object request)
         {
-            var rezultat = await $"{_endpoint}{_resource}".WithBasicAuth(Username, Password).PostJsonAsync(request).ReceiveJson<T>();
+            try
+            {
+                var rezultat = await $"{_endpoint}{_resource}".WithBasicAuth(Username, Password).PostJsonAsync(request).ReceiveJson<T>();
 
-            return rezultat;
+                return rezultat;
+            }
+            catch (FlurlHttpException ex)
+            {
+                var errors = await ex.GetResponseJsonAsync<Dictionary<string, string[]>>();
+
+                var stringBuilder = new StringBuilder();
+                foreach (var error in errors)
+                {
+                    stringBuilder.AppendLine($"{error.Key}, ${string.Join(",", error.Value)}");
+                }
+
+                MessageBox.Show(stringBuilder.ToString(), "Greška", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return default(T);
+            }
         }
         public async Task<T> Put<T>(object id, object request)
         {
-            var rezultat = await $"{_endpoint}{_resource}/{id}".WithBasicAuth(Username, Password).PostJsonAsync(request).ReceiveJson<T>();
+            var rezultat = await $"{_endpoint}{_resource}/{id}".WithBasicAuth(Username, Password).PutJsonAsync(request).ReceiveJson<T>();
 
             return rezultat;
         }
