@@ -27,13 +27,6 @@ namespace eZamjena.WinUI
             // _novo = false;
         }
 
-
-        private void btnProfili_Click(object sender, EventArgs e)
-        {
-            frmKorisnici frm = new frmKorisnici();
-            frm.ShowDialog();
-        }
-
         private async void frmArtikli_Load(object sender, EventArgs e)
         {
             await UcitajPodatke();
@@ -151,12 +144,6 @@ namespace eZamjena.WinUI
             dgvArtikli.DataSource = lista;
         }
 
-
-
-        private async void btnArtikli_Click(object sender, EventArgs e)
-        {
-            await UcitajPodatke();
-        }
 
         private async void txtNaziv_TextChanged_1(object sender, EventArgs e)
         {

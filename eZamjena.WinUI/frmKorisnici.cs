@@ -24,19 +24,38 @@ namespace eZamjena.WinUI
 
             private async void frmKorisnici_Load(object sender, EventArgs e)
             {
+
+            await Ucitaj();
+
+            }
+        private async Task Ucitaj()
+        {
             var searchObject = new KorisnikSearchObject();
             searchObject.KorisnickoIme = txtKorisničkoIme.Text;
 
 
             var lista = await KorisnikService.Get<List<Korisnik>>(searchObject);
             dgvKorisnici.DataSource = lista;
-
-
         }
 
         private async void button1_Click(object sender, EventArgs e)
         {
             
+        }
+
+        private async void dgvKorisnici_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            Korisnik? korisnik = dgvKorisnici.SelectedRows[0].DataBoundItem as Korisnik;
+            if (korisnik != null)
+            {
+                if (e.ColumnIndex == 8)
+                {
+                    frmKorisniciDetails frm = new frmKorisniciDetails(korisnik);
+                    frm.ShowDialog();
+
+                    await Ucitaj();
+                }
+            }
         }
     }
 }

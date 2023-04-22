@@ -52,7 +52,7 @@ namespace eZamjena.WinUI
             {
                 var result = await _api.Get<dynamic>();
 
-                frmArtikli frm = new frmArtikli();
+                mdiMain frm = new mdiMain();
                 frm.Show();
             }
             catch (Exception ex)

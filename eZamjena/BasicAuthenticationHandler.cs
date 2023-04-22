@@ -13,12 +13,12 @@ namespace eZamjena
 
     {
         public IKorisnikService KorisnikService  { get; set; }
-        public Ib190019Context Context { get; set; }
+       // public Ib190019Context Context { get; set; }
         public BasicAuthenticationHandler(Ib190019Context context,IKorisnikService korisnikService, IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock)
         : base(options, logger, encoder, clock)
         {
             KorisnikService = korisnikService;
-            Context = context;
+           // Context = context;
         }
 
 
@@ -48,7 +48,7 @@ namespace eZamjena
             new Claim(ClaimTypes.Name, user.Ime)
         };
             var ulogaID = user.UlogaID;
-            var entity = Context.Ulogas.Where(x => x.Id == ulogaID).FirstOrDefault();
+           // var entity = Context.Ulogas.Where(x => x.Id == ulogaID).FirstOrDefault();
             //System.Console.WriteLine("Naziv uloge-> " + entity.Naziv);
             claims.Add(new Claim(ClaimTypes.Role, user.Uloga.Naziv));
             System.Console.WriteLine("Naziv uloge-> " + user.Uloga.Naziv);//Administrator

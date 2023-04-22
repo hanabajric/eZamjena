@@ -29,8 +29,6 @@
         private void InitializeComponent()
         {
             this.dgvKorisnici = new System.Windows.Forms.DataGridView();
-            this.txtKorisničkoIme = new System.Windows.Forms.TextBox();
-            this.btnUčitaj = new System.Windows.Forms.Button();
             this.KorisničkoIme = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Grad = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Ulica = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -41,6 +39,8 @@
             this.BrojAktivnihArtikala = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Uredi = new System.Windows.Forms.DataGridViewButtonColumn();
             this.Obriši = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.txtKorisničkoIme = new System.Windows.Forms.TextBox();
+            this.btnUčitaj = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvKorisnici)).BeginInit();
             this.SuspendLayout();
             // 
@@ -62,27 +62,10 @@
             this.dgvKorisnici.Name = "dgvKorisnici";
             this.dgvKorisnici.RowHeadersWidth = 51;
             this.dgvKorisnici.RowTemplate.Height = 29;
+            this.dgvKorisnici.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvKorisnici.Size = new System.Drawing.Size(1178, 313);
             this.dgvKorisnici.TabIndex = 0;
-            // 
-            // txtKorisničkoIme
-            // 
-            this.txtKorisničkoIme.ForeColor = System.Drawing.SystemColors.WindowFrame;
-            this.txtKorisničkoIme.Location = new System.Drawing.Point(447, 70);
-            this.txtKorisničkoIme.Name = "txtKorisničkoIme";
-            this.txtKorisničkoIme.PlaceholderText = "🔍 pretraži po korisničkom imenu";
-            this.txtKorisničkoIme.Size = new System.Drawing.Size(245, 27);
-            this.txtKorisničkoIme.TabIndex = 1;
-            // 
-            // btnUčitaj
-            // 
-            this.btnUčitaj.Location = new System.Drawing.Point(1096, 69);
-            this.btnUčitaj.Name = "btnUčitaj";
-            this.btnUčitaj.Size = new System.Drawing.Size(94, 29);
-            this.btnUčitaj.TabIndex = 2;
-            this.btnUčitaj.Text = "Učitaj";
-            this.btnUčitaj.UseVisualStyleBackColor = true;
-            this.btnUčitaj.Click += new System.EventHandler(this.button1_Click);
+            this.dgvKorisnici.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvKorisnici_CellContentClick);
             // 
             // KorisničkoIme
             // 
@@ -177,6 +160,25 @@
             this.Obriši.ReadOnly = true;
             this.Obriši.Text = "🗑";
             this.Obriši.UseColumnTextForButtonValue = true;
+            // 
+            // txtKorisničkoIme
+            // 
+            this.txtKorisničkoIme.ForeColor = System.Drawing.SystemColors.WindowFrame;
+            this.txtKorisničkoIme.Location = new System.Drawing.Point(447, 70);
+            this.txtKorisničkoIme.Name = "txtKorisničkoIme";
+            this.txtKorisničkoIme.PlaceholderText = "🔍 pretraži po korisničkom imenu";
+            this.txtKorisničkoIme.Size = new System.Drawing.Size(245, 27);
+            this.txtKorisničkoIme.TabIndex = 1;
+            // 
+            // btnUčitaj
+            // 
+            this.btnUčitaj.Location = new System.Drawing.Point(1096, 69);
+            this.btnUčitaj.Name = "btnUčitaj";
+            this.btnUčitaj.Size = new System.Drawing.Size(94, 29);
+            this.btnUčitaj.TabIndex = 2;
+            this.btnUčitaj.Text = "Učitaj";
+            this.btnUčitaj.UseVisualStyleBackColor = true;
+            this.btnUčitaj.Click += new System.EventHandler(this.button1_Click);
             // 
             // frmKorisnici
             // 

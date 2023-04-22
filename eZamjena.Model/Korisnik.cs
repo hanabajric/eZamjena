@@ -16,7 +16,7 @@ namespace eZamjena.Model
         public int? BrojRazmjena { get; set; }
         public int? BrojAktivnihArtikala { get; set; }
         public string Adresa { get; set; }
-        public string Slika { get; set; }
+        public byte[] Slika { get; set; }
         public int? GradID { get; set; }
         public int? UlogaID { get; set; }
 

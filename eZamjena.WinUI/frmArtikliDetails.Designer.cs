@@ -53,7 +53,7 @@
             // 
             // txtNaziv
             // 
-            this.txtNaziv.Location = new System.Drawing.Point(407, 86);
+            this.txtNaziv.Location = new System.Drawing.Point(405, 111);
             this.txtNaziv.Name = "txtNaziv";
             this.txtNaziv.Size = new System.Drawing.Size(125, 27);
             this.txtNaziv.TabIndex = 0;
@@ -63,7 +63,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Segoe UI", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label1.Location = new System.Drawing.Point(47, 20);
+            this.label1.Location = new System.Drawing.Point(50, 9);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(447, 35);
             this.label1.TabIndex = 1;
@@ -72,9 +72,9 @@
             // pbSlikaArtikla
             // 
             this.pbSlikaArtikla.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.pbSlikaArtikla.Location = new System.Drawing.Point(23, 76);
+            this.pbSlikaArtikla.Location = new System.Drawing.Point(23, 113);
             this.pbSlikaArtikla.Name = "pbSlikaArtikla";
-            this.pbSlikaArtikla.Size = new System.Drawing.Size(161, 219);
+            this.pbSlikaArtikla.Size = new System.Drawing.Size(188, 219);
             this.pbSlikaArtikla.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pbSlikaArtikla.TabIndex = 2;
             this.pbSlikaArtikla.TabStop = false;
@@ -83,21 +83,21 @@
             // cmbKategorija
             // 
             this.cmbKategorija.FormattingEnabled = true;
-            this.cmbKategorija.Location = new System.Drawing.Point(407, 133);
+            this.cmbKategorija.Location = new System.Drawing.Point(405, 158);
             this.cmbKategorija.Name = "cmbKategorija";
             this.cmbKategorija.Size = new System.Drawing.Size(125, 28);
             this.cmbKategorija.TabIndex = 3;
             // 
             // txtCijena
             // 
-            this.txtCijena.Location = new System.Drawing.Point(478, 179);
+            this.txtCijena.Location = new System.Drawing.Point(476, 204);
             this.txtCijena.Name = "txtCijena";
             this.txtCijena.Size = new System.Drawing.Size(54, 27);
             this.txtCijena.TabIndex = 4;
             // 
             // txtKorisnik
             // 
-            this.txtKorisnik.Location = new System.Drawing.Point(407, 230);
+            this.txtKorisnik.Location = new System.Drawing.Point(405, 255);
             this.txtKorisnik.Name = "txtKorisnik";
             this.txtKorisnik.ReadOnly = true;
             this.txtKorisnik.Size = new System.Drawing.Size(125, 27);
@@ -106,7 +106,7 @@
             // cbStanje
             // 
             this.cbStanje.AutoSize = true;
-            this.cbStanje.Location = new System.Drawing.Point(465, 287);
+            this.cbStanje.Location = new System.Drawing.Point(463, 312);
             this.cbStanje.Name = "cbStanje";
             this.cbStanje.Size = new System.Drawing.Size(67, 24);
             this.cbStanje.TabIndex = 6;
@@ -116,7 +116,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(295, 88);
+            this.label2.Location = new System.Drawing.Point(293, 113);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(49, 20);
             this.label2.TabIndex = 7;
@@ -125,7 +125,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(295, 136);
+            this.label3.Location = new System.Drawing.Point(293, 161);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(81, 20);
             this.label3.TabIndex = 8;
@@ -134,7 +134,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(295, 179);
+            this.label4.Location = new System.Drawing.Point(293, 204);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(132, 20);
             this.label4.TabIndex = 9;
@@ -143,7 +143,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(295, 287);
+            this.label5.Location = new System.Drawing.Point(293, 312);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(53, 20);
             this.label5.TabIndex = 10;
@@ -152,7 +152,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(295, 237);
+            this.label6.Location = new System.Drawing.Point(293, 262);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(64, 20);
             this.label6.TabIndex = 11;
@@ -161,7 +161,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(23, 315);
+            this.label7.Location = new System.Drawing.Point(23, 350);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(42, 20);
             this.label7.TabIndex = 12;
@@ -169,7 +169,7 @@
             // 
             // txtOpis
             // 
-            this.txtOpis.Location = new System.Drawing.Point(23, 359);
+            this.txtOpis.Location = new System.Drawing.Point(23, 386);
             this.txtOpis.Multiline = true;
             this.txtOpis.Name = "txtOpis";
             this.txtOpis.Size = new System.Drawing.Size(509, 56);
@@ -183,6 +183,7 @@
             this.btnOdustani.TabIndex = 14;
             this.btnOdustani.Text = "Odustani";
             this.btnOdustani.UseVisualStyleBackColor = true;
+            this.btnOdustani.Click += new System.EventHandler(this.btnOdustani_Click);
             // 
             // btnSpremi
             // 

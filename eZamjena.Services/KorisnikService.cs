@@ -16,37 +16,35 @@ namespace eZamjena.Services
 {
     public class KorisnikService : BaseCRUDService<Model.Korisnik, Database.Korisnik, KorisnikSearchObject, KorisnikInsertRequest, KorisnikUpdateRequest>, IKorisnikService
     {
-    
-      
 
-        public  KorisnikService(Ib190019Context context, IMapper mapper):base(context,mapper) {
-         
+        public KorisnikService(Ib190019Context context, IMapper mapper) : base(context, mapper)
+        {
+
         }
-       //public IEnumerable<Model.Korisnik> Get()
-       // {
-       //     //List<eZamjena.Model.Korisnik> list = new List<eZamjena.Model.Korisnik>();
-       //     var result= Context.Korisniks.ToList();
-       //    /* foreach(var item in result)
-       //     {
-       //         list.Add(new eZamjena.Model.Korisnik()
-       //         {
-       //             Adresa = item.Adresa,
-       //             BrojAktivnihArtikala = item.BrojAktivnihArtikala,
-       //             BrojKupovina = item.BrojKupovina,
-       //             Id = item.Id,
-       //             Ime = item.Ime,
-       //             GradId = item.GradId,
-       //             BrojRazmjena = item.BrojRazmjena,
-       //             Email = item.Email,
-       //             KorisnickoIme = item.KorisnickoIme,
-       //             Prezime = item.Prezime,
-       //             Slika = item.Slika,
-       //             Telefon = item.Telefon,
-       //             UlogaId = item.UlogaId
-       //         });
-       //     }*/
-       //     return Mapper.Map<List<Model.Korisnik>>(result);
-       // }
+
+        private byte[] GetDefaultImage()
+        {
+            string imagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Image", "generic-user-icon-10.jpg");
+
+            if (File.Exists(imagePath))
+            {
+                return File.ReadAllBytes(imagePath);
+            }
+            else
+            {
+                throw new Exception("Default image not found");
+            }
+        }
+        public override Model.Korisnik Insert(KorisnikInsertRequest insert)
+        {
+            // Ukoliko je slika null ili prazna, dodajte default sliku
+            if (insert.Slika == null || insert.Slika.Length == 0)
+            {
+                insert.Slika = GetDefaultImage();
+            }
+
+            return base.Insert(insert);
+        }
         public override IEnumerable<Model.Korisnik> Get(KorisnikSearchObject search = null)
         {
             var entity = Context.Korisniks.Include(k => k.Grad).AsQueryable();
@@ -63,22 +61,22 @@ namespace eZamjena.Services
             return Mapper.Map<IList<Model.Korisnik>>(list);
         }
 
-        public override Model.Korisnik Insert(KorisnikInsertRequest insert)
-        {
-            //if(insert.Password!= insert.PasswordPotvrda)
-            //{
-            //    throw new UserException("Password and confirmation must be the same");
-            //} KAD BUDEM RADILA POTVRDU PASSWORDA
-            var entity= base.Insert(insert);
-            entity.UlogaID = insert.UlogaID;
-            /*foreach(var ulogaId in insert.UlogeIdList)
-            {
-                entity.UlogaId = ulogaId;
-            }*/
+        //public override Model.Korisnik Insert(KorisnikInsertRequest insert)
+        //{
+        //    //if(insert.Password!= insert.PasswordPotvrda)
+        //    //{
+        //    //    throw new UserException("Password and confirmation must be the same");
+        //    //} KAD BUDEM RADILA POTVRDU PASSWORDA
+        //    var entity= base.Insert(insert);
+        //    entity.UlogaID = insert.UlogaID;
+        //    /*foreach(var ulogaId in insert.UlogeIdList)
+        //    {
+        //        entity.UlogaId = ulogaId;
+        //    }*/
 
-            Context.SaveChanges();
-            return entity;
-        }
+        //    Context.SaveChanges();
+        //    return entity;
+        //}
     
         public override void BeforeInsert(KorisnikInsertRequest insert, Database.Korisnik entity)
         {

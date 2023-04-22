@@ -26,6 +26,8 @@ namespace eZamjena.WinUI
 
         private async void frmArtikliDetails_Load(object sender, EventArgs e)
         {
+            label1.Text = $"Pregled / uređivanje podataka o artiklu\n - {_proizvod.Naziv}";
+
             await UcitajKategorije();
             if (_proizvod != null)
             {
@@ -111,6 +113,11 @@ namespace eZamjena.WinUI
             {
                 MessageBox.Show($"Greska -> {ex.Message}");
             }
+        }
+
+        private void btnOdustani_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }
