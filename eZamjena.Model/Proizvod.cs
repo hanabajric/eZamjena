@@ -21,7 +21,8 @@ namespace eZamjena.Model
         public string NazivKategorijeProizvoda => KategorijaProizvoda?.Naziv;
         public virtual Korisnik Korisnik { get; set; }
         public string NazivKorisnika => Korisnik?.KorisnickoIme;
-        //public virtual StatusProizvodum? StatusProizvoda { get; set; }
+        //public virtual StatusProizvodum StatusProizvoda { get; set; }
+        //public string NazivStatusaProizvoda => StatusProizvoda?.Naziv;
         //public virtual ICollection<Kupovina> Kupovinas { get; set; }
         //public virtual ICollection<Ocjena> Ocjenas { get; set; }
         //public virtual ICollection<Razmjena> RazmjenaProizvod1s { get; set; }

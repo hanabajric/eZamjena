@@ -30,6 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             this.menuStrip = new System.Windows.Forms.MenuStrip();
+            this.fileMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.editMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.viewMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.toolsMenu = new System.Windows.Forms.ToolStripMenuItem();
@@ -40,7 +41,6 @@
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.fileMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
             this.SuspendLayout();
@@ -63,11 +63,20 @@
             this.menuStrip.TabIndex = 0;
             this.menuStrip.Text = "MenuStrip";
             // 
+            // fileMenu
+            // 
+            this.fileMenu.ImageTransparentColor = System.Drawing.SystemColors.ActiveBorder;
+            this.fileMenu.Name = "fileMenu";
+            this.fileMenu.Size = new System.Drawing.Size(62, 24);
+            this.fileMenu.Text = "Artikli";
+            this.fileMenu.Click += new System.EventHandler(this.fileMenu_Click);
+            // 
             // editMenu
             // 
             this.editMenu.Name = "editMenu";
             this.editMenu.Size = new System.Drawing.Size(76, 24);
             this.editMenu.Text = "Zahtjevi";
+            this.editMenu.Click += new System.EventHandler(this.editMenu_Click);
             // 
             // viewMenu
             // 
@@ -94,14 +103,14 @@
             // newWindowToolStripMenuItem
             // 
             this.newWindowToolStripMenuItem.Name = "newWindowToolStripMenuItem";
-            this.newWindowToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.newWindowToolStripMenuItem.Size = new System.Drawing.Size(177, 26);
             this.newWindowToolStripMenuItem.Text = "Svi profili";
             this.newWindowToolStripMenuItem.Click += new System.EventHandler(this.ShowNewForm);
             // 
             // cascadeToolStripMenuItem
             // 
             this.cascadeToolStripMenuItem.Name = "cascadeToolStripMenuItem";
-            this.cascadeToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.cascadeToolStripMenuItem.Size = new System.Drawing.Size(177, 26);
             this.cascadeToolStripMenuItem.Text = "Top 3 profila";
             this.cascadeToolStripMenuItem.Click += new System.EventHandler(this.CascadeToolStripMenuItem_Click);
             // 
@@ -128,14 +137,6 @@
             this.toolStripStatusLabel.Name = "toolStripStatusLabel";
             this.toolStripStatusLabel.Size = new System.Drawing.Size(49, 20);
             this.toolStripStatusLabel.Text = "Status";
-            // 
-            // fileMenu
-            // 
-            this.fileMenu.ImageTransparentColor = System.Drawing.SystemColors.ActiveBorder;
-            this.fileMenu.Name = "fileMenu";
-            this.fileMenu.Size = new System.Drawing.Size(62, 24);
-            this.fileMenu.Text = "Artikli";
-            this.fileMenu.Click += new System.EventHandler(this.fileMenu_Click);
             // 
             // mdiMain
             // 

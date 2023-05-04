@@ -130,5 +130,14 @@ namespace eZamjena.WinUI
             childForm.WindowState = FormWindowState.Maximized;
             childForm.Show();
         }
+
+        private void editMenu_Click(object sender, EventArgs e)
+        {
+            frmZahtjevi childForm = new frmZahtjevi();
+            childForm.MdiParent = this;
+            childForm.Text = "Window " + childFormNumber++;
+            childForm.WindowState = FormWindowState.Maximized;
+            childForm.Show();
+        }
     }
 }
