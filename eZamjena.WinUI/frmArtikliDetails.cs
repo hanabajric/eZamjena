@@ -71,6 +71,7 @@ namespace eZamjena.WinUI
                     KorisnikId = korisnik,
                     StatusProizvodaId = status,
                     KategorijaProizvodaId = (int)cmbKategorija.SelectedValue
+                   
                  
 
             };

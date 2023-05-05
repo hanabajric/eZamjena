@@ -43,10 +43,24 @@ namespace eZamjena.Services
             }
             else { return null; }
 
-           // set.Add(entity);
             Context.SaveChanges();
 
             return Mapper.Map<T>(entity);
         }
+        public virtual T Delete(int id)
+        {
+            var set = Context.Set<TDb>();
+
+            var entity = set.Find(id);
+            if (entity != null)
+            {
+                set.Remove(entity);
+            }
+            else { return null; }
+            Context.SaveChanges();
+
+            return Mapper.Map<T>(entity);
+        }
+
     }
 }

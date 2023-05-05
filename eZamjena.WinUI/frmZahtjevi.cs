@@ -159,10 +159,17 @@ namespace eZamjena.WinUI
                     {
                         MessageBox.Show("Status nije pronadjen status proizvoda.");
                     }
-                    
-
-                    await UcitajPodatke();
                 }
+                if (e.ColumnIndex == 7)
+                    {
+                        await ProizvodService.Delete<Proizvod>(proizvod.Id);
+                        MessageBox.Show("Uspješno odbijen zatjev");
+                        DialogResult = DialogResult.OK;// da je sve okej 
+                        Close();
+                    }
+
+                        await UcitajPodatke();
+                
             }
         }
     }

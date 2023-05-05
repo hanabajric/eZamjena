@@ -15,7 +15,7 @@ namespace eZamjena.Model
         public byte[] Slika { get; set; }
         public int KorisnikId { get; set; }
         public int? StatusProizvodaId { get; set; }
-        public int? KategorijaProizvodaId { get; set; }
+        public int KategorijaProizvodaId { get; set; }
 
         public virtual KategorijaProizvodum KategorijaProizvoda { get; set; }
         public string NazivKategorijeProizvoda => KategorijaProizvoda?.Naziv;

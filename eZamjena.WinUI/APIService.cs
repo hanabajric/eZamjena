@@ -70,5 +70,11 @@ namespace eZamjena.WinUI
 
             return rezultat;
         }
+        public async Task<T> Delete<T>(object id)
+        {
+            var rezultat = await $"{_endpoint}{_resource}/{id}".WithBasicAuth(Username, Password).DeleteAsync().ReceiveJson<T>();
+
+            return rezultat;
+        }
     }
 }

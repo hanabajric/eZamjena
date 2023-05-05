@@ -25,5 +25,12 @@ namespace eZamjena.Controllers
 
             return result;
         }
+        [HttpDelete("{id}")]
+        public  virtual T Delete(int id)
+        {
+            var result = ((ICRUDService<T, TSerach, TInsert, TUpdade>)this.Service).Delete(id);
+            return result;
+        }
     }
 }
+
