@@ -13,18 +13,26 @@ namespace eZamjena.WinUI
     public partial class mdiMain : Form
     {
         private int childFormNumber = 0;
+        
+
+        
 
         public mdiMain()
         {
             InitializeComponent();
+           
+
         }
 
         private void ShowNewForm(object sender, EventArgs e)
         {
-            Form childForm = new Form();
+            frmKorisnici childForm = new frmKorisnici();
             childForm.MdiParent = this;
             childForm.Text = "Window " + childFormNumber++;
+            childForm.WindowState = FormWindowState.Maximized;
             childForm.Show();
+
+
         }
 
         private void OpenFile(object sender, EventArgs e)
@@ -66,20 +74,21 @@ namespace eZamjena.WinUI
         {
         }
 
-        private void ToolBarToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            //toolStrip.Visible = toolBarToolStripMenuItem.Checked;
-        }
-
-        private void StatusBarToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            //statusStrip.Visible = statusBarToolStripMenuItem.Checked;
-        }
+      
 
         private void CascadeToolStripMenuItem_Click(object sender, EventArgs e)
         {
+           
             LayoutMdi(MdiLayout.Cascade);
+            frmTop3Korisnika childForm = new frmTop3Korisnika();
+            childForm.MdiParent = this;
+            childForm.Text = "Window " + childFormNumber++;
+            childForm.WindowState = FormWindowState.Maximized;
+            childForm.Show();
+          
         }
+     
+
 
         private void TileVerticalToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -106,6 +115,7 @@ namespace eZamjena.WinUI
 
         private void mdiMain_Load(object sender, EventArgs e)
         {
+           
             frmArtikli childForm = new frmArtikli();
             childForm.MdiParent = this;
             childForm.Text = "Window " + childFormNumber++;
@@ -124,16 +134,25 @@ namespace eZamjena.WinUI
 
         private void windowsMenu_Click(object sender, EventArgs e)
         {
-            frmKorisnici childForm = new frmKorisnici();
+            //frmKorisnici childForm = new frmKorisnici();
+            //childForm.MdiParent = this;
+            //childForm.Text = "Window " + childFormNumber++;
+            //childForm.WindowState = FormWindowState.Maximized;
+            //childForm.Show();
+        }
+
+        private void editMenu_Click(object sender, EventArgs e)
+        {
+            frmZahtjevi childForm = new frmZahtjevi();
             childForm.MdiParent = this;
             childForm.Text = "Window " + childFormNumber++;
             childForm.WindowState = FormWindowState.Maximized;
             childForm.Show();
         }
 
-        private void editMenu_Click(object sender, EventArgs e)
+        private void viewMenu_Click(object sender, EventArgs e)
         {
-            frmZahtjevi childForm = new frmZahtjevi();
+            frmHistorijaRazmjena childForm = new frmHistorijaRazmjena();
             childForm.MdiParent = this;
             childForm.Text = "Window " + childFormNumber++;
             childForm.WindowState = FormWindowState.Maximized;

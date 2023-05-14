@@ -46,6 +46,8 @@
             this.btnStvariZaKuću = new System.Windows.Forms.Button();
             this.btnKnjige = new System.Windows.Forms.Button();
             this.btnBiciklaRoleri = new System.Windows.Forms.Button();
+            this.btnPrivatiSve = new System.Windows.Forms.Button();
+            this.btnOdbijSve = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvZahtjevi)).BeginInit();
             this.SuspendLayout();
             // 
@@ -243,11 +245,33 @@
             this.btnBiciklaRoleri.Text = "Bicikla i roleri";
             this.btnBiciklaRoleri.UseVisualStyleBackColor = false;
             // 
+            // btnPrivatiSve
+            // 
+            this.btnPrivatiSve.Location = new System.Drawing.Point(791, 503);
+            this.btnPrivatiSve.Name = "btnPrivatiSve";
+            this.btnPrivatiSve.Size = new System.Drawing.Size(94, 29);
+            this.btnPrivatiSve.TabIndex = 29;
+            this.btnPrivatiSve.Text = "Prihvati sve";
+            this.btnPrivatiSve.UseVisualStyleBackColor = true;
+            this.btnPrivatiSve.Click += new System.EventHandler(this.btnPrivatiSve_Click);
+            // 
+            // btnOdbijSve
+            // 
+            this.btnOdbijSve.Location = new System.Drawing.Point(929, 503);
+            this.btnOdbijSve.Name = "btnOdbijSve";
+            this.btnOdbijSve.Size = new System.Drawing.Size(94, 29);
+            this.btnOdbijSve.TabIndex = 30;
+            this.btnOdbijSve.Text = "Odbij sve";
+            this.btnOdbijSve.UseVisualStyleBackColor = true;
+            this.btnOdbijSve.Click += new System.EventHandler(this.btnOdbijSve_Click);
+            // 
             // frmZahtjevi
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1056, 498);
+            this.ClientSize = new System.Drawing.Size(1056, 544);
+            this.Controls.Add(this.btnOdbijSve);
+            this.Controls.Add(this.btnPrivatiSve);
             this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.btnTehnika);
             this.Controls.Add(this.btnOstalo);
@@ -287,5 +311,7 @@
         private DataGridViewTextBoxColumn Korisnik;
         private DataGridViewButtonColumn Prihvati;
         private DataGridViewButtonColumn Odbij;
+        private Button btnPrivatiSve;
+        private Button btnOdbijSve;
     }
 }

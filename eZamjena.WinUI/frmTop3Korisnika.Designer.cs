@@ -1,6 +1,6 @@
 ﻿namespace eZamjena.WinUI
 {
-    partial class frmKorisnici
+    partial class frmTop3Korisnika
     {
         /// <summary>
         /// Required designer variable.
@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.btnKreirajIzvještaj = new System.Windows.Forms.Button();
             this.dgvKorisnici = new System.Windows.Forms.DataGridView();
             this.KorisničkoIme = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Grad = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -37,12 +38,17 @@
             this.BrojRazmjena = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.BrojKupovina = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.BrojAktivnihArtikala = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Uredi = new System.Windows.Forms.DataGridViewButtonColumn();
-            this.Obriši = new System.Windows.Forms.DataGridViewButtonColumn();
-            this.txtKorisničkoIme = new System.Windows.Forms.TextBox();
-            this.btnUčitaj = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvKorisnici)).BeginInit();
             this.SuspendLayout();
+            // 
+            // btnKreirajIzvještaj
+            // 
+            this.btnKreirajIzvještaj.Location = new System.Drawing.Point(967, 393);
+            this.btnKreirajIzvještaj.Name = "btnKreirajIzvještaj";
+            this.btnKreirajIzvještaj.Size = new System.Drawing.Size(126, 29);
+            this.btnKreirajIzvještaj.TabIndex = 5;
+            this.btnKreirajIzvještaj.Text = "Kreiraj izvještaj";
+            this.btnKreirajIzvještaj.UseVisualStyleBackColor = true;
             // 
             // dgvKorisnici
             // 
@@ -55,17 +61,14 @@
             this.Email,
             this.BrojRazmjena,
             this.BrojKupovina,
-            this.BrojAktivnihArtikala,
-            this.Uredi,
-            this.Obriši});
-            this.dgvKorisnici.Location = new System.Drawing.Point(12, 116);
+            this.BrojAktivnihArtikala});
+            this.dgvKorisnici.Location = new System.Drawing.Point(10, 56);
             this.dgvKorisnici.Name = "dgvKorisnici";
             this.dgvKorisnici.RowHeadersWidth = 51;
             this.dgvKorisnici.RowTemplate.Height = 29;
             this.dgvKorisnici.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvKorisnici.Size = new System.Drawing.Size(1178, 313);
-            this.dgvKorisnici.TabIndex = 0;
-            this.dgvKorisnici.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvKorisnici_CellContentClick);
+            this.dgvKorisnici.Size = new System.Drawing.Size(1083, 313);
+            this.dgvKorisnici.TabIndex = 3;
             // 
             // KorisničkoIme
             // 
@@ -139,71 +142,25 @@
             this.BrojAktivnihArtikala.Name = "BrojAktivnihArtikala";
             this.BrojAktivnihArtikala.ReadOnly = true;
             // 
-            // Uredi
-            // 
-            this.Uredi.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.Uredi.DataPropertyName = "Uredi";
-            this.Uredi.HeaderText = "Uredi";
-            this.Uredi.MinimumWidth = 6;
-            this.Uredi.Name = "Uredi";
-            this.Uredi.ReadOnly = true;
-            this.Uredi.Text = "🖊️";
-            this.Uredi.UseColumnTextForButtonValue = true;
-            // 
-            // Obriši
-            // 
-            this.Obriši.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.Obriši.DataPropertyName = "Obriši";
-            this.Obriši.HeaderText = "Obriši";
-            this.Obriši.MinimumWidth = 6;
-            this.Obriši.Name = "Obriši";
-            this.Obriši.ReadOnly = true;
-            this.Obriši.Text = "🗑";
-            this.Obriši.UseColumnTextForButtonValue = true;
-            // 
-            // txtKorisničkoIme
-            // 
-            this.txtKorisničkoIme.ForeColor = System.Drawing.SystemColors.WindowFrame;
-            this.txtKorisničkoIme.Location = new System.Drawing.Point(447, 70);
-            this.txtKorisničkoIme.Name = "txtKorisničkoIme";
-            this.txtKorisničkoIme.PlaceholderText = "🔍 pretraži po korisničkom imenu";
-            this.txtKorisničkoIme.Size = new System.Drawing.Size(245, 27);
-            this.txtKorisničkoIme.TabIndex = 1;
-            this.txtKorisničkoIme.TextChanged += new System.EventHandler(this.txtKorisničkoIme_TextChanged);
-            // 
-            // btnUčitaj
-            // 
-            this.btnUčitaj.Location = new System.Drawing.Point(1096, 69);
-            this.btnUčitaj.Name = "btnUčitaj";
-            this.btnUčitaj.Size = new System.Drawing.Size(94, 29);
-            this.btnUčitaj.TabIndex = 2;
-            this.btnUčitaj.Text = "Učitaj";
-            this.btnUčitaj.UseVisualStyleBackColor = true;
-            this.btnUčitaj.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // frmKorisnici
+            // frmTop3Korisnika
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1221, 529);
-            this.Controls.Add(this.btnUčitaj);
-            this.Controls.Add(this.txtKorisničkoIme);
+            this.ClientSize = new System.Drawing.Size(1149, 450);
+            this.Controls.Add(this.btnKreirajIzvještaj);
             this.Controls.Add(this.dgvKorisnici);
-            this.Name = "frmKorisnici";
-            this.Text = "frmKorisnici";
-            this.Load += new System.EventHandler(this.frmKorisnici_Load);
+            this.Name = "frmTop3Korisnika";
+            this.Text = "frmTop3Korisnika";
+            this.Load += new System.EventHandler(this.frmTop3Korisnika_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvKorisnici)).EndInit();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
         #endregion
 
+        private Button btnKreirajIzvještaj;
         private DataGridView dgvKorisnici;
-        private TextBox txtKorisničkoIme;
-        private Button btnUčitaj;
-        private DataGridViewTextBoxColumn Naziv;
         private DataGridViewTextBoxColumn KorisničkoIme;
         private DataGridViewTextBoxColumn Grad;
         private DataGridViewTextBoxColumn Ulica;
@@ -212,8 +169,5 @@
         private DataGridViewTextBoxColumn BrojRazmjena;
         private DataGridViewTextBoxColumn BrojKupovina;
         private DataGridViewTextBoxColumn BrojAktivnihArtikala;
-        private DataGridViewTextBoxColumn UlogaNaziv;
-        private DataGridViewButtonColumn Uredi;
-        private DataGridViewButtonColumn Obriši;
     }
 }

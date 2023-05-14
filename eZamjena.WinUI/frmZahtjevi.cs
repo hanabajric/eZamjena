@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -20,6 +21,8 @@ namespace eZamjena.WinUI
         private string trenutnaKategorija = null;
         private List<string> _selectedCategories = new List<string>();
         private bool? _novo;
+     
+
         public frmZahtjevi()
         {
             InitializeComponent();
@@ -170,6 +173,101 @@ namespace eZamjena.WinUI
 
                         await UcitajPodatke();
                 
+            }
+        }
+
+        private async void btnPrivatiSve_Click(object sender, EventArgs e)
+        {
+            List < Proizvod > listaZahtjeva = new List<Proizvod>();
+            var statusi = await StatusProizvodaService.Get<List<StatusProizvodum>>();
+            var status = statusi.FirstOrDefault(x => x.Naziv == "U prodaji");
+           
+            foreach (DataGridViewRow red in dgvZahtjevi.Rows)
+            {
+                
+                    Proizvod zahtjev = (Proizvod)red.DataBoundItem;
+                    listaZahtjeva.Add(zahtjev);
+                
+            }
+            
+            Debug.WriteLine("OVO JE BROJ REDOVA U DGV-U : " + listaZahtjeva.Count());
+            if (listaZahtjeva.Count == 0)
+            {
+                MessageBox.Show("Lista zahtjeva je prazna.");
+            }
+            else
+            {
+                Debug.WriteLine("OVO JE BROJ REDOVA U DGV-U : " + listaZahtjeva.Count());
+                DialogResult result = MessageBox.Show("Da li ste sigurni da želite prihvatiti sve zahtjeve?", "Potvrda", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                if (result == DialogResult.Yes)
+                {
+                    foreach (Proizvod proizvod in listaZahtjeva)
+                    {
+                        if (status != null)
+                        {
+                            ProizvodUpsertRequest update = new ProizvodUpsertRequest()
+                            {
+
+                                StatusProizvodaId = status.Id,
+                                Cijena = (decimal)proizvod.Cijena,
+                                KategorijaProizvodaId = proizvod.KategorijaProizvodaId,
+                                KorisnikId = proizvod.KorisnikId,
+                                Naziv = proizvod.Naziv,
+                                Opis = proizvod.Opis,
+                                Slika = proizvod.Slika,
+                                StanjeNovo = proizvod.StanjeNovo
+
+
+
+                            };
+                            await ProizvodService.Put<Proizvod>(proizvod.Id, update);
+                        }
+
+                    }
+
+                    MessageBox.Show("Uspješno odobreni zatjevi");
+                    DialogResult = DialogResult.OK;// da je sve okej 
+                   
+                }
+              
+
+                await UcitajPodatke();
+            }
+        }
+        
+        private async void btnOdbijSve_Click(object sender, EventArgs e)
+        {
+            List<Proizvod> listaZahtjeva = new List<Proizvod>();
+            foreach (DataGridViewRow red in dgvZahtjevi.Rows)
+            {
+
+                Proizvod zahtjev = (Proizvod)red.DataBoundItem;
+                listaZahtjeva.Add(zahtjev);
+
+            }
+            if (listaZahtjeva.Count == 0)
+            {
+                MessageBox.Show("Lista zahtjeva je prazna.");
+            }
+            else
+            {
+                DialogResult result = MessageBox.Show("Da li ste sigurni da želite odbiti sve zahtjeve?", "Potvrda", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                if (result == DialogResult.Yes)
+                {
+                    foreach (Proizvod proizvod in listaZahtjeva)
+                    {
+                        
+                            await ProizvodService.Delete<Proizvod>(proizvod.Id);
+                       
+                    }
+
+                    MessageBox.Show("Uspješno obrisani zatjevi");
+                    DialogResult = DialogResult.OK;// da je sve okej 
+                    
+                }
+                await UcitajPodatke();
             }
         }
     }

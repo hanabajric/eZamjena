@@ -2,6 +2,7 @@
 using eZamjena.Model.Requests;
 using eZamjena.Model.SearchObjects;
 using eZamjena.Services.Database;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,18 +19,42 @@ namespace eZamjena.Services
         {
             
         }
-        
+        public override IEnumerable<Model.Razmjena> Get(RazmjenaSearchObject search = null)
+        {
+            var entity = Context.Razmjenas.Include(x=>x.Proizvod1).Include(k => k.Proizvod2).AsQueryable();
+
+            entity = AddFilter(entity, search);
+
+            if (search?.Page.HasValue == true && search?.PageSize.HasValue == true)
+            {
+                entity = entity.Take(search.Page.Value).Skip(search.PageSize.Value * search.Page.Value);
+            }
+
+            var list = entity.ToList();
+
+
+            return Mapper.Map<IList<Model.Razmjena>>(list);
+        }
+
 
         public override IQueryable<Razmjena> AddFilter(IQueryable<Razmjena> query, RazmjenaSearchObject search = null)
         {
             var filteredQuery= base.AddFilter(query, search);
 
-            if (!string.IsNullOrEmpty(search?.Datum.ToString()))
+            if (search?.DatumOd != null && search.DatumOd.Value != DateTime.MinValue)
             {
-                filteredQuery=filteredQuery.Where(x=>x.Datum.ToString()==search.Datum.ToString());
+                filteredQuery=filteredQuery.Where(x=>x.Datum > search.DatumOd);
+            }
+            if (search?.DatumDo != null && search.DatumDo.Value != DateTime.MinValue)
+            {
+                filteredQuery = filteredQuery.Where(x => x.Datum < search.DatumDo);
+            }
+            if(search?.DatumOd != null && search.DatumOd.Value != DateTime.MinValue && search?.DatumDo != null && search.DatumDo.Value != DateTime.MinValue)
+            {
+                filteredQuery = filteredQuery.Where(x => x.Datum >search.DatumOd && x.Datum < search.DatumDo);
             }
 
-         
+
             return filteredQuery;
         }
 

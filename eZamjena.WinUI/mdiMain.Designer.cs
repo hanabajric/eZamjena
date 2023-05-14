@@ -36,7 +36,7 @@
             this.toolsMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.windowsMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.newWindowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.cascadeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnTop3 = new System.Windows.Forms.ToolStripMenuItem();
             this.odjavaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
@@ -83,6 +83,7 @@
             this.viewMenu.Name = "viewMenu";
             this.viewMenu.Size = new System.Drawing.Size(144, 24);
             this.viewMenu.Text = "Historija razmjena";
+            this.viewMenu.Click += new System.EventHandler(this.viewMenu_Click);
             // 
             // toolsMenu
             // 
@@ -94,7 +95,7 @@
             // 
             this.windowsMenu.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.newWindowToolStripMenuItem,
-            this.cascadeToolStripMenuItem});
+            this.btnTop3});
             this.windowsMenu.Name = "windowsMenu";
             this.windowsMenu.Size = new System.Drawing.Size(62, 24);
             this.windowsMenu.Text = "Profili";
@@ -103,16 +104,16 @@
             // newWindowToolStripMenuItem
             // 
             this.newWindowToolStripMenuItem.Name = "newWindowToolStripMenuItem";
-            this.newWindowToolStripMenuItem.Size = new System.Drawing.Size(177, 26);
+            this.newWindowToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.newWindowToolStripMenuItem.Text = "Svi profili";
             this.newWindowToolStripMenuItem.Click += new System.EventHandler(this.ShowNewForm);
             // 
-            // cascadeToolStripMenuItem
+            // btnTop3
             // 
-            this.cascadeToolStripMenuItem.Name = "cascadeToolStripMenuItem";
-            this.cascadeToolStripMenuItem.Size = new System.Drawing.Size(177, 26);
-            this.cascadeToolStripMenuItem.Text = "Top 3 profila";
-            this.cascadeToolStripMenuItem.Click += new System.EventHandler(this.CascadeToolStripMenuItem_Click);
+            this.btnTop3.Name = "btnTop3";
+            this.btnTop3.Size = new System.Drawing.Size(224, 26);
+            this.btnTop3.Text = "Top 3 profila";
+            this.btnTop3.Click += new System.EventHandler(this.CascadeToolStripMenuItem_Click);
             // 
             // odjavaToolStripMenuItem
             // 
@@ -170,7 +171,7 @@
         private System.Windows.Forms.ToolStripMenuItem toolsMenu;
         private System.Windows.Forms.ToolStripMenuItem windowsMenu;
         private System.Windows.Forms.ToolStripMenuItem newWindowToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem cascadeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem btnTop3;
         private System.Windows.Forms.ToolTip toolTip;
         private ToolStripMenuItem odjavaToolStripMenuItem;
         private ToolStripMenuItem fileMenu;

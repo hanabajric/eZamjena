@@ -57,5 +57,10 @@ namespace eZamjena.WinUI
                 }
             }
         }
+
+        private void txtKorisničkoIme_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }
