@@ -10,10 +10,14 @@
 
   <ItemGroup>
     <None Remove="HistorijaRazmjena.rdlc" />
+    <None Remove="Korisnici.rdlc" />
+    <None Remove="Top3Korisnika.rdlc" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="HistorijaRazmjena.rdlc" />
+    <EmbeddedResource Include="Korisnici.rdlc" />
+    <EmbeddedResource Include="Top3Korisnika.rdlc" />
   </ItemGroup>
 
   <ItemGroup>

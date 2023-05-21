@@ -49,6 +49,7 @@
             this.btnKreirajIzvještaj.TabIndex = 5;
             this.btnKreirajIzvještaj.Text = "Kreiraj izvještaj";
             this.btnKreirajIzvještaj.UseVisualStyleBackColor = true;
+            this.btnKreirajIzvještaj.Click += new System.EventHandler(this.btnKreirajIzvještaj_Click);
             // 
             // dgvKorisnici
             // 

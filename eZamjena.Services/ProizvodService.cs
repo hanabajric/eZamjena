@@ -72,12 +72,6 @@ namespace eZamjena.Services
             var filteredQuery= base.AddFilter(query, search);
 
 
-            
-
-            //if (search.NazivKategorije != null)
-            //{
-            //    filteredQuery = filteredQuery.Where(x => x.KategorijaProizvoda.Naziv == search.NazivKategorije);
-            //}
 
             if (search.NazivKategorijeList != null)
             {

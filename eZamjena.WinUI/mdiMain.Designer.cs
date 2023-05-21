@@ -69,6 +69,7 @@
             this.fileMenu.Name = "fileMenu";
             this.fileMenu.Size = new System.Drawing.Size(62, 24);
             this.fileMenu.Text = "Artikli";
+            this.fileMenu.DropDownOpening += new System.EventHandler(this.fileMenu_DropDownOpening);
             this.fileMenu.Click += new System.EventHandler(this.fileMenu_Click);
             // 
             // editMenu
@@ -76,6 +77,7 @@
             this.editMenu.Name = "editMenu";
             this.editMenu.Size = new System.Drawing.Size(76, 24);
             this.editMenu.Text = "Zahtjevi";
+            this.editMenu.DropDownOpening += new System.EventHandler(this.editMenu_DropDownOpening);
             this.editMenu.Click += new System.EventHandler(this.editMenu_Click);
             // 
             // viewMenu
@@ -83,6 +85,7 @@
             this.viewMenu.Name = "viewMenu";
             this.viewMenu.Size = new System.Drawing.Size(144, 24);
             this.viewMenu.Text = "Historija razmjena";
+            this.viewMenu.DropDownOpening += new System.EventHandler(this.viewMenu_DropDownOpening);
             this.viewMenu.Click += new System.EventHandler(this.viewMenu_Click);
             // 
             // toolsMenu
@@ -90,6 +93,7 @@
             this.toolsMenu.Name = "toolsMenu";
             this.toolsMenu.Size = new System.Drawing.Size(143, 24);
             this.toolsMenu.Text = "Historija kupovina";
+            this.toolsMenu.DropDownOpening += new System.EventHandler(this.toolsMenu_DropDownOpening);
             // 
             // windowsMenu
             // 
@@ -99,6 +103,7 @@
             this.windowsMenu.Name = "windowsMenu";
             this.windowsMenu.Size = new System.Drawing.Size(62, 24);
             this.windowsMenu.Text = "Profili";
+            this.windowsMenu.DropDownOpening += new System.EventHandler(this.windowsMenu_DropDownOpening);
             this.windowsMenu.Click += new System.EventHandler(this.windowsMenu_Click);
             // 
             // newWindowToolStripMenuItem

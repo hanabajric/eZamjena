@@ -115,6 +115,10 @@ namespace eZamjena.Services
             {
                 filtrirano=filtrirano.Where(x=>x.KorisnickoIme.Contains(search.KorisnickoIme));
             }
+            if (search?.grad != null && search.grad.Id != -1)
+            {
+                filtrirano = filtrirano.Where(x => x.Grad.Id == search.grad.Id);
+            }
             return filtrirano;
         }
 

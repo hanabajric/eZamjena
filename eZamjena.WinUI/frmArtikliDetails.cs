@@ -45,7 +45,6 @@ namespace eZamjena.WinUI
         {
             var kategorije = await KategorijaService.Get<List<KategorijaProizvodum>>();
             
-            System.Console.WriteLine("Ovo je kategorija->" + kategorije.Any());
             cmbKategorija.DataSource = kategorije;
             cmbKategorija.DisplayMember = "Naziv";
             cmbKategorija.ValueMember = "Id";
@@ -119,6 +118,11 @@ namespace eZamjena.WinUI
         private void btnOdustani_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void cmbKategorija_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

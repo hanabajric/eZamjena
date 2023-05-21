@@ -87,6 +87,7 @@
             this.cmbKategorija.Name = "cmbKategorija";
             this.cmbKategorija.Size = new System.Drawing.Size(125, 28);
             this.cmbKategorija.TabIndex = 3;
+            this.cmbKategorija.SelectedIndexChanged += new System.EventHandler(this.cmbKategorija_SelectedIndexChanged);
             // 
             // txtCijena
             // 

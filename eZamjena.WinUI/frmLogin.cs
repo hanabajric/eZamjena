@@ -52,7 +52,7 @@ namespace eZamjena.WinUI
             {
                 var result = await _api.Get<dynamic>();
 
-                mdiMain frm = new mdiMain();
+                MDIParent1 frm = new MDIParent1();
                 frm.Show();
             }
             catch (Exception ex)

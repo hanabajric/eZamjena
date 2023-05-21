@@ -26,8 +26,7 @@ namespace eZamjena.Services
                 filteredQuery = filteredQuery.Where(x => x.Datum==search.Datum);
             }
 
-          
-
+     
            
             return filteredQuery;
         }

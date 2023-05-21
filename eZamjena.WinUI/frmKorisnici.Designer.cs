@@ -41,6 +41,8 @@
             this.Obriši = new System.Windows.Forms.DataGridViewButtonColumn();
             this.txtKorisničkoIme = new System.Windows.Forms.TextBox();
             this.btnUčitaj = new System.Windows.Forms.Button();
+            this.btnIzvještaj = new System.Windows.Forms.Button();
+            this.cmbGrad = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.dgvKorisnici)).BeginInit();
             this.SuspendLayout();
             // 
@@ -164,7 +166,7 @@
             // txtKorisničkoIme
             // 
             this.txtKorisničkoIme.ForeColor = System.Drawing.SystemColors.WindowFrame;
-            this.txtKorisničkoIme.Location = new System.Drawing.Point(447, 70);
+            this.txtKorisničkoIme.Location = new System.Drawing.Point(487, 71);
             this.txtKorisničkoIme.Name = "txtKorisničkoIme";
             this.txtKorisničkoIme.PlaceholderText = "🔍 pretraži po korisničkom imenu";
             this.txtKorisničkoIme.Size = new System.Drawing.Size(245, 27);
@@ -179,13 +181,34 @@
             this.btnUčitaj.TabIndex = 2;
             this.btnUčitaj.Text = "Učitaj";
             this.btnUčitaj.UseVisualStyleBackColor = true;
-            this.btnUčitaj.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // btnIzvještaj
+            // 
+            this.btnIzvještaj.Location = new System.Drawing.Point(1052, 479);
+            this.btnIzvještaj.Name = "btnIzvještaj";
+            this.btnIzvještaj.Size = new System.Drawing.Size(138, 29);
+            this.btnIzvještaj.TabIndex = 3;
+            this.btnIzvještaj.Text = "Kreiraj izvještaj";
+            this.btnIzvještaj.UseVisualStyleBackColor = true;
+            this.btnIzvještaj.Click += new System.EventHandler(this.btnIzvještaj_Click);
+            // 
+            // cmbGrad
+            // 
+            this.cmbGrad.FormattingEnabled = true;
+            this.cmbGrad.Location = new System.Drawing.Point(314, 71);
+            this.cmbGrad.Name = "cmbGrad";
+            this.cmbGrad.Size = new System.Drawing.Size(151, 28);
+            this.cmbGrad.TabIndex = 4;
+            this.cmbGrad.SelectedIndexChanged += new System.EventHandler(this.cmbGrad_SelectedIndexChanged);
+            this.cmbGrad.SelectionChangeCommitted += new System.EventHandler(this.cmbGrad_SelectionChangeCommitted);
             // 
             // frmKorisnici
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1221, 529);
+            this.Controls.Add(this.cmbGrad);
+            this.Controls.Add(this.btnIzvještaj);
             this.Controls.Add(this.btnUčitaj);
             this.Controls.Add(this.txtKorisničkoIme);
             this.Controls.Add(this.dgvKorisnici);
@@ -215,5 +238,7 @@
         private DataGridViewTextBoxColumn UlogaNaziv;
         private DataGridViewButtonColumn Uredi;
         private DataGridViewButtonColumn Obriši;
+        private Button btnIzvještaj;
+        private ComboBox cmbGrad;
     }
 }

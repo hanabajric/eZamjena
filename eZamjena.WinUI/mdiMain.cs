@@ -13,25 +13,31 @@ namespace eZamjena.WinUI
     public partial class mdiMain : Form
     {
         private int childFormNumber = 0;
-        
 
-        
 
+
+        private List<Form> openForms = new List<Form>();
+        private void Form_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            openForms.Remove(sender as Form);
+        }
         public mdiMain()
         {
             InitializeComponent();
-           
+            
+            
 
         }
 
         private void ShowNewForm(object sender, EventArgs e)
         {
-            frmKorisnici childForm = new frmKorisnici();
-            childForm.MdiParent = this;
-            childForm.Text = "Window " + childFormNumber++;
-            childForm.WindowState = FormWindowState.Maximized;
-            childForm.Show();
-
+            //frmKorisnici childForm = new frmKorisnici();
+            //childForm.MdiParent = this;
+            //childForm.Text = "Window " + childFormNumber++;
+            //childForm.WindowState = FormWindowState.Maximized;
+            //childForm.Show();
+            openForms.Clear();
+            ShowNewForm(typeof(frmKorisnici));
 
         }
 
@@ -78,14 +84,16 @@ namespace eZamjena.WinUI
 
         private void CascadeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-           
-            LayoutMdi(MdiLayout.Cascade);
-            frmTop3Korisnika childForm = new frmTop3Korisnika();
-            childForm.MdiParent = this;
-            childForm.Text = "Window " + childFormNumber++;
-            childForm.WindowState = FormWindowState.Maximized;
-            childForm.Show();
-          
+
+            //LayoutMdi(MdiLayout.Cascade);
+            //frmTop3Korisnika childForm = new frmTop3Korisnika();
+            //childForm.MdiParent = this;
+            //childForm.Text = "Window " + childFormNumber++;
+            //childForm.WindowState = FormWindowState.Maximized;
+            //childForm.Show();
+            openForms.Clear();
+            ShowNewForm(typeof(frmTop3Korisnika));
+
         }
      
 
@@ -115,21 +123,23 @@ namespace eZamjena.WinUI
 
         private void mdiMain_Load(object sender, EventArgs e)
         {
-           
-            frmArtikli childForm = new frmArtikli();
-            childForm.MdiParent = this;
-            childForm.Text = "Window " + childFormNumber++;
-            childForm.WindowState = FormWindowState.Maximized;
-            childForm.Show();
+
+            //frmArtikli childForm = new frmArtikli();
+            //childForm.MdiParent = this;
+            //childForm.Text = "Window " + childFormNumber++;
+            //childForm.WindowState = FormWindowState.Maximized;
+            //childForm.Show();
+             ShowNewForm(typeof(frmArtikli));
         }
 
         private void fileMenu_Click(object sender, EventArgs e)
         {
-            frmArtikli childForm = new frmArtikli();
-            childForm.MdiParent = this;
-            childForm.Text = "Window " + childFormNumber++;
-            childForm.WindowState = FormWindowState.Maximized;
-            childForm.Show();
+            //frmArtikli childForm = new frmArtikli();
+            //childForm.MdiParent = this;
+            //childForm.Text = "Window " + childFormNumber++;
+            //childForm.WindowState = FormWindowState.Maximized;
+            //childForm.Show();
+            ShowNewForm(typeof(frmArtikli));
         }
 
         private void windowsMenu_Click(object sender, EventArgs e)
@@ -139,24 +149,73 @@ namespace eZamjena.WinUI
             //childForm.Text = "Window " + childFormNumber++;
             //childForm.WindowState = FormWindowState.Maximized;
             //childForm.Show();
+            //ShowNewForm(typeof(frmKorisnici));
+            //viewMenu.DropDownOpening += viewMenu_DropDownOpening;
+            //editMenu.DropDownOpening += editMenu_DropDownOpening;
+            //fileMenu.DropDownOpening += fileMenu_DropDownOpening;
+            openForms.Clear();
+
         }
 
         private void editMenu_Click(object sender, EventArgs e)
         {
-            frmZahtjevi childForm = new frmZahtjevi();
-            childForm.MdiParent = this;
-            childForm.Text = "Window " + childFormNumber++;
-            childForm.WindowState = FormWindowState.Maximized;
-            childForm.Show();
+            //frmZahtjevi childForm = new frmZahtjevi();
+            //childForm.MdiParent = this;
+            //childForm.Text = "Window " + childFormNumber++;
+            //childForm.WindowState = FormWindowState.Maximized;
+            //childForm.Show();
+            ShowNewForm(typeof(frmZahtjevi));
         }
 
         private void viewMenu_Click(object sender, EventArgs e)
         {
-            frmHistorijaRazmjena childForm = new frmHistorijaRazmjena();
-            childForm.MdiParent = this;
-            childForm.Text = "Window " + childFormNumber++;
-            childForm.WindowState = FormWindowState.Maximized;
-            childForm.Show();
+            //frmHistorijaRazmjena childForm = new frmHistorijaRazmjena();
+            //childForm.MdiParent = this;
+            //childForm.Text = "Window " + childFormNumber++;
+            //childForm.WindowState = FormWindowState.Maximized;
+            //childForm.Show();
+            ShowNewForm(typeof(frmHistorijaRazmjena));
         }
+        private void ShowNewForm(Type formType)
+        {
+            
+            Form form = Activator.CreateInstance(formType) as Form;
+            form.MdiParent = this;
+            form.Text = "Window " + ++childFormNumber;
+            form.WindowState = FormWindowState.Maximized;
+            openForms.Add(form);
+            form.Show();
+
+        }
+
+        private void toolsMenu_DropDownOpening(object sender, EventArgs e)
+        {
+
+        }
+
+        private void viewMenu_DropDownOpening(object sender, EventArgs e)
+        {
+           
+        }
+
+        private void editMenu_DropDownOpening(object sender, EventArgs e)
+        {
+           
+        }
+
+        private void fileMenu_DropDownOpening(object sender, EventArgs e)
+        {
+           
+        }
+
+        private void windowsMenu_DropDownOpening(object sender, EventArgs e)
+        {
+            //windowsMenu.DropDownItems.Clear();
+
+        }
+
+
     }
+
+
 }

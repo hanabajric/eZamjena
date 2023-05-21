@@ -125,5 +125,10 @@ namespace eZamjena.WinUI
                 MessageBox.Show($"Greska -> {ex.Message}");
             }
         }
+
+        private void cmbGrad_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

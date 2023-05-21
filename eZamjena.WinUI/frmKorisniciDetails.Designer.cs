@@ -247,6 +247,7 @@
             this.cmbGrad.Name = "cmbGrad";
             this.cmbGrad.Size = new System.Drawing.Size(125, 28);
             this.cmbGrad.TabIndex = 22;
+            this.cmbGrad.SelectedIndexChanged += new System.EventHandler(this.cmbGrad_SelectedIndexChanged);
             // 
             // openFileDialog1
             // 
