@@ -22,6 +22,7 @@ namespace eZamjena.Model.Requests
         [MinLength(4)]
         public string KorisnickoIme { get; set; }
         public string Password { get; set; }
+        public string PasswordPotvrda { get; set; }
         public int? BrojKupovina { get; set; }
         public int? BrojRazmjena { get; set; }
         public int? BrojAktivnihArtikala { get; set; }

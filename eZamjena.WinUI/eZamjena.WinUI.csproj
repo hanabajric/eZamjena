@@ -23,6 +23,7 @@
   <ItemGroup>
     <PackageReference Include="Flurl" Version="3.0.7" />
     <PackageReference Include="Flurl.Http" Version="4.0.0-pre3" />
+    <PackageReference Include="Microsoft.Graph" Version="5.12.0" />
     <PackageReference Include="ReportViewerCore.WinForms" Version="15.1.17" />
   </ItemGroup>
 

@@ -14,6 +14,11 @@ namespace eZamjena.Controllers
         public UlogaController(IUlogaService service) : base(service)
         {
         }
-       
+        [AllowAnonymous]
+        public override IEnumerable<Uloga> Get([FromQuery] UlogaSearchObject search = null)
+        {
+            return base.Get(search);
+        }
+
     }
 }

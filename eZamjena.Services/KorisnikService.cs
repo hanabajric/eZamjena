@@ -35,6 +35,7 @@ namespace eZamjena.Services
                 throw new Exception("Default image not found");
             }
         }
+        
         public override Model.Korisnik Insert(KorisnikInsertRequest insert)
         {
             // Ukoliko je slika null ili prazna, dodajte default sliku
@@ -42,7 +43,10 @@ namespace eZamjena.Services
             {
                 insert.Slika = GetDefaultImage();
             }
-
+            if (insert.Password != insert.PasswordPotvrda)
+            {
+                throw new UserException("Password and confirmation must be the same");
+            }
             return base.Insert(insert);
         }
         public override IEnumerable<Model.Korisnik> Get(KorisnikSearchObject search = null)
@@ -61,23 +65,8 @@ namespace eZamjena.Services
             return Mapper.Map<IList<Model.Korisnik>>(list);
         }
 
-        //public override Model.Korisnik Insert(KorisnikInsertRequest insert)
-        //{
-        //    //if(insert.Password!= insert.PasswordPotvrda)
-        //    //{
-        //    //    throw new UserException("Password and confirmation must be the same");
-        //    //} KAD BUDEM RADILA POTVRDU PASSWORDA
-        //    var entity= base.Insert(insert);
-        //    entity.UlogaID = insert.UlogaID;
-        //    /*foreach(var ulogaId in insert.UlogeIdList)
-        //    {
-        //        entity.UlogaId = ulogaId;
-        //    }*/
+       
 
-        //    Context.SaveChanges();
-        //    return entity;
-        //}
-    
         public override void BeforeInsert(KorisnikInsertRequest insert, Database.Korisnik entity)
         {
             var salt = GenerateSalt();

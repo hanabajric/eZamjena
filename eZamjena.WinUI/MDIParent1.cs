@@ -85,5 +85,11 @@ namespace eZamjena.WinUI
             frmTop3Korisnika frm = new frmTop3Korisnika();
             OpenForm(frm);
         }
+
+        private void odjava_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("Da li ste sigurni da želite da se odjavite?", "Question", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                Application.Restart();
+        }
     }
 }

@@ -34,6 +34,9 @@
             this.txtPassword = new System.Windows.Forms.TextBox();
             this.btnLogin = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
+            this.linklblReistracija = new System.Windows.Forms.LinkLabel();
+            this.pbLozinka = new System.Windows.Forms.PictureBox();
+            ((System.ComponentModel.ISupportInitialize)(this.pbLozinka)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
@@ -67,6 +70,7 @@
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.Size = new System.Drawing.Size(243, 27);
             this.txtPassword.TabIndex = 3;
+            this.txtPassword.UseSystemPasswordChar = true;
             // 
             // btnLogin
             // 
@@ -88,11 +92,33 @@
             this.label3.TabIndex = 5;
             this.label3.Text = "Prijava na aplikaciju";
             // 
+            // linklblReistracija
+            // 
+            this.linklblReistracija.AutoSize = true;
+            this.linklblReistracija.Location = new System.Drawing.Point(140, 351);
+            this.linklblReistracija.Name = "linklblReistracija";
+            this.linklblReistracija.Size = new System.Drawing.Size(275, 20);
+            this.linklblReistracija.TabIndex = 6;
+            this.linklblReistracija.TabStop = true;
+            this.linklblReistracija.Text = "Nemate korisnički račun? Registrujte se !";
+            this.linklblReistracija.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linklblReistracija_LinkClicked);
+            // 
+            // pbLozinka
+            // 
+            this.pbLozinka.Location = new System.Drawing.Point(378, 248);
+            this.pbLozinka.Name = "pbLozinka";
+            this.pbLozinka.Size = new System.Drawing.Size(32, 27);
+            this.pbLozinka.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pbLozinka.TabIndex = 7;
+            this.pbLozinka.TabStop = false;
+            // 
             // frmLogin
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(450, 380);
+            this.Controls.Add(this.pbLozinka);
+            this.Controls.Add(this.linklblReistracija);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.btnLogin);
             this.Controls.Add(this.txtPassword);
@@ -102,6 +128,7 @@
             this.Name = "frmLogin";
             this.Text = "frmLogin";
             this.Load += new System.EventHandler(this.frmLogin_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.pbLozinka)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -115,5 +142,7 @@
         private TextBox txtPassword;
         private Button btnLogin;
         private Label label3;
+        private LinkLabel linklblReistracija;
+        private PictureBox pbLozinka;
     }
 }

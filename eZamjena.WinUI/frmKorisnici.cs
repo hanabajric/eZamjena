@@ -23,6 +23,7 @@ namespace eZamjena.WinUI
             private KorisnikSearchObject searchObject = new KorisnikSearchObject();
         
             public APIService GradService { get; set; } = new APIService("Grad");
+        public APIService UlogaService { get; set; } = new APIService("Uloga");
         public frmKorisnici()
             {
                 InitializeComponent();
@@ -34,10 +35,19 @@ namespace eZamjena.WinUI
 
             
             await UcitajGradove();
-            
+            await UcitajUloge();
             await Ucitaj();
 
             }
+
+        private async Task UcitajUloge()
+        {
+            var uloga = await UlogaService.Get<List<Uloga>>();
+            cmbUloga.DataSource = uloga;
+            cmbUloga.DisplayMember = "Naziv";
+
+        }
+
         private async Task UcitajGradove()
         {
             var grad = await GradService.Get<List<Grad>>();

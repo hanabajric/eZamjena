@@ -19,8 +19,7 @@ namespace eZamjena.Controllers
 
         }
 
-        //[AllowAnonymous]
-        [Authorize("Klijent")]
+        [AllowAnonymous]
         public override Korisnik Insert([FromBody] KorisnikInsertRequest insert)
         {
             return base.Insert(insert);

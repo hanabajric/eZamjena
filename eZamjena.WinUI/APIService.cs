@@ -13,9 +13,9 @@ namespace eZamjena.WinUI
 {
     public class APIService
     {
-        private string _resource = null;
+        protected string _resource = null;
         public string _endpoint = "https://localhost:49153/";//"https://localhost:49157/"; //"https://localhost:49153/"; //"https://localhost:49153/"; //"http://localhost:49156/"
-
+        
 
         public static string Username = null;
         public static string Password = null;
@@ -24,7 +24,7 @@ namespace eZamjena.WinUI
         {
             _resource = resource;
         }
-        public async Task<T> Get<T>(object search = null)
+        public virtual async Task<T> Get<T>(object search = null)
         {
             var query = "";
             if (search != null)
@@ -42,7 +42,7 @@ namespace eZamjena.WinUI
 
             return rezultat;
         }
-        public async Task<T> Post<T>(object request)
+        public virtual async Task<T> Post<T>(object request)
         {
             try
             {

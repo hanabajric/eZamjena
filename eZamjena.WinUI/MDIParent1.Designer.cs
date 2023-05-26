@@ -116,6 +116,7 @@
             this.odjava.Name = "odjava";
             this.odjava.Size = new System.Drawing.Size(70, 24);
             this.odjava.Text = "Odjava";
+            this.odjava.Click += new System.EventHandler(this.odjava_Click);
             // 
             // toolStripMenuItem1
             // 
