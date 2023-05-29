@@ -123,6 +123,8 @@
             this.txtEmail.Size = new System.Drawing.Size(163, 27);
             this.txtEmail.TabIndex = 7;
             this.txtEmail.Validating += new System.ComponentModel.CancelEventHandler(this.txtEmail_Validating);
+            this.txtEmail.PlaceholderText = "example@email.com";
+           
             // 
             // txtPrezime
             // 
@@ -271,5 +273,6 @@
         private PictureBox pbLozinka;
         private PictureBox pbLozinkaPotvrda;
         private ErrorProvider errorProvider1;
-    }
+          
+        }
 }

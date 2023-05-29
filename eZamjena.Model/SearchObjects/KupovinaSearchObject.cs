@@ -6,8 +6,9 @@ namespace eZamjena.Model.SearchObjects
 {
     public class KupovinaSearchObject :BaseSearchObject
     {
-        public DateTime? Datum { get; set; }
+        public DateTime? DatumOd { get; set; }
+        public DateTime? DatumDo { get; set; }
 
-        
+
     }
 }

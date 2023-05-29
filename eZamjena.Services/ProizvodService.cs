@@ -62,10 +62,7 @@ namespace eZamjena.Services
 
             return Mapper.Map<IList<Model.Proizvod>>(list);
         }
-        //public override Model.Proizvod Update(int id, ProizvodUpsertRequest update)
-        //{
-        //    return base.Update(id, update);
-        //}
+       
 
         public override IQueryable<Proizvod> AddFilter(IQueryable<Proizvod> query, ProizvodSearchObject search = null)
         {

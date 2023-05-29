@@ -86,6 +86,7 @@
             this.historijaKupovina.Name = "historijaKupovina";
             this.historijaKupovina.Size = new System.Drawing.Size(143, 24);
             this.historijaKupovina.Text = "Historija kupovina";
+            this.historijaKupovina.Click += new System.EventHandler(this.historijaKupovina_Click);
             // 
             // profiliToolStripMenuItem
             // 

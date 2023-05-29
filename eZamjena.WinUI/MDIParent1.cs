@@ -91,5 +91,11 @@ namespace eZamjena.WinUI
             if (MessageBox.Show("Da li ste sigurni da želite da se odjavite?", "Question", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 Application.Restart();
         }
+
+        private void historijaKupovina_Click(object sender, EventArgs e)
+        {
+            frmHistorijaKupovina frm = new frmHistorijaKupovina();
+            OpenForm(frm);
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using eZamjena.Model;
 using eZamjena.Model.SearchObjects;
 using eZamjena.Services.Database;
 using System;
@@ -18,6 +19,7 @@ namespace eZamjena.Services
 
         public virtual T Insert(TInsert insert)
         {
+            ValidateInsert(insert);
             var set = Context.Set<TDb>();
             TDb entity= Mapper.Map<TDb>(insert); // mapiramo insert objekat u bazu
 
@@ -34,6 +36,7 @@ namespace eZamjena.Services
 
         public virtual T Update(int id, TUpdate update)
         {
+            ValidateUpdate(id, update);
             var set = Context.Set<TDb>();
 
             var entity = set.Find(id);
@@ -47,8 +50,11 @@ namespace eZamjena.Services
 
             return Mapper.Map<T>(entity);
         }
+        public virtual void BeforeUpdate(TDb entity, TUpdate update) {
+        }
         public virtual T Delete(int id)
         {
+            ValidateDelete(id);
             var set = Context.Set<TDb>();
 
             var entity = set.Find(id);
@@ -60,6 +66,14 @@ namespace eZamjena.Services
             Context.SaveChanges();
 
             return Mapper.Map<T>(entity);
+        }
+      
+        public virtual void ValidateInsert(TInsert insert) { }
+        public virtual void ValidateUpdate(int id, TUpdate update) { }
+        public virtual void ValidateDelete(int id)
+        {
+            if (Context.Set<TDb>().Find(id) == null)
+                throw new UserException($"{typeof(TDb).Name} sa tim ID ne postoji!");
         }
 
     }

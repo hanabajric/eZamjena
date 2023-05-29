@@ -130,5 +130,22 @@ namespace eZamjena.Services
             }
             return Mapper.Map < Model.Korisnik > (entity);
         }
+        public override void ValidateInsert(KorisnikInsertRequest insert)
+        {
+            if (Context.Korisniks.Where(u => u.KorisnickoIme == insert.KorisnickoIme).Count() > 0)
+                throw new UserException("Korisničko ime je zauzeto!");
+            if (insert.Password != insert.PasswordPotvrda)
+                throw new UserException("Lozinka i potvrda lozinke moraju biti iste!");
+        }
+        public override void ValidateUpdate(int id, KorisnikUpdateRequest update)
+        {
+            if (Context.Korisniks.Find(id) == null)
+                throw new UserException("Odabrani korisnik ne postoji!");
+            //if (!string.IsNullOrWhiteSpace(update.Password) && !string.IsNullOrWhiteSpace(update.PasswordPotvrda))
+            //{
+            //    if (update.Password != update.PasswordPotvrda)
+            //        throw new UserException("Lozinka i potvrda lozinke moraju biti iste!");
+            //}
+        }
     }
 }

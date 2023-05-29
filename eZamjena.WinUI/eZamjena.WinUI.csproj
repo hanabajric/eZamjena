@@ -9,12 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="HistorijaKupovina.rdlc" />
     <None Remove="HistorijaRazmjena.rdlc" />
     <None Remove="Korisnici.rdlc" />
     <None Remove="Top3Korisnika.rdlc" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="HistorijaKupovina.rdlc" />
     <EmbeddedResource Include="HistorijaRazmjena.rdlc" />
     <EmbeddedResource Include="Korisnici.rdlc" />
     <EmbeddedResource Include="Top3Korisnika.rdlc" />
