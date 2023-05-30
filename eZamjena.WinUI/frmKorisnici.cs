@@ -23,7 +23,7 @@ namespace eZamjena.WinUI
             private KorisnikSearchObject searchObject = new KorisnikSearchObject();
         
             public APIService GradService { get; set; } = new APIService("Grad");
-        public APIService UlogaService { get; set; } = new APIService("Uloga");
+
         public frmKorisnici()
             {
                 InitializeComponent();
@@ -35,18 +35,11 @@ namespace eZamjena.WinUI
 
             
             await UcitajGradove();
-            await UcitajUloge();
             await Ucitaj();
 
             }
 
-        private async Task UcitajUloge()
-        {
-            var uloga = await UlogaService.Get<List<Uloga>>();
-            cmbUloga.DataSource = uloga;
-            cmbUloga.DisplayMember = "Naziv";
-
-        }
+      
 
         private async Task UcitajGradove()
         {
@@ -92,6 +85,19 @@ namespace eZamjena.WinUI
                     frm.ShowDialog();
 
                     await Ucitaj();
+                }
+                if (e.ColumnIndex == 9)
+                {
+                    DialogResult result = MessageBox.Show("Da li ste sigurni da želite obrisati artikal " + korisnik.KorisnickoIme + " ?", "Potvrda", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    if (result == DialogResult.Yes)
+                    {
+                        await KorisnikService.Delete<Korisnik>(korisnik.Id);
+                        MessageBox.Show("Korisnik uspješno obrisan.");
+                        DialogResult = DialogResult.OK;
+                        
+                    }
+                    await Ucitaj();
+
                 }
             }
         }

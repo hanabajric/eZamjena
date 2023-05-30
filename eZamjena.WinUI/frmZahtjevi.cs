@@ -197,7 +197,6 @@ namespace eZamjena.WinUI
             }
             else
             {
-                Debug.WriteLine("OVO JE BROJ REDOVA U DGV-U : " + listaZahtjeva.Count());
                 DialogResult result = MessageBox.Show("Da li ste sigurni da želite prihvatiti sve zahtjeve?", "Potvrda", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
                 if (result == DialogResult.Yes)

@@ -172,6 +172,19 @@ namespace eZamjena.WinUI
 
                     await UcitajPodatke();
                 }
+                if (e.ColumnIndex == 6)
+                {
+                    DialogResult result = MessageBox.Show("Da li ste sigurni da želite obrisati artikal "+ proizvod.Naziv+" ?", "Potvrda", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    if (result == DialogResult.Yes)
+                    {
+                        await ProizvodService.Delete<Proizvod>(proizvod.Id);
+                        MessageBox.Show("Artikal uspješno obrisan.");
+                        DialogResult = DialogResult.OK;
+                    }
+                    
+                  
+                }
+                await UcitajPodatke();
             }
         }
         private void dgvArtikli_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)

@@ -43,7 +43,6 @@
             this.btnUčitaj = new System.Windows.Forms.Button();
             this.btnIzvještaj = new System.Windows.Forms.Button();
             this.cmbGrad = new System.Windows.Forms.ComboBox();
-            this.cmbUloga = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.dgvKorisnici)).BeginInit();
             this.SuspendLayout();
             // 
@@ -203,20 +202,11 @@
             this.cmbGrad.SelectedIndexChanged += new System.EventHandler(this.cmbGrad_SelectedIndexChanged);
             this.cmbGrad.SelectionChangeCommitted += new System.EventHandler(this.cmbGrad_SelectionChangeCommitted);
             // 
-            // cmbUloga
-            // 
-            this.cmbUloga.FormattingEnabled = true;
-            this.cmbUloga.Location = new System.Drawing.Point(107, 69);
-            this.cmbUloga.Name = "cmbUloga";
-            this.cmbUloga.Size = new System.Drawing.Size(151, 28);
-            this.cmbUloga.TabIndex = 5;
-            // 
             // frmKorisnici
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1221, 529);
-            this.Controls.Add(this.cmbUloga);
             this.Controls.Add(this.cmbGrad);
             this.Controls.Add(this.btnIzvještaj);
             this.Controls.Add(this.btnUčitaj);
@@ -250,6 +240,5 @@
         private DataGridViewButtonColumn Obriši;
         private Button btnIzvještaj;
         private ComboBox cmbGrad;
-        private ComboBox cmbUloga;
     }
 }
