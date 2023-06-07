@@ -1,9 +1,20 @@
+import 'package:ezamjena_mobile/pages/product_pages/product_overview.dart';
+import 'package:ezamjena_mobile/providers/products_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-void main() => runApp(MaterialApp(
+void main() => runApp(MultiProvider(providers: [
+  ChangeNotifierProvider(create: (_) => ProductProvider()),
+],
+  child:MaterialApp(
       debugShowCheckedModeBanner: true,
       home: HomePage(),
-    ));
+      onGenerateRoute: (settings) {
+        if (settings.name == ProductListPage.routeName) {
+          return MaterialPageRoute(builder: ((context) => ProductListPage()));
+        }
+      },
+    )));
 
 class HomePage extends StatelessWidget {
   @override
@@ -17,7 +28,8 @@ class HomePage extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage("assets/images/pexels-cottonbro-studio-5089155.jpg"),
+                image: AssetImage(
+                    "assets/images/pexels-cottonbro-studio-5089155.jpg"),
                 fit: BoxFit.cover,
               ),
             ),
@@ -62,13 +74,17 @@ class HomePage extends StatelessWidget {
                             Container(
                               padding: EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                border: Border(bottom: BorderSide(color: Color.fromARGB(181, 24, 24, 24))),
+                                border: Border(
+                                    bottom: BorderSide(
+                                        color:
+                                            Color.fromARGB(181, 24, 24, 24))),
                               ),
                               child: TextField(
                                 decoration: InputDecoration(
                                   border: InputBorder.none,
                                   hintText: "Username",
-                                  hintStyle: TextStyle(color: Color.fromARGB(150, 27, 25, 25)),
+                                  hintStyle: TextStyle(
+                                      color: Color.fromARGB(150, 27, 25, 25)),
                                 ),
                               ),
                             ),
@@ -78,7 +94,8 @@ class HomePage extends StatelessWidget {
                                 decoration: InputDecoration(
                                   border: InputBorder.none,
                                   hintText: "Password",
-                                  hintStyle: TextStyle(color: Color.fromARGB(150, 27, 25, 25)),
+                                  hintStyle: TextStyle(
+                                      color: Color.fromARGB(150, 27, 25, 25)),
                                 ),
                               ),
                             ),
@@ -99,12 +116,19 @@ class HomePage extends StatelessWidget {
                           ],
                         ),
                       ),
-                      child: Center(child: Text("Login", style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),)),
-                      
+                      child: InkWell(
+                          onTap: () {
+                            Navigator.pushNamed(context, ProductListPage.routeName);
+                          },
+                          child: Center(
+                              child: Text(
+                            "Login",
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ))),
                     ),
                     SizedBox(height: 20),
                     Text(
