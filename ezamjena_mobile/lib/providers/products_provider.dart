@@ -6,39 +6,46 @@ import 'package:http/http.dart';
 import 'package:http/io_client.dart';
 import 'package:flutter/foundation.dart';
 
-class ProductProvider with ChangeNotifier {
-  HttpClient client = new HttpClient();
-  IOClient? http;
-  ProductProvider() {
-    print("called ProductProvider");
-    client.badCertificateCallback = (cert, host, port) => true;
-    http = IOClient(client);
-  }
+import 'base_provider.dart';
 
-  Future<List<Product>> get(dynamic searchObject) async {
-    print("called ProductProvider.GET METHOD");
-    var url = Uri.parse("https://192.168.1.25:49153/Proizvod");
+//class ProductProvider with ChangeNotifier {
+  class ProductProvider extends BaseProvider<Product> {
+  ProductProvider() : super("Proizvod");
+  // HttpClient client = new HttpClient();
+  // IOClient? http;
+  // ProductProvider() {
+  //   print("called ProductProvider");
+  //   client.badCertificateCallback = (cert, host, port) => true;
+  //   http = IOClient(client);
+  // }
 
-    String username = "hana123";
-    String password = "hana12345";
+  // Future<List<Product>> get(dynamic searchObject) async {
+  //   print("called ProductProvider.GET METHOD");
+  //   var url = Uri.parse("https://192.168.1.25:49153/Proizvod");
 
-    String basicAuth =
-        "Basic ${base64Encode(utf8.encode('$username:$password'))}";
+  //   String username = "hana123";
+  //   String password = "hana12345";
 
-    var headers = {
-      "Content-Type": "application/json",
-      "Authorization": basicAuth
-    };
+  //   String basicAuth =
+  //       "Basic ${base64Encode(utf8.encode('$username:$password'))}";
 
-    var response = await http!.get(url, headers: headers);
+  //   var headers = {
+  //     "Content-Type": "application/json",
+  //     "Authorization": basicAuth
+  //   };
 
-    if (response.statusCode < 400) {
-      var data = jsonDecode(response.body);
-      List<Product> list =
-          data.map((x) => Product.fromJson(x)).cast<Product>().toList();
-      return list;
-    } else {
-      throw Exception("User not allowed");
-    }
+  //   var response = await http!.get(url, headers: headers);
+
+  //   if (response.statusCode < 400) {
+  //     var data = jsonDecode(response.body);
+  //     List<Product> list =
+  //         data.map((x) => Product.fromJson(x)).cast<Product>().toList();
+  //     return list;
+  //   } else {
+  //     throw Exception("User not allowed");
+  //   }
+   @override
+  Product fromJson(data) {
+    return Product.fromJson(data);
   }
 }

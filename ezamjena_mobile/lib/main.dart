@@ -1,24 +1,54 @@
 import 'package:ezamjena_mobile/pages/product_pages/product_overview.dart';
 import 'package:ezamjena_mobile/providers/products_provider.dart';
+import 'package:ezamjena_mobile/providers/user_provider.dart';
+import 'package:ezamjena_mobile/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-void main() => runApp(MultiProvider(providers: [
-  ChangeNotifierProvider(create: (_) => ProductProvider()),
-],
-  child:MaterialApp(
-      debugShowCheckedModeBanner: true,
-      home: HomePage(),
-      onGenerateRoute: (settings) {
-        if (settings.name == ProductListPage.routeName) {
-          return MaterialPageRoute(builder: ((context) => ProductListPage()));
-        }
-      },
-    )));
+void main() => runApp(MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => ProductProvider()),
+          ChangeNotifierProvider(create: (_) => UserProvider())
+        ],
+        child: MaterialApp(
+          debugShowCheckedModeBanner: true,
+           theme: ThemeData(
+          // Define the default brightness and colors.
+          brightness: Brightness.light,
+          primaryColor: Colors.deepPurple,
+          textButtonTheme: TextButtonThemeData(
+                style: TextButton.styleFrom(
+                    primary: Colors.yellow,
+                    textStyle: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        fontStyle: FontStyle.italic))),
+
+          // Define the default `TextTheme`. Use this to specify the default
+          // text styling for headlines, titles, bodies of text, and more.
+          textTheme: const TextTheme(
+            headline1: TextStyle(fontSize: 72.0, fontWeight: FontWeight.bold),
+            headline6: TextStyle(fontSize: 36.0, fontStyle: FontStyle.italic),
+
+          ),
+        ),
+          home: HomePage(),
+          onGenerateRoute: (settings) {
+            if (settings.name == ProductListPage.routeName) {
+              return MaterialPageRoute(
+                  builder: ((context) => ProductListPage()));
+            }
+          },
+        )));
 
 class HomePage extends StatelessWidget {
+  TextEditingController _usernameController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+  late UserProvider _userProvider;
   @override
   Widget build(BuildContext context) {
+    _userProvider =
+        Provider.of<UserProvider>(context, listen: false); //da bude read only
     return Scaffold(
       appBar: AppBar(
         title: Text("eRazmjena"),
@@ -80,6 +110,7 @@ class HomePage extends StatelessWidget {
                                             Color.fromARGB(181, 24, 24, 24))),
                               ),
                               child: TextField(
+                                controller: _usernameController,
                                 decoration: InputDecoration(
                                   border: InputBorder.none,
                                   hintText: "Username",
@@ -91,6 +122,7 @@ class HomePage extends StatelessWidget {
                             Container(
                               padding: EdgeInsets.all(8),
                               child: TextField(
+                                controller: _passwordController,
                                 decoration: InputDecoration(
                                   border: InputBorder.none,
                                   hintText: "Password",
@@ -117,8 +149,29 @@ class HomePage extends StatelessWidget {
                         ),
                       ),
                       child: InkWell(
-                          onTap: () {
-                            Navigator.pushNamed(context, ProductListPage.routeName);
+                          onTap: () async {
+                            try {
+                              Authorization.username = _usernameController.text;
+                              Authorization.password = _passwordController.text;
+                              await _userProvider.get();
+                              Navigator.pushNamed(
+                                  context, ProductListPage.routeName);
+                            } catch (e) {
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      AlertDialog(
+                                        title: Text("Error"),
+                                        content: Text(e.toString()),
+                                        actions: [
+                                          TextButton(
+                                            child: Text("Ok"),
+                                            onPressed: () =>
+                                                Navigator.pop(context),
+                                          )
+                                        ],
+                                      ));
+                            }
                           },
                           child: Center(
                               child: Text(
