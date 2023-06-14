@@ -1,3 +1,4 @@
+import 'package:ezamjena_mobile/pages/product_pages/product_details.dart';
 import 'package:ezamjena_mobile/pages/product_pages/product_overview.dart';
 import 'package:ezamjena_mobile/providers/products_provider.dart';
 import 'package:ezamjena_mobile/providers/user_provider.dart';
@@ -12,11 +13,11 @@ void main() => runApp(MultiProvider(
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: true,
-           theme: ThemeData(
-          // Define the default brightness and colors.
-          brightness: Brightness.light,
-          primaryColor: Colors.deepPurple,
-          textButtonTheme: TextButtonThemeData(
+          theme: ThemeData(
+            // Define the default brightness and colors.
+            brightness: Brightness.light,
+            primaryColor: Colors.deepPurple,
+            textButtonTheme: TextButtonThemeData(
                 style: TextButton.styleFrom(
                     primary: Colors.yellow,
                     textStyle: const TextStyle(
@@ -24,19 +25,25 @@ void main() => runApp(MultiProvider(
                         fontWeight: FontWeight.bold,
                         fontStyle: FontStyle.italic))),
 
-          // Define the default `TextTheme`. Use this to specify the default
-          // text styling for headlines, titles, bodies of text, and more.
-          textTheme: const TextTheme(
-            headline1: TextStyle(fontSize: 72.0, fontWeight: FontWeight.bold),
-            headline6: TextStyle(fontSize: 36.0, fontStyle: FontStyle.italic),
-
+            // Define the default `TextTheme`. Use this to specify the default
+            // text styling for headlines, titles, bodies of text, and more.
+            textTheme: const TextTheme(
+              headline1: TextStyle(fontSize: 72.0, fontWeight: FontWeight.bold),
+              headline6: TextStyle(fontSize: 36.0, fontStyle: FontStyle.italic),
+            ),
           ),
-        ),
           home: HomePage(),
           onGenerateRoute: (settings) {
             if (settings.name == ProductListPage.routeName) {
               return MaterialPageRoute(
                   builder: ((context) => ProductListPage()));
+            }
+            var uri = Uri.parse(settings.name!);
+            if (uri.pathSegments.length == 2 &&
+                "/${uri.pathSegments.first}" == ProductDetailsPage.routeName) {
+              var id = uri.pathSegments[1];
+              return MaterialPageRoute(
+                  builder: (context) => ProductDetailsPage(id));
             }
           },
         )));
@@ -59,7 +66,7 @@ class HomePage extends StatelessWidget {
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: AssetImage(
-                    "assets/images/pexels-cottonbro-studio-5089155.jpg"),
+                    "build/app/intermediates/flutter/debug/flutter_assets/assets/images/pexels-cottonbro-studio-5089155.jpg"),
                 fit: BoxFit.cover,
               ),
             ),

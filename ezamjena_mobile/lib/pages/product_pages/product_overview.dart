@@ -1,9 +1,12 @@
+import 'package:ezamjena_mobile/pages/product_pages/product_details.dart';
 import 'package:ezamjena_mobile/providers/products_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ezamjena_mobile/utils/utils.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import '../../model/product.dart';
+import '../../widets/ezamjena_drawer.dart';
+import '../../widets/master_page.dart';
 
 class ProductListPage extends StatefulWidget {
   static const String routeName = "/products";
@@ -35,33 +38,33 @@ class _ProductListPagetState extends State<ProductListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: SafeArea(
-      child: SingleChildScrollView(
-        child: Container(
-            child: Column(
-          // crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeader(),
-            _buildProductSearch(),
-            SizedBox(height: 40),
-            Container(
-                height: 800,
-                child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: GridView(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 3 / 4,
-                          crossAxisSpacing: 20,
-                          mainAxisSpacing: 30),
-                      scrollDirection: Axis.vertical,
-                      children: _buildProductCardList(),
-                    )))
-          ],
-        )),
-      ),
-    ));
+     return MasterPageWidget(
+          child: SingleChildScrollView(
+            child: Container(
+                child: Column(
+              // crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeader(),
+                _buildProductSearch(),
+                SizedBox(height: 40),
+                Container(
+                    height: 800,
+                    child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        child: GridView(
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  childAspectRatio: 3 / 4,
+                                  crossAxisSpacing: 20,
+                                  mainAxisSpacing: 30),
+                          scrollDirection: Axis.vertical,
+                          children: _buildProductCardList(),
+                        )))
+              ],
+            )),
+          ),
+        );
   }
 
   Widget _buildHeader() {
@@ -75,36 +78,36 @@ class _ProductListPagetState extends State<ProductListPage> {
     );
   }
 
-Widget _buildProductSearch() {
-  return Column(
-    children: [
-      Container(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5), // Prilagodite padding za visinu
-        child: TextField(
-          controller: _searchController,
-          onSubmitted: (value) async {
-            var tmpData = await _productProvider?.get({'naziv': value});
-            setState(() {
-              data = tmpData!;
-            });
-          },
-          decoration: InputDecoration(
-            hintText: "Search",
-            prefixIcon: Icon(Icons.search),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: Colors.grey),
+  Widget _buildProductSearch() {
+    return Column(
+      children: [
+        Container(
+          padding: EdgeInsets.symmetric(
+              horizontal: 20, vertical: 5), // Prilagodite padding za visinu
+          child: TextField(
+            controller: _searchController,
+            onSubmitted: (value) async {
+              var tmpData = await _productProvider?.get({'naziv': value});
+              setState(() {
+                data = tmpData!;
+              });
+            },
+            decoration: InputDecoration(
+              hintText: "Search",
+              prefixIcon: Icon(Icons.search),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(color: Colors.grey),
+              ),
+              contentPadding: EdgeInsets.symmetric(
+                  vertical: 5), // Prilagodite padding za visinu
             ),
-            contentPadding: EdgeInsets.symmetric(vertical: 5), // Prilagodite padding za visinu
           ),
         ),
-      ),
-      // Dodajte dodatne widgete ispod Search Box-a ovdje
-    ],
-  );
-}
-
-
+        // Dodajte dodatne widgete ispod Search Box-a ovdje
+      ],
+    );
+  }
 
   List<Widget> _buildProductCardList() {
     if (data.length == 0) {
@@ -117,8 +120,13 @@ Widget _buildProductSearch() {
                 children: [
                   AspectRatio(
                     aspectRatio: 1,
-                    child: Container(
-                      child: imageFromBase64String(x.slika!),
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.pushNamed(context, "${ProductDetailsPage.routeName}/${x.id}");
+                      },
+                      child: Container(
+                        child: imageFromBase64String(x.slika!),
+                      ),
                     ),
                   ),
                   SizedBox(height: 8),
