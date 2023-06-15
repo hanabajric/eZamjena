@@ -8,8 +8,8 @@ class Authorization {
   static String? password;
 }
 
-Image imageFromBase64String(String base64String) {
-  return Image.memory(base64Decode(base64String));
+Image imageFromBase64String(String? base64String) {
+  return Image.memory(base64Decode(base64String!));
 }
 
 Uint8List dataFromBase64String(String base64String) {

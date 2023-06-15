@@ -36,7 +36,7 @@ namespace eZamjena.Services
         {
             return query;
         }
-        public T GetById(int id)
+        public virtual T GetById(int id)
         {
             var entity = Context.Set<TDb>();
             var result = entity.Find(id);

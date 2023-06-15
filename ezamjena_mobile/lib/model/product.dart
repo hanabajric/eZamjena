@@ -7,10 +7,10 @@ class Product {
   int? id;
   String? naziv;
   String? slika;
-  String? kategorija;
+  String? nazivKategorijeProizvoda;
   double? cijena;
-  String? korisnickoIme;
-  bool? novo;
+  String? nazivKorisnika;
+  bool? stanjeNovo;
   String? opis;
   
 

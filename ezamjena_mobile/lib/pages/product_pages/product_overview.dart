@@ -17,8 +17,7 @@ class ProductListPage extends StatefulWidget {
 }
 
 class _ProductListPagetState extends State<ProductListPage> {
-  ProductProvider? _productProvider =
-      null; // prvo pokretanje null dok se ne izvrši initState
+  ProductProvider? _productProvider =null; // prvo pokretanje null dok se ne izvrši initState
   List<Product> data = [];
   TextEditingController _searchController = TextEditingController();
   @override
@@ -124,8 +123,9 @@ class _ProductListPagetState extends State<ProductListPage> {
                       onTap: () {
                         Navigator.pushNamed(context, "${ProductDetailsPage.routeName}/${x.id}");
                       },
+                     
                       child: Container(
-                        child: imageFromBase64String(x.slika!),
+                        child: imageFromBase64String(x.slika),
                       ),
                     ),
                   ),

@@ -46,6 +46,13 @@ namespace eZamjena.Services
 
             return base.Insert(insert);
         }
+        public override Model.Proizvod GetById(int id)
+        {
+            var entity = Context.Proizvods .Include(k => k.KategorijaProizvoda).FirstOrDefault(p => p.Id == id);
+
+            return Mapper.Map<Model.Proizvod>(entity);
+        }
+
         public override IEnumerable<Model.Proizvod> Get(ProizvodSearchObject search = null)
         {
             var entity = Context.Proizvods.Include(k => k.KategorijaProizvoda).Include(x => x.Korisnik).AsQueryable();
