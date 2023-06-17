@@ -2,6 +2,7 @@
 using eZamjena.Model;
 using eZamjena.Model.Requests;
 using eZamjena.Model.SearchObjects;
+using eZamjena.Model.Utils;
 using eZamjena.Services.Database;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -111,7 +112,7 @@ namespace eZamjena.Services
             return filtrirano;
         }
 
-        public Model.Korisnik Login(string username, string password)
+        public async Task<Model.Korisnik> Login(string username, string password)
         {
             var korisnik = Context.Korisniks.FirstOrDefault(x => x.KorisnickoIme == username);
             var uloga = Context.Ulogas.FirstOrDefault(x => x.Id==korisnik.UlogaId);
@@ -147,5 +148,12 @@ namespace eZamjena.Services
             //        throw new UserException("Lozinka i potvrda lozinke moraju biti iste!");
             //}
         }
+        public async Task<LoggedUser> GetUserRole(string username, string password)
+        {
+            Model.Korisnik trenutniKorisnik =await  Login(username, password);
+            return new LoggedUser { UserId = trenutniKorisnik.Id, UserRole = trenutniKorisnik.Uloga.Naziv };
+        }
+
+        
     }
 }

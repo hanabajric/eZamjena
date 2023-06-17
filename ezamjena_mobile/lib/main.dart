@@ -2,6 +2,7 @@ import 'package:ezamjena_mobile/pages/product_pages/product_details.dart';
 import 'package:ezamjena_mobile/pages/product_pages/product_overview.dart';
 import 'package:ezamjena_mobile/providers/products_provider.dart';
 import 'package:ezamjena_mobile/providers/user_provider.dart';
+import 'package:ezamjena_mobile/utils/logged_in_usser.dart';
 import 'package:ezamjena_mobile/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -160,6 +161,9 @@ class HomePage extends StatelessWidget {
                             try {
                               Authorization.username = _usernameController.text;
                               Authorization.password = _passwordController.text;
+
+                              var loggedInUserId = await _userProvider.getLoggedInUserId();
+                                LoggedInUser.userId = loggedInUserId;
                               await _userProvider.get();
                               Navigator.pushNamed(
                                   context, ProductListPage.routeName);

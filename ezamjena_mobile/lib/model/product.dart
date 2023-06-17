@@ -12,7 +12,7 @@ class Product {
   String? nazivKorisnika;
   bool? stanjeNovo;
   String? opis;
-  
+  int? korisnikId;
 
   Product() {}
 

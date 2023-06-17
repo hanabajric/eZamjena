@@ -11,12 +11,13 @@ abstract class BaseProvider<T> with ChangeNotifier {
   static String? _baseUrl;
   static String? _endpoint;
 
+  String? publicUrl;
   HttpClient client = new HttpClient();
   IOClient? http;
 
   BaseProvider(String endpoint) {
     _baseUrl = const String.fromEnvironment("baseUrl",
-        defaultValue: "https://192.168.1.37:7224/");
+        defaultValue: "https://192.168.1.46:7224/");
     print("baseurl: $_baseUrl");
 
     if (_baseUrl!.endsWith("/") == false) {
@@ -26,6 +27,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
     _endpoint = endpoint;
     client.badCertificateCallback = (cert, host, port) => true;
     http = IOClient(client);
+    publicUrl = "$_baseUrl$_endpoint";
   }
 
   Future<T?> getById(int? id, [dynamic additionalData]) async {

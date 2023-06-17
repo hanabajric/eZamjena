@@ -6,6 +6,9 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
 using eZamjena.Services.Database;
+using eZamjena.Model.Utils;
+using eZamjena.Utils;
+
 namespace eZamjena
 
 {
@@ -28,14 +31,18 @@ namespace eZamjena
             {
                 return AuthenticateResult.Fail("Missing auth header");
             }
-            var authHeader = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
-            var credentialsBytes = Convert.FromBase64String(authHeader.Parameter);
-            var credentials = Encoding.UTF8.GetString(credentialsBytes).Split(':');
 
-            var username = credentials[0];
-            var password = credentials[1];
-            
-            var user= KorisnikService.Login(username,password);
+            Credentials credentials = CredentialsParser.ParseCredentials(Request);
+            var user =await   KorisnikService.Login(credentials.Username, credentials.Password);
+
+            //var authHeader = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
+            //var credentialsBytes = Convert.FromBase64String(authHeader.Parameter);
+            //var credentials = Encoding.UTF8.GetString(credentialsBytes).Split(':');
+
+            //var username = credentials[0];
+            //var password = credentials[1];
+
+            //var user= KorisnikService.Login(username,password);
 
             if (user == null)
             {
@@ -44,7 +51,7 @@ namespace eZamjena
 
             var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.NameIdentifier, username),
+            new Claim(ClaimTypes.NameIdentifier, credentials.Username),
             new Claim(ClaimTypes.Name, user.Ime)
         };
             var ulogaID = user.UlogaID;
