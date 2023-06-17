@@ -3,6 +3,7 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:provider/provider.dart';
 
+import '../pages/product_pages/my_product_overview.dart';
 import '../pages/product_pages/product_overview.dart';
 
 class eZamjenaDrawer extends StatelessWidget {
@@ -21,12 +22,12 @@ class eZamjenaDrawer extends StatelessWidget {
               Navigator.popAndPushNamed(context, ProductListPage.routeName);
             },
           ),
-          // ListTile(
-          //   title: Text('Cart ${_cartProvider?.cart.items.length}'),
-          //   onTap: () {
-          //      Navigator.pushNamed(context, CartScreen.routeName);
-          //   },
-          // ),
+          ListTile(
+            title: Text('Moji proizvodi'),
+            onTap: () {
+               Navigator.pushNamed(context, MyProductListPage.routeName);
+            },
+          ),
         ],
       ),
     );

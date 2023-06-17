@@ -1,26 +1,26 @@
 import 'package:ezamjena_mobile/pages/product_pages/product_details.dart';
-import 'package:ezamjena_mobile/providers/products_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:ezamjena_mobile/utils/utils.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+
 import '../../model/product.dart';
+import '../../providers/products_provider.dart';
 import '../../utils/logged_in_usser.dart';
-import '../../widets/ezamjena_drawer.dart';
+import '../../utils/utils.dart';
 import '../../widets/master_page.dart';
 
-class ProductListPage extends StatefulWidget {
-  static const String routeName = "/products";
-  const ProductListPage({super.key});
+class MyProductListPage extends StatefulWidget {
+  static const String routeName = "/myproducts";
+  const MyProductListPage({super.key});
 
   @override
-  State<ProductListPage> createState() => _ProductListPagetState();
+  State<MyProductListPage> createState() => _MyProductListPage();
 }
 
-class _ProductListPagetState extends State<ProductListPage> {
-  ProductProvider? _productProvider =null; // prvo pokretanje null dok se ne izvrši initState
+class _MyProductListPage extends State<MyProductListPage> {
+  ProductProvider? _productProvider =
+      null; // prvo pokretanje null dok se ne izvrši initState
   List<Product> data = [];
-  TextEditingController _searchController = TextEditingController();
+
   @override
   void initState() {
     // TODO: implement initState
@@ -33,7 +33,7 @@ class _ProductListPagetState extends State<ProductListPage> {
     var tempData = await _productProvider?.get(null);
     setState(() {
       data = tempData!
-          .where((product) => product.korisnikId != LoggedInUser.userId)
+          .where((product) => product.korisnikId == LoggedInUser.userId)
           .toList();
     });
   }
@@ -47,7 +47,6 @@ class _ProductListPagetState extends State<ProductListPage> {
           // crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeader(),
-            _buildProductSearch(),
             SizedBox(height: 40),
             Container(
                 height: 800,
@@ -56,7 +55,7 @@ class _ProductListPagetState extends State<ProductListPage> {
                     child: GridView(
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
-                          childAspectRatio: 3 / 4,
+                          childAspectRatio: 2 / 3,
                           crossAxisSpacing: 20,
                           mainAxisSpacing: 30),
                       scrollDirection: Axis.vertical,
@@ -72,47 +71,16 @@ class _ProductListPagetState extends State<ProductListPage> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Text(
-        "Products",
+        "Moji proizvodi",
         style: TextStyle(
-            color: Colors.grey, fontSize: 40, fontWeight: FontWeight.w600),
+            color: Colors.black, fontSize: 40, fontWeight: FontWeight.w600),
       ),
-    );
-  }
-
-  Widget _buildProductSearch() {
-    return Column(
-      children: [
-        Container(
-          padding: EdgeInsets.symmetric(
-              horizontal: 20, vertical: 5), // Prilagodite padding za visinu
-          child: TextField(
-            controller: _searchController,
-            onSubmitted: (value) async {
-              var tmpData = await _productProvider?.get({'naziv': value});
-              setState(() {
-                data = tmpData!;
-              });
-            },
-            decoration: InputDecoration(
-              hintText: "Search",
-              prefixIcon: Icon(Icons.search),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(color: Colors.grey),
-              ),
-              contentPadding: EdgeInsets.symmetric(
-                  vertical: 5), // Prilagodite padding za visinu
-            ),
-          ),
-        ),
-        // Dodajte dodatne widgete ispod Search Box-a ovdje
-      ],
     );
   }
 
   List<Widget> _buildProductCardList() {
     if (data.length == 0) {
-      return [Text("Trenutno nema proizvoda.")];
+      return [Text("Trenutno nemate proizvoda.")];
     }
     List<Widget> list = data
         .map((x) => Padding(
@@ -133,22 +101,37 @@ class _ProductListPagetState extends State<ProductListPage> {
                   ),
                   SizedBox(height: 8),
                   Text(x.naziv ?? ""),
-                  SizedBox(height: 8),
-                  RatingBar.builder(
-                    initialRating: 0,
-                    minRating: 1,
-                    direction: Axis.horizontal,
-                    allowHalfRating: false,
-                    itemCount: 5,
-                    itemSize: 20,
-                    itemBuilder: (context, _) => Icon(
-                      Icons.star,
-                      color: Colors.yellow,
-                    ),
-                    onRatingUpdate: (rating) {
-                      // Ovdje možete dodati logiku za ažuriranje ocjene proizvoda
-                      print(rating);
-                    },
+                  // SizedBox(height: 5),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          showDialog(
+                              context: context,
+                              builder: (BuildContext context) => AlertDialog(
+                                    title: Text("Brisanje proizvoda"),
+                                    content: Text(
+                                        'Da li ste sigurni da želite obrisati proizvod ${x.naziv ?? ""} '),
+                                    actions: [
+                                      TextButton(
+                                        child: Text("DA"),
+                                        onPressed: () => Navigator.pop(context),
+                                      ),
+                                      TextButton(
+                                        child: Text("NE"),
+                                        onPressed: () {
+                                          
+                                          Navigator.pop(context);
+                                        },
+                                      ),
+                                    ],
+                                  ));
+                        },
+                        icon: Icon(Icons.delete),
+                        color: Colors.red,
+                      ),
+                    ],
                   ),
                 ],
               ),

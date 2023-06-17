@@ -1,3 +1,4 @@
+import 'package:ezamjena_mobile/pages/product_pages/my_product_overview.dart';
 import 'package:ezamjena_mobile/pages/product_pages/product_details.dart';
 import 'package:ezamjena_mobile/pages/product_pages/product_overview.dart';
 import 'package:ezamjena_mobile/providers/products_provider.dart';
@@ -20,11 +21,11 @@ void main() => runApp(MultiProvider(
             primaryColor: Colors.deepPurple,
             textButtonTheme: TextButtonThemeData(
                 style: TextButton.styleFrom(
-                    primary: Colors.yellow,
+                    primary: Colors.blue,
                     textStyle: const TextStyle(
                         fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        fontStyle: FontStyle.italic))),
+                       
+                        ))),
 
             // Define the default `TextTheme`. Use this to specify the default
             // text styling for headlines, titles, bodies of text, and more.
@@ -38,6 +39,10 @@ void main() => runApp(MultiProvider(
             if (settings.name == ProductListPage.routeName) {
               return MaterialPageRoute(
                   builder: ((context) => ProductListPage()));
+            }
+            if (settings.name == MyProductListPage.routeName) {
+              return MaterialPageRoute(
+                  builder: ((context) => MyProductListPage()));
             }
             var uri = Uri.parse(settings.name!);
             if (uri.pathSegments.length == 2 &&
@@ -164,6 +169,7 @@ class HomePage extends StatelessWidget {
 
                               var loggedInUserId = await _userProvider.getLoggedInUserId();
                                 LoggedInUser.userId = loggedInUserId;
+
                               await _userProvider.get();
                               Navigator.pushNamed(
                                   context, ProductListPage.routeName);
