@@ -101,6 +101,22 @@ abstract class BaseProvider<T> with ChangeNotifier {
     }
   }
 
+  Future<bool> delete(int id) async {
+  var url = Uri.parse("$_baseUrl$_endpoint/$id");
+
+  Map<String, String> headers = createHeaders();
+
+  var response = await http!.delete(url, headers: headers);
+
+  if (isValidResponseCode(response)) {
+    var data = jsonDecode(response.body);
+    return true; // Signalizirajte da je brisanje uspješno
+  } else {
+    throw Exception("An error occurred while deleting the product.");
+  }
+}
+
+
   Map<String, String> createHeaders() {
     String? username = Authorization.username;
     String? password = Authorization.password;

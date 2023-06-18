@@ -52,12 +52,15 @@ namespace eZamjena.Services
         }
         public virtual void BeforeUpdate(TDb entity, TUpdate update) {
         }
+        public virtual void BeforeDelete(int id) { }
+
         public virtual T Delete(int id)
         {
             ValidateDelete(id);
             var set = Context.Set<TDb>();
 
             var entity = set.Find(id);
+            BeforeDelete(id);
             if (entity != null)
             {
                 set.Remove(entity);

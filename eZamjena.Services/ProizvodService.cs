@@ -93,7 +93,27 @@ namespace eZamjena.Services
             return filteredQuery;
         }
 
-        
+        public override void BeforeDelete(int id)
+        {
+            //List<int> orderIds = context.OrderItems.Where(oi => oi.FurnitureItemId == id).Select(oi => oi.OrderId).ToList();
+
+            List<Kupovina> kupovina = Context.Kupovinas.Where(k => k.ProizvodId == id).ToList();
+            List<Razmjena> razmjena = Context.Razmjenas.Where(r=> r.Proizvod1Id==id || r.Proizvod2Id==id).ToList();
+            List<Ocjena> ocjena = Context.Ocjenas.Where(o => o.ProizvodId == id).ToList();
+
+            Context.RemoveRange(kupovina);
+            Context.RemoveRange(razmjena);
+            Context.RemoveRange(ocjena);
+
+
+            //var orders = context.Orders.Where(o => orderIds.Contains(o.OrderId)).ToList();
+
+            //context.RemoveRange(orders);
+
+            Context.SaveChanges();
+        }
+
+
     }
    
 }

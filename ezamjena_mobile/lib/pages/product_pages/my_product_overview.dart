@@ -6,6 +6,7 @@ import '../../model/product.dart';
 import '../../providers/products_provider.dart';
 import '../../utils/logged_in_usser.dart';
 import '../../utils/utils.dart';
+import '../../widets/alert_dialog_widet.dart';
 import '../../widets/master_page.dart';
 
 class MyProductListPage extends StatefulWidget {
@@ -20,6 +21,7 @@ class _MyProductListPage extends State<MyProductListPage> {
   ProductProvider? _productProvider =
       null; // prvo pokretanje null dok se ne izvrši initState
   List<Product> data = [];
+  late BuildContext _context; // Dodajte varijablu za BuildContext
 
   @override
   void initState() {
@@ -27,6 +29,12 @@ class _MyProductListPage extends State<MyProductListPage> {
     super.initState();
     _productProvider = context.read<ProductProvider>();
     loadData();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _context = context; // Spremite roditeljski BuildContext
   }
 
   Future loadData() async {
@@ -80,7 +88,14 @@ class _MyProductListPage extends State<MyProductListPage> {
 
   List<Widget> _buildProductCardList() {
     if (data.length == 0) {
-      return [Text("Trenutno nemate proizvoda.")];
+      return [
+        Center(
+          child: Text(
+            "Trenutno nemate proizvoda.",
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+        ),
+      ];
     }
     List<Widget> list = data
         .map((x) => Padding(
@@ -115,15 +130,32 @@ class _MyProductListPage extends State<MyProductListPage> {
                                         'Da li ste sigurni da želite obrisati proizvod ${x.naziv ?? ""} '),
                                     actions: [
                                       TextButton(
+                                        onPressed: () async {
+                                          Navigator.pop(context);
+                                          var response = await _productProvider
+                                              ?.delete(x.id!);
+                                          showDialog(
+                                            context:
+                                                _context, // Koristite roditeljski BuildContext
+                                            builder: (BuildContext context) =>
+                                                AlertDialogWidget(
+                                              title: "Success",
+                                              message: response.toString(),
+                                              context:
+                                                  _context, // Koristite roditeljski BuildContext
+                                            ),
+                                          );
+                                          setState(() {
+                                            loadData();
+                                          });
+                                        },
                                         child: Text("DA"),
-                                        onPressed: () => Navigator.pop(context),
                                       ),
                                       TextButton(
-                                        child: Text("NE"),
                                         onPressed: () {
-                                          
                                           Navigator.pop(context);
                                         },
+                                        child: Text("NE"),
                                       ),
                                     ],
                                   ));
