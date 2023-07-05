@@ -17,7 +17,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
 
   BaseProvider(String endpoint) {
     _baseUrl = const String.fromEnvironment("baseUrl",
-        defaultValue: "https://192.168.1.46:7224/");
+        defaultValue: "https://192.168.1.162:7224/");
     print("baseurl: $_baseUrl");
 
     if (_baseUrl!.endsWith("/") == false) {
@@ -31,13 +31,19 @@ abstract class BaseProvider<T> with ChangeNotifier {
   }
 
   Future<T?> getById(int? id, [dynamic additionalData]) async {
+    print('Getting data for ID: $id');
     var url = Uri.parse("$_baseUrl$_endpoint/$id");
 
     Map<String, String> headers = createHeaders();
 
     var response = await http!.get(url, headers: headers);
 
-    if (isValidResponseCode(response)) {
+    print('Response status code: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    if (response.statusCode == 204) {
+      return null; // ili druga indikacija da nema dostupnih podataka
+    } else if (isValidResponseCode(response)) {
       var data = jsonDecode(response.body);
       return fromJson(data);
     } else {
@@ -101,21 +107,20 @@ abstract class BaseProvider<T> with ChangeNotifier {
     }
   }
 
-  Future<bool> delete(int id) async {
-  var url = Uri.parse("$_baseUrl$_endpoint/$id");
+  Future<String> delete(int id) async {
+    var url = Uri.parse("$_baseUrl$_endpoint/$id");
 
-  Map<String, String> headers = createHeaders();
+    Map<String, String> headers = createHeaders();
 
-  var response = await http!.delete(url, headers: headers);
+    var response = await http!.delete(url, headers: headers);
 
-  if (isValidResponseCode(response)) {
-    var data = jsonDecode(response.body);
-    return true; // Signalizirajte da je brisanje uspješno
-  } else {
-    throw Exception("An error occurred while deleting the product.");
+    if (isValidResponseCode(response)) {
+      var data = jsonDecode(response.body);
+      return response.body.toString(); // Signalizirajte da je brisanje uspješno
+    } else {
+      throw Exception("An error occurred while deleting the product.");
+    }
   }
-}
-
 
   Map<String, String> createHeaders() {
     String? username = Authorization.username;

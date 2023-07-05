@@ -18,19 +18,23 @@ class ProductListPage extends StatefulWidget {
 }
 
 class _ProductListPagetState extends State<ProductListPage> {
-  ProductProvider? _productProvider =null; // prvo pokretanje null dok se ne izvrši initState
+  ProductProvider?
+      _productProvider; // prvo pokretanje null dok se ne izvrši initState
   List<Product> data = [];
+  //late TradeProvider _tradeProvider;
   TextEditingController _searchController = TextEditingController();
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _productProvider = context.read<ProductProvider>();
+    //_tradeProvider=context.read<TradeProvider>();
     loadData();
   }
 
   Future loadData() async {
     var tempData = await _productProvider?.get(null);
+    //var tradeList = await _tradeProvider?.get(null); // Poziv get metode TradeProvider-a
+    //print('Trade list: $tradeList');
     setState(() {
       data = tempData!
           .where((product) => product.korisnikId != LoggedInUser.userId)
@@ -90,7 +94,19 @@ class _ProductListPagetState extends State<ProductListPage> {
             onSubmitted: (value) async {
               var tmpData = await _productProvider?.get({'naziv': value});
               setState(() {
-                data = tmpData!;
+                data = tmpData!
+                    .where(
+                        (product) => product.korisnikId != LoggedInUser.userId)
+                    .toList();
+              });
+            },
+            onChanged: (value) async {
+              var tmpData = await _productProvider?.get({'naziv': value});
+              setState(() {
+                data = tmpData!
+                    .where(
+                        (product) => product.korisnikId != LoggedInUser.userId)
+                    .toList();
               });
             },
             decoration: InputDecoration(
@@ -115,44 +131,47 @@ class _ProductListPagetState extends State<ProductListPage> {
       return [Text("Trenutno nema proizvoda.")];
     }
     List<Widget> list = data
-        .map((x) => Padding(
-              padding: EdgeInsets.all(8),
-              child: Column(
-                children: [
-                  AspectRatio(
-                    aspectRatio: 1,
-                    child: InkWell(
-                      onTap: () {
-                        Navigator.pushNamed(
-                            context, "${ProductDetailsPage.routeName}/${x.id}");
-                      },
-                      child: Container(
-                        child: imageFromBase64String(x.slika),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(x.naziv ?? ""),
-                  SizedBox(height: 8),
-                  RatingBar.builder(
-                    initialRating: 0,
-                    minRating: 1,
-                    direction: Axis.horizontal,
-                    allowHalfRating: false,
-                    itemCount: 5,
-                    itemSize: 20,
-                    itemBuilder: (context, _) => Icon(
-                      Icons.star,
-                      color: Colors.yellow,
-                    ),
-                    onRatingUpdate: (rating) {
-                      // Ovdje možete dodati logiku za ažuriranje ocjene proizvoda
-                      print(rating);
+        .map((x) {
+           final imageWidget = x.slika != null ? imageFromBase64String(x.slika!) : Container();
+          return Padding(
+            padding: EdgeInsets.all(8),
+            child: Column(
+              children: [
+                AspectRatio(
+                  aspectRatio: 1,
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.pushNamed(
+                          context, "${ProductDetailsPage.routeName}/${x.id}");
                     },
+                    child: Container(
+                      child: imageWidget,//imageFromBase64String(x.slika),
+                    ),
                   ),
-                ],
-              ),
-            ))
+                ),
+                SizedBox(height: 8),
+                Text(x.naziv ?? ""),
+                SizedBox(height: 8),
+                RatingBar.builder(
+                  initialRating: 0,
+                  minRating: 1,
+                  direction: Axis.horizontal,
+                  allowHalfRating: false,
+                  itemCount: 5,
+                  itemSize: 20,
+                  itemBuilder: (context, _) => Icon(
+                    Icons.star,
+                    color: Colors.yellow,
+                  ),
+                  onRatingUpdate: (rating) {
+                    // Ovdje možete dodati logiku za ažuriranje ocjene proizvoda
+                    print(rating);
+                  },
+                ),
+              ],
+            ),
+          );
+        })
         .cast<Widget>()
         .toList();
 

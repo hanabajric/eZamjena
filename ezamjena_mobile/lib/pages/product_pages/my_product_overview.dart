@@ -18,31 +18,29 @@ class MyProductListPage extends StatefulWidget {
 }
 
 class _MyProductListPage extends State<MyProductListPage> {
-  ProductProvider? _productProvider =
-      null; // prvo pokretanje null dok se ne izvrši initState
+  ProductProvider?
+      _productProvider; // prvo pokretanje null dok se ne izvrši initState
   List<Product> data = [];
-  late BuildContext _context; // Dodajte varijablu za BuildContext
+  //late BuildContext _context; // Dodajte varijablu za BuildContext
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _productProvider = context.read<ProductProvider>();
     loadData();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _context = context; // Spremite roditeljski BuildContext
-  }
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //   _context = context; // Spremite roditeljski BuildContext
+  // }
 
-  Future loadData() async {
+  Future<void> loadData() async {
     var tempData = await _productProvider?.get(null);
     setState(() {
-      data = tempData!
-          .where((product) => product.korisnikId == LoggedInUser.userId)
-          .toList();
+      data =
+        tempData!.where((product) => product.korisnikId == LoggedInUser.userId).toList();
     });
   }
 
@@ -87,12 +85,12 @@ class _MyProductListPage extends State<MyProductListPage> {
   }
 
   List<Widget> _buildProductCardList() {
-    if (data.length == 0) {
+    if (data?.length == 0) {
       return [
         Center(
           child: Text(
             "Trenutno nemate proizvoda.",
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 20),
           ),
         ),
       ];
@@ -135,14 +133,13 @@ class _MyProductListPage extends State<MyProductListPage> {
                                           var response = await _productProvider
                                               ?.delete(x.id!);
                                           showDialog(
-                                            context:
-                                                _context, // Koristite roditeljski BuildContext
+                                            context: context,
                                             builder: (BuildContext context) =>
                                                 AlertDialogWidget(
-                                              title: "Success",
-                                              message: response.toString(),
-                                              context:
-                                                  _context, // Koristite roditeljski BuildContext
+                                              title: "Brisanje uspješno",
+                                              message:
+                                                  "Uspješno ste obrisali proizvod ${x.naziv ?? " "}",
+                                              context: context,
                                             ),
                                           );
                                           setState(() {

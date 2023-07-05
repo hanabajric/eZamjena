@@ -48,8 +48,10 @@ namespace eZamjena.Services
         }
         public override Model.Proizvod GetById(int id)
         {
-            var entity = Context.Proizvods .Include(k => k.KategorijaProizvoda).FirstOrDefault(p => p.Id == id);
+            //var entity = Context.Proizvods .Include(k => k.KategorijaProizvoda).Include(x => x.Korisnik).FirstOrDefault(p => p.Id == id);
+            var entity = Context.Proizvods.Include(k => k.KategorijaProizvoda).FirstOrDefault(p => p.Id == id);
 
+            Context.Entry(entity).Reference(x => x.Korisnik).Load();
             return Mapper.Map<Model.Proizvod>(entity);
         }
 

@@ -1,6 +1,9 @@
 import 'package:ezamjena_mobile/pages/product_pages/my_product_overview.dart';
 import 'package:ezamjena_mobile/pages/product_pages/product_details.dart';
 import 'package:ezamjena_mobile/pages/product_pages/product_overview.dart';
+import 'package:ezamjena_mobile/providers/buy_provider.dart';
+import 'package:ezamjena_mobile/providers/exchange_provider.dart';
+import 'package:ezamjena_mobile/providers/proba_provider.dart';
 import 'package:ezamjena_mobile/providers/products_provider.dart';
 import 'package:ezamjena_mobile/providers/user_provider.dart';
 import 'package:ezamjena_mobile/utils/logged_in_usser.dart';
@@ -11,7 +14,11 @@ import 'package:provider/provider.dart';
 void main() => runApp(MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => ProductProvider()),
-          ChangeNotifierProvider(create: (_) => UserProvider())
+          ChangeNotifierProvider(create: (_) => UserProvider()),
+          ChangeNotifierProvider(create: (_) => ExchangeProvider()),
+          ChangeNotifierProvider(create: (_) => BuyProvider()),
+          ChangeNotifierProvider(create: (_) => ProbaProvider()),
+
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: true,
@@ -38,11 +45,11 @@ void main() => runApp(MultiProvider(
           onGenerateRoute: (settings) {
             if (settings.name == ProductListPage.routeName) {
               return MaterialPageRoute(
-                  builder: ((context) => ProductListPage()));
+                  builder: ((context) => const ProductListPage()));
             }
             if (settings.name == MyProductListPage.routeName) {
               return MaterialPageRoute(
-                  builder: ((context) => MyProductListPage()));
+                  builder: ((context) => const MyProductListPage()));
             }
             var uri = Uri.parse(settings.name!);
             if (uri.pathSegments.length == 2 &&
@@ -55,13 +62,15 @@ void main() => runApp(MultiProvider(
         )));
 
 class HomePage extends StatelessWidget {
-  TextEditingController _usernameController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   late UserProvider _userProvider;
+
+  HomePage({super.key});
   @override
   Widget build(BuildContext context) {
     _userProvider =
-        Provider.of<UserProvider>(context, listen: false); //da bude read only
+        Provider.of<UserProvider>(context, listen: false); 
     return Scaffold(
       appBar: AppBar(
         title: Text("eRazmjena"),
@@ -70,11 +79,11 @@ class HomePage extends StatelessWidget {
         children: [
           Container(
             decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage(
-                    "build/app/intermediates/flutter/debug/flutter_assets/assets/images/pexels-cottonbro-studio-5089155.jpg"),
-                fit: BoxFit.cover,
-              ),
+              // image: DecorationImage(
+              //   // image: AssetImage(
+              //   //     ),
+              //   fit: BoxFit.cover,
+              // ),
             ),
           ),
           Container(
