@@ -3,6 +3,8 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:provider/provider.dart';
 
+import '../pages/buy_pages/buy_history.dart';
+import '../pages/exchange_pages/exchange_history.dart';
 import '../pages/product_pages/my_product_overview.dart';
 import '../pages/product_pages/product_overview.dart';
 
@@ -19,13 +21,25 @@ class eZamjenaDrawer extends StatelessWidget {
           ListTile(
             title: Text('Home'),
             onTap: () {
-              Navigator.popAndPushNamed(context, ProductListPage.routeName);
+              Navigator.pushNamed(context, ProductListPage.routeName);
             },
           ),
           ListTile(
             title: Text('Moji proizvodi'),
             onTap: () {
                Navigator.pushNamed(context, MyProductListPage.routeName);
+            },
+          ),
+          ListTile(
+            title: Text('Historija razmjena'),
+            onTap: () {
+               Navigator.pushNamed(context, ExchangeHistoryPage.routeName);
+            },
+          ),
+          ListTile(
+            title: Text('Historija kupovina'),
+            onTap: () {
+               Navigator.pushNamed(context, BuyHistoryPage.routeName);
             },
           ),
         ],

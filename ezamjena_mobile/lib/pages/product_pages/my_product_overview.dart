@@ -36,13 +36,17 @@ class _MyProductListPage extends State<MyProductListPage> {
   //   _context = context; // Spremite roditeljski BuildContext
   // }
 
-  Future<void> loadData() async {
+  Future loadData() async {
     var tempData = await _productProvider?.get(null);
     setState(() {
-      data =
-        tempData!.where((product) => product.korisnikId == LoggedInUser.userId).toList();
+      
+      data = tempData!
+          .where((product) => product.korisnikId == LoggedInUser.userId)
+          .toList();
     });
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +83,7 @@ class _MyProductListPage extends State<MyProductListPage> {
       child: Text(
         "Moji proizvodi",
         style: TextStyle(
-            color: Colors.black, fontSize: 40, fontWeight: FontWeight.w600),
+            color: Colors.grey, fontSize: 40, fontWeight: FontWeight.w600),
       ),
     );
   }

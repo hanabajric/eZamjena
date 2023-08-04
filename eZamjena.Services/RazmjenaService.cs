@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
+
 
 namespace eZamjena.Services
 {
@@ -21,6 +23,7 @@ namespace eZamjena.Services
         }
         public override IEnumerable<Model.Razmjena> Get(RazmjenaSearchObject search = null)
         {
+            Debug.WriteLine("Ovo je funkcija učitavanja RAZMJENA.");
             var entity = Context.Razmjenas.Include(x=>x.Proizvod1).Include(k => k.Proizvod2).AsQueryable();
 
             entity = AddFilter(entity, search);

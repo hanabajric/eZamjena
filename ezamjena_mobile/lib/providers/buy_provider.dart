@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:ezamjena_mobile/providers/base_provider.dart';
 
 import '../model/buy.dart';

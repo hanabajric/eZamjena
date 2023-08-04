@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
+
 
 namespace eZamjena.Services
 {
@@ -42,6 +44,7 @@ namespace eZamjena.Services
         }
         public override IEnumerable<Model.Kupovina> Get(KupovinaSearchObject search = null)
         {
+            Debug.WriteLine("Ovo je funkcija učitavanja KUPOVINA.");
             var entity = Context.Kupovinas.Include(x => x.Proizvod).Include(k => k.Korisnik).AsQueryable();
 
             entity = AddFilter(entity, search);

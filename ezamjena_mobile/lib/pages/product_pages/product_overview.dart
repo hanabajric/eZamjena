@@ -35,12 +35,17 @@ class _ProductListPagetState extends State<ProductListPage> {
     var tempData = await _productProvider?.get(null);
     //var tradeList = await _tradeProvider?.get(null); // Poziv get metode TradeProvider-a
     //print('Trade list: $tradeList');
+    print('Temp data cijela: $tempData');
     setState(() {
-      data = tempData!
-          .where((product) => product.korisnikId != LoggedInUser.userId)
-          .toList();
+     // if (tempData != null) {
+        data = tempData!
+            .where((product) => product.korisnikId != LoggedInUser.userId)
+            .toList();
+     // }
+      print('Setirano stanje proizovda.');
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +137,8 @@ class _ProductListPagetState extends State<ProductListPage> {
     }
     List<Widget> list = data
         .map((x) {
-           final imageWidget = x.slika != null ? imageFromBase64String(x.slika!) : Container();
+          final imageWidget =
+              x.slika != null ? imageFromBase64String(x.slika!) : Container();
           return Padding(
             padding: EdgeInsets.all(8),
             child: Column(
@@ -145,7 +151,7 @@ class _ProductListPagetState extends State<ProductListPage> {
                           context, "${ProductDetailsPage.routeName}/${x.id}");
                     },
                     child: Container(
-                      child: imageWidget,//imageFromBase64String(x.slika),
+                      child: imageWidget, //imageFromBase64String(x.slika),
                     ),
                   ),
                 ),

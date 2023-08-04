@@ -16,7 +16,7 @@ class ProductDetailsPage extends StatefulWidget {
   static const String routeName = "/product_details";
   final String id;
   //Product? data;
-  ProductDetailsPage(this.id, {Key? key}) : super(key: key);
+  const ProductDetailsPage(this.id, {Key? key}) : super(key: key);
 
   @override
   State<ProductDetailsPage> createState() => _ProductDetailsPageState();
@@ -28,22 +28,21 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   Product? data;
   List<Product> list = [];
   Product? selectedProduct;
- ExchangeProvider? _exchangeProvider=null;
+  ExchangeProvider? _exchangeProvider = null;
   ProbaProvider? _probaProvider = null;
   Trade trade = Trade();
 
   @override
   void initState() {
-   
-     id = widget.id;
-    _productProvider = context.read<ProductProvider>();
-      //_exchangeProvider = context.read<ExchangeProvider>();
-    id = widget.id;
     super.initState();
+    id = widget.id;
+    _productProvider = context.read<ProductProvider>();
+    //_exchangeProvider = context.read<ExchangeProvider>();
+    id = widget.id;
     loadData();
   }
 
-  Future<void> loadData() async {
+  Future loadData() async {
     print('Loading data...');
     final tempData = await _productProvider?.getById(int.parse(id));
     print('Temp data: $tempData');
@@ -59,12 +58,15 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         .toList();
     setState(() {
       data = tempData;
+
       selectedProduct = list.isNotEmpty ? list[0] : null;
       // list = tempList;
     });
 
     print('Data loaded successfully.');
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +131,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     trade.proizvod1Id = selectedProduct?.id;
                     trade.proizvod2Id = data?.id;
                     trade.statusRazmjeneId = 1;
-                _exchangeProvider = context.read<ExchangeProvider>();
+                    _exchangeProvider = context.read<ExchangeProvider>();
                     var response =
                         await _exchangeProvider?.insert(trade.toJson());
                     showDialog(
@@ -138,7 +140,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                         title: "Zahtjev poslan",
                         message: response.toString(),
                         //message:
-                            //'Uspješno ste poslali zahtjev za proizvod ${data?.naziv ?? ""} ',
+                        //'Uspješno ste poslali zahtjev za proizvod ${data?.naziv ?? ""} ',
                         context: context,
                       ),
                     );

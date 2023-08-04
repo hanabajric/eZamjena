@@ -1,3 +1,5 @@
+import 'package:ezamjena_mobile/pages/buy_pages/buy_history.dart';
+import 'package:ezamjena_mobile/pages/exchange_pages/exchange_history.dart';
 import 'package:ezamjena_mobile/pages/product_pages/my_product_overview.dart';
 import 'package:ezamjena_mobile/pages/product_pages/product_details.dart';
 import 'package:ezamjena_mobile/pages/product_pages/product_overview.dart';
@@ -51,6 +53,14 @@ void main() => runApp(MultiProvider(
               return MaterialPageRoute(
                   builder: ((context) => const MyProductListPage()));
             }
+             if (settings.name == ExchangeHistoryPage.routeName) {
+              return MaterialPageRoute(
+                  builder: ((context) => const ExchangeHistoryPage()));
+            }
+             if (settings.name == BuyHistoryPage.routeName) {
+              return MaterialPageRoute(
+                  builder: ((context) => const BuyHistoryPage()));
+            }
             var uri = Uri.parse(settings.name!);
             if (uri.pathSegments.length == 2 &&
                 "/${uri.pathSegments.first}" == ProductDetailsPage.routeName) {
@@ -58,6 +68,7 @@ void main() => runApp(MultiProvider(
               return MaterialPageRoute(
                   builder: (context) => ProductDetailsPage(id));
             }
+            return null;
           },
         )));
 

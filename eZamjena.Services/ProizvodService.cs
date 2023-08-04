@@ -10,6 +10,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Diagnostics;
+
 
 
 
@@ -57,6 +59,7 @@ namespace eZamjena.Services
 
         public override IEnumerable<Model.Proizvod> Get(ProizvodSearchObject search = null)
         {
+            Debug.WriteLine("Ovo je funkcija učitavanja PROIZVODA.");
             var entity = Context.Proizvods.Include(k => k.KategorijaProizvoda).Include(x => x.Korisnik).AsQueryable();
           
             entity = AddFilter(entity, search);
