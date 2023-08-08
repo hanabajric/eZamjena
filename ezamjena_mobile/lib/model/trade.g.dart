@@ -8,16 +8,20 @@ part of 'trade.dart';
 
 Trade _$TradeFromJson(Map<String, dynamic> json) => Trade()
   ..id = json['id'] as int?
-  ..datum =
-      json['datum'] == null ? null : DateTime.parse(json['datum'] as String)
   ..proizvod1Id = json['proizvod1Id'] as int?
   ..proizvod2Id = json['proizvod2Id'] as int?
+  ..datum =
+      json['datum'] == null ? null : DateTime.parse(json['datum'] as String)
+  ..proizvod1Naziv = json['proizvod1Naziv'] as String?
+  ..proizvod2Naziv = json['proizvod2Naziv'] as String?
   ..statusRazmjeneId = json['statusRazmjeneId'] as int?;
 
 Map<String, dynamic> _$TradeToJson(Trade instance) => <String, dynamic>{
       'id': instance.id,
-      'datum': instance.datum?.toIso8601String(),
       'proizvod1Id': instance.proizvod1Id,
       'proizvod2Id': instance.proizvod2Id,
+      'datum': instance.datum?.toIso8601String(),
+      'proizvod1Naziv': instance.proizvod1Naziv,
+      'proizvod2Naziv': instance.proizvod2Naziv,
       'statusRazmjeneId': instance.statusRazmjeneId,
     };

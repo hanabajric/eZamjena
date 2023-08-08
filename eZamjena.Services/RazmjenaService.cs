@@ -27,6 +27,7 @@ namespace eZamjena.Services
             var entity = Context.Razmjenas.Include(x=>x.Proizvod1).Include(k => k.Proizvod2).AsQueryable();
 
             entity = AddFilter(entity, search);
+            
 
             if (search?.Page.HasValue == true && search?.PageSize.HasValue == true)
             {
@@ -35,7 +36,7 @@ namespace eZamjena.Services
 
             var list = entity.ToList();
 
-
+            Debug.WriteLine("Ovo je filtriranje po datumu - " + search.Datum);
             return Mapper.Map<IList<Model.Razmjena>>(list);
         }
 
@@ -55,6 +56,10 @@ namespace eZamjena.Services
             if(search?.DatumOd != null && search.DatumOd.Value != DateTime.MinValue && search?.DatumDo != null && search.DatumDo.Value != DateTime.MinValue)
             {
                 filteredQuery = filteredQuery.Where(x => x.Datum >search.DatumOd && x.Datum < search.DatumDo);
+            }
+            if (search?.Datum != null && search.Datum.Value != DateTime.MinValue)
+            {
+                filteredQuery = filteredQuery.Where(x => x.Datum.HasValue && x.Datum.Value.Date == search.Datum.Value.Date);
             }
 
 

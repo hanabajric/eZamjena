@@ -33,20 +33,20 @@ class _MyProductListPage extends State<MyProductListPage> {
   // @override
   // void didChangeDependencies() {
   //   super.didChangeDependencies();
-  //   _context = context; // Spremite roditeljski BuildContext
+  //   _productProvider = context.watch<ProductProvider>();
+  // loadData();
   // }
 
   Future loadData() async {
     var tempData = await _productProvider?.get(null);
-    setState(() {
-      
-      data = tempData!
-          .where((product) => product.korisnikId == LoggedInUser.userId)
-          .toList();
-    });
+    if (mounted && tempData != null) {
+      setState(() {
+        data = tempData
+            .where((product) => product.korisnikId == LoggedInUser.userId)
+            .toList();
+      });
+    }
   }
-
-
 
   @override
   Widget build(BuildContext context) {

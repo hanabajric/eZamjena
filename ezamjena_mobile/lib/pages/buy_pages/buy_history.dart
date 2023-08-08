@@ -34,18 +34,23 @@ class _BuyHistoryPageState extends State<BuyHistoryPage> {
     _buyProvider = context.read<BuyProvider>();
     loadData();
   }
+//   @override
+// void didChangeDependencies() {
+//   super.didChangeDependencies();
+//   _buyProvider = context.watch<BuyProvider>();
+//   loadData();
+// }
 
   Future loadData() async {
     var tempData = await _buyProvider?.get(null);
-    setState(() {
-      print('Setirano stanje istorije kupovina.');
-      buys = tempData!;
-    });
-
+    if (mounted && tempData != null) {
+      setState(() {
+        print('Setirano stanje istorije kupovina.');
+        buys = tempData;
+      });
+    }
     print('Data loaded successfully.');
   }
-
- 
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +67,11 @@ class _BuyHistoryPageState extends State<BuyHistoryPage> {
         ),
       ),
     );
+  }
+
+  Future<List<Buy>> _loadData() async {
+    var tempData = await _buyProvider?.get(null);
+    return tempData!;
   }
 
   Widget _buildHeader() {

@@ -31,21 +31,23 @@ class _ProductListPagetState extends State<ProductListPage> {
     loadData();
   }
 
+
   Future loadData() async {
     var tempData = await _productProvider?.get(null);
     //var tradeList = await _tradeProvider?.get(null); // Poziv get metode TradeProvider-a
     //print('Trade list: $tradeList');
     print('Temp data cijela: $tempData');
-    setState(() {
-     // if (tempData != null) {
-        data = tempData!
+    if (mounted && tempData != null) {
+      setState(() {
+        // if (tempData != null) {
+        data = tempData
             .where((product) => product.korisnikId != LoggedInUser.userId)
             .toList();
-     // }
-      print('Setirano stanje proizovda.');
-    });
+        // }
+        print('Setirano stanje proizovda.');
+      });
+    }
   }
-
 
   @override
   Widget build(BuildContext context) {

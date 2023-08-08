@@ -56,17 +56,17 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     list = tempList!
         .where((product) => product.korisnikId == LoggedInUser.userId)
         .toList();
-    setState(() {
-      data = tempData;
+    if (mounted && tempData != null) {
+      setState(() {
+        data = tempData;
 
-      selectedProduct = list.isNotEmpty ? list[0] : null;
-      // list = tempList;
-    });
+        selectedProduct = list.isNotEmpty ? list[0] : null;
+        // list = tempList;
+      });
+    }
 
     print('Data loaded successfully.');
   }
-
-
 
   @override
   Widget build(BuildContext context) {

@@ -20,7 +20,7 @@ void main() => runApp(MultiProvider(
           ChangeNotifierProvider(create: (_) => ExchangeProvider()),
           ChangeNotifierProvider(create: (_) => BuyProvider()),
           ChangeNotifierProvider(create: (_) => ProbaProvider()),
-
+         
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: true,
@@ -238,3 +238,4 @@ class HomePage extends StatelessWidget {
     );
   }
 }
+

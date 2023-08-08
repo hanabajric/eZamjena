@@ -9,7 +9,7 @@ import '../utils/utils.dart';
 
 abstract class BaseProvider<T> with ChangeNotifier {
   static String? _baseUrl;
-  static String? _endpoint;
+  String? _endpoint;
 
   String? publicUrl;
   HttpClient client = new HttpClient();
@@ -53,7 +53,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
 
   Future<List<T>> get([dynamic search]) async {
     var url = "$_baseUrl$_endpoint";
-
+ print('Endpoint za ovu strannicu je: $_endpoint');
     if (search != null) {
       String queryString = getQueryString(search);
       url = url + "?" + queryString;

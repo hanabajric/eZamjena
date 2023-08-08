@@ -1,3 +1,5 @@
+
+
 import 'package:provider/single_child_widget.dart';
 
 import 'package:ezamjena_mobile/widets/master_page.dart';
@@ -6,13 +8,14 @@ import 'package:provider/provider.dart';
 
 import '../../model/product.dart';
 import '../../model/trade.dart';
-import '../../providers/buy_provider.dart';
 import '../../providers/exchange_provider.dart';
 import '../../providers/proba_provider.dart';
 import '../../providers/products_provider.dart';
 import '../../utils/logged_in_usser.dart';
 import '../../utils/utils.dart';
 import '../../widets/alert_dialog_widet.dart';
+import 'package:intl/intl.dart';
+
 
 class ExchangeHistoryPage extends StatefulWidget {
   static const String routeName = "/exchange_history";
@@ -34,17 +37,22 @@ class _ExchangeHistoryPageState extends State<ExchangeHistoryPage> {
     loadData();
   }
 
+//   @override
+// void didChangeDependencies() {
+//   super.didChangeDependencies();
+//   _exchangeProvider = context.read<ExchangeProvider>();
+//   loadData();
+// }
   Future loadData() async {
     var tempData = await _exchangeProvider?.get(null);
-    setState(() {
-      print('Setirano stanje istorije razmjena.');
-      trades = tempData!;
-    });
-
+    if (mounted && tempData != null) {
+      setState(() {
+        print('Setirano stanje istorije razmjena.');
+        trades = tempData;
+      });
+    }
     print('Data loaded successfully.');
   }
-
- 
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +63,7 @@ class _ExchangeHistoryPageState extends State<ExchangeHistoryPage> {
             children: [
               _buildHeader(),
               buildDateTimeSearch(),
-              buildExchangeList(trades),
+              buildExchangeList(),
               // Add other widgets here
             ],
           ),
@@ -92,26 +100,36 @@ class _ExchangeHistoryPageState extends State<ExchangeHistoryPage> {
             ),
           ),
           ElevatedButton(
-            onPressed: () {
-              showDatePicker(
+            onPressed: () async {
+              DateTime? selectedDate = await showDatePicker(
                 context: context,
                 initialDate: DateTime.now(),
                 firstDate: DateTime(2000),
                 lastDate: DateTime(2100),
-              ).then((selectedDate) {
-                if (selectedDate != null) {
-                  print('Selected date: $selectedDate');
-                }
-              });
+              );
+              
+              if (selectedDate != null) {
+                var dateFormatter = DateFormat('yyyy-MM-dd');
+                var formattedDate = dateFormatter.format(selectedDate);
+                print("ovo je formatirani datum : " +
+                  formattedDate);
+                var tmpData =
+                    await _exchangeProvider?.get({'datum': formattedDate});
+                print("ovo je tmpData razmjena: " + tmpData!.length.toString());
+                setState(() {
+                  trades = tmpData!;
+                });
+              }
             },
             child: Text("Odaberi datum"),
           ),
+          
         ],
       ),
     );
   }
 
-  Widget buildExchangeList(List<Trade> trades) {
+  Widget buildExchangeList() {
     return ListView.builder(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
@@ -130,7 +148,7 @@ class _ExchangeHistoryPageState extends State<ExchangeHistoryPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Razmjenjen proizvod (${trade.proizvod1Id}) za proizvod (${trade.proizvod2Id})",
+                "Razmjenjen proizvod (${trade.proizvod1Naziv}) za proizvod (${trade.proizvod2Naziv})",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 5),
