@@ -6,6 +6,8 @@ class Trade {
   int? id;
   int? proizvod1Id;
   int? proizvod2Id;
+  int? korisnik1Id;
+  int? korisnik2Id;
   DateTime? datum;
   String? proizvod1Naziv;
   String? proizvod2Naziv;

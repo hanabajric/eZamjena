@@ -17,6 +17,8 @@ namespace eZamjena.Model
         public string Proizvod2Naziv => Proizvod2?.Naziv;
         public string Korisnik1 => Proizvod1?.NazivKorisnika;
         public string Korisnik2 => Proizvod2?.NazivKorisnika;
+        public int? Korisnik1Id => Proizvod1?.KorisnikId;
+        public int? Korisnik2Id => Proizvod2?.KorisnikId;
         public string formatiraniDatum => Datum.HasValue ? Datum.Value.ToString("dd/MM/yyyy") : "";
 
 

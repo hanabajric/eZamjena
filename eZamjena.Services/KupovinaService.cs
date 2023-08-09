@@ -36,7 +36,10 @@ namespace eZamjena.Services
             {
                 filteredQuery = filteredQuery.Where(x => x.Datum > search.DatumOd && x.Datum < search.DatumDo);
             }
-
+            if (search?.Datum != null && search.Datum.Value != DateTime.MinValue)
+            {
+                filteredQuery = filteredQuery.Where(x => x.Datum.HasValue && x.Datum.Value.Date == search.Datum.Value.Date);
+            }
 
             return filteredQuery;
 

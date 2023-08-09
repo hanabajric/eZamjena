@@ -47,8 +47,9 @@ class _ExchangeHistoryPageState extends State<ExchangeHistoryPage> {
     var tempData = await _exchangeProvider?.get(null);
     if (mounted && tempData != null) {
       setState(() {
-        print('Setirano stanje istorije razmjena.');
-        trades = tempData;
+        
+        trades = tempData.where((trade) => trade.korisnik1Id == LoggedInUser.userId || trade.korisnik2Id == LoggedInUser.userId)
+            .toList();
       });
     }
     print('Data loaded successfully.');
@@ -117,7 +118,8 @@ class _ExchangeHistoryPageState extends State<ExchangeHistoryPage> {
                     await _exchangeProvider?.get({'datum': formattedDate});
                 print("ovo je tmpData razmjena: " + tmpData!.length.toString());
                 setState(() {
-                  trades = tmpData!;
+                  trades = tmpData.where((trade) => trade.korisnik1Id == LoggedInUser.userId || trade.korisnik2Id == LoggedInUser.userId)
+            .toList();
                 });
               }
             },

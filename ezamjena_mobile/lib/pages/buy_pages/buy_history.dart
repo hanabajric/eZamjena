@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:provider/single_child_widget.dart';
 
 import 'package:ezamjena_mobile/widets/master_page.dart';
@@ -101,18 +102,26 @@ class _BuyHistoryPageState extends State<BuyHistoryPage> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          ElevatedButton(
-            onPressed: () {
-              showDatePicker(
+           ElevatedButton(
+            onPressed: () async {
+              DateTime? selectedDate = await showDatePicker(
                 context: context,
                 initialDate: DateTime.now(),
                 firstDate: DateTime(2000),
                 lastDate: DateTime(2100),
-              ).then((selectedDate) {
-                if (selectedDate != null) {
-                  print('Selected date: $selectedDate');
-                }
-              });
+              );
+              
+              if (selectedDate != null) {
+                var dateFormatter = DateFormat('yyyy-MM-dd');
+                var formattedDate = dateFormatter.format(selectedDate);
+                var tmpData =
+                    await _buyProvider?.get({'datum': formattedDate});
+                print("ovo je tmpData razmjena: " + tmpData!.length.toString());
+                setState(() {
+                  buys = tmpData.where((buy) => buy.korisnikId == LoggedInUser.userId )
+            .toList();
+                });
+              }
             },
             child: Text("Odaberi datum"),
           ),

@@ -8,6 +8,7 @@ namespace eZamjena.Model.SearchObjects
     {
         public DateTime? DatumOd { get; set; }
         public DateTime? DatumDo { get; set; }
+        public DateTime? Datum { get; set; }
 
 
     }
