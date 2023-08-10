@@ -94,6 +94,10 @@ namespace eZamjena.Services
             {
                 filteredQuery = filteredQuery.Where(x => x.Naziv.Contains(search.Naziv));
             }
+            if (search?.NazivKategorije != null)
+            {
+                filteredQuery = filteredQuery.Where(x => x.KategorijaProizvoda.Naziv==search.NazivKategorije);
+            }
            
             return filteredQuery;
         }

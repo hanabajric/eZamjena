@@ -6,7 +6,6 @@ import '../../model/product.dart';
 import '../../model/trade.dart';
 import '../../providers/buy_provider.dart';
 import '../../providers/exchange_provider.dart';
-import '../../providers/proba_provider.dart';
 import '../../providers/products_provider.dart';
 import '../../utils/logged_in_usser.dart';
 import '../../utils/utils.dart';
@@ -29,7 +28,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   List<Product> list = [];
   Product? selectedProduct;
   ExchangeProvider? _exchangeProvider = null;
-  ProbaProvider? _probaProvider = null;
   Trade trade = Trade();
 
   @override

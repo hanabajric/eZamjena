@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import 'package:ezamjena_mobile/utils/utils.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import '../../model/product.dart';
+import '../../model/product_category.dart';
+import '../../providers/product_category_provider.dart';
 import '../../utils/logged_in_usser.dart';
 import '../../widets/ezamjena_drawer.dart';
 import '../../widets/master_page.dart';
@@ -21,16 +23,22 @@ class _ProductListPagetState extends State<ProductListPage> {
   ProductProvider?
       _productProvider; // prvo pokretanje null dok se ne izvrši initState
   List<Product> data = [];
+  List<ProductCategory> categories = [];
+  ProductCategoryProvider? _productCategoryProvider = null;
   //late TradeProvider _tradeProvider;
+  String _selectedCategory = "Sve kategorije";
+  String _selectedCondition = "Svi proizvodi";
+
   TextEditingController _searchController = TextEditingController();
   @override
   void initState() {
     super.initState();
     _productProvider = context.read<ProductProvider>();
+    _productCategoryProvider = context.read<ProductCategoryProvider>();
     //_tradeProvider=context.read<TradeProvider>();
     loadData();
+    _loadCategories();
   }
-
 
   Future loadData() async {
     var tempData = await _productProvider?.get(null);
@@ -39,14 +47,23 @@ class _ProductListPagetState extends State<ProductListPage> {
     print('Temp data cijela: $tempData');
     if (mounted && tempData != null) {
       setState(() {
-        // if (tempData != null) {
-        data = tempData
-            .where((product) => product.korisnikId != LoggedInUser.userId)
-            .toList();
-        // }
+        if (tempData != null) {
+          data = tempData
+              .where((product) => product.korisnikId != LoggedInUser.userId)
+              .toList();
+        }
         print('Setirano stanje proizovda.');
       });
     }
+  }
+
+  Future<void> _loadCategories() async {
+    var tmpData = await _productCategoryProvider?.get(null);
+    setState(() {
+      if (tmpData != null) {
+        categories = tmpData;
+      }
+    });
   }
 
   @override
@@ -94,27 +111,14 @@ class _ProductListPagetState extends State<ProductListPage> {
     return Column(
       children: [
         Container(
-          padding: EdgeInsets.symmetric(
-              horizontal: 20, vertical: 5), // Prilagodite padding za visinu
+          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
           child: TextField(
             controller: _searchController,
             onSubmitted: (value) async {
-              var tmpData = await _productProvider?.get({'naziv': value});
-              setState(() {
-                data = tmpData!
-                    .where(
-                        (product) => product.korisnikId != LoggedInUser.userId)
-                    .toList();
-              });
+              await _applyFilters();
             },
             onChanged: (value) async {
-              var tmpData = await _productProvider?.get({'naziv': value});
-              setState(() {
-                data = tmpData!
-                    .where(
-                        (product) => product.korisnikId != LoggedInUser.userId)
-                    .toList();
-              });
+              await _applyFilters();
             },
             decoration: InputDecoration(
               hintText: "Search",
@@ -124,13 +128,101 @@ class _ProductListPagetState extends State<ProductListPage> {
                 borderSide: BorderSide(color: Colors.grey),
               ),
               contentPadding: EdgeInsets.symmetric(
-                  vertical: 5), // Prilagodite padding za visinu
+                vertical: 5,
+              ),
             ),
           ),
         ),
-        // Dodajte dodatne widgete ispod Search Box-a ovdje
+        SizedBox(height: 10),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                width: MediaQuery.of(context).size.width * 0.4,
+                // decoration: BoxDecoration(
+                //   border: Border.all(color: Colors.grey),
+                //   borderRadius: BorderRadius.circular(10),
+                // ),
+                child: DropdownButton<String>(
+                  value: _selectedCategory,
+                  onChanged: (newValue) async {
+                    setState(() {
+                      _selectedCategory = newValue!;
+                    });
+                    await _applyFilters();
+                  },
+                  items: _buildCategoryDropdownItems(),
+                  icon: Icon(
+                      Icons.arrow_drop_down), // Dodaje ikonu padajućeg menija
+                ),
+              ),
+              Container(
+                width: MediaQuery.of(context).size.width * 0.4,
+                child: DropdownButton<String>(
+                  value: _selectedCondition,
+                  onChanged: (newValue) async {
+                    setState(() {
+                      _selectedCondition = newValue!;
+                    });
+                    await _applyFilters();
+                  },
+                  items: _buildConditionDropdownItems(),
+                  icon: Icon(Icons.arrow_drop_down),
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: 20),
       ],
     );
+  }
+
+  Future<void> _applyFilters() async {
+    var searchRequest = {
+      'naziv': _searchController.text,
+      'nazivKategorije': _selectedCategory == "Sve kategorije" ? null : _selectedCategory,
+      'novo': _selectedCondition == "Svi proizvodi"
+          ? null
+          : _selectedCondition == "Novo",
+    };
+    var tmpData = await _productProvider?.get(searchRequest);
+    setState(() {
+      data = tmpData!
+          .where((product) => product.korisnikId != LoggedInUser.userId)
+          .toList();
+    });
+  }
+
+  List<DropdownMenuItem<String>> _buildCategoryDropdownItems() {
+    List<DropdownMenuItem<String>> items = [];
+
+    items.add(DropdownMenuItem<String>(
+      value: "Sve kategorije",
+      child: Text("Sve kategorije"),
+    ));
+      for (var category in categories) {
+        items.add(DropdownMenuItem<String>(
+          value: category
+              .naziv, 
+          child: Text(category.naziv!),
+        ));
+      }
+    
+
+    return items;
+  }
+
+  List<DropdownMenuItem<String>> _buildConditionDropdownItems() {
+    List<String> conditions = ["Svi proizvodi", "Novo", "Polovno"];
+    return conditions.map((condition) {
+      return DropdownMenuItem<String>(
+        value: condition,
+        child: Text(condition),
+      );
+    }).toList();
   }
 
   List<Widget> _buildProductCardList() {

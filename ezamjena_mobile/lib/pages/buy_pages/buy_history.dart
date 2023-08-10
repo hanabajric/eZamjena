@@ -10,7 +10,6 @@ import '../../model/product.dart';
 import '../../model/trade.dart';
 import '../../providers/buy_provider.dart';
 import '../../providers/exchange_provider.dart';
-import '../../providers/proba_provider.dart';
 import '../../providers/products_provider.dart';
 import '../../utils/logged_in_usser.dart';
 import '../../utils/utils.dart';

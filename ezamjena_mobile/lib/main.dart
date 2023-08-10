@@ -5,7 +5,7 @@ import 'package:ezamjena_mobile/pages/product_pages/product_details.dart';
 import 'package:ezamjena_mobile/pages/product_pages/product_overview.dart';
 import 'package:ezamjena_mobile/providers/buy_provider.dart';
 import 'package:ezamjena_mobile/providers/exchange_provider.dart';
-import 'package:ezamjena_mobile/providers/proba_provider.dart';
+import 'package:ezamjena_mobile/providers/product_category_provider.dart';
 import 'package:ezamjena_mobile/providers/products_provider.dart';
 import 'package:ezamjena_mobile/providers/user_provider.dart';
 import 'package:ezamjena_mobile/utils/logged_in_usser.dart';
@@ -19,7 +19,7 @@ void main() => runApp(MultiProvider(
           ChangeNotifierProvider(create: (_) => UserProvider()),
           ChangeNotifierProvider(create: (_) => ExchangeProvider()),
           ChangeNotifierProvider(create: (_) => BuyProvider()),
-          ChangeNotifierProvider(create: (_) => ProbaProvider()),
+          ChangeNotifierProvider(create: (_) => ProductCategoryProvider()),
          
         ],
         child: MaterialApp(
