@@ -7,6 +7,7 @@ using eZamjena.Services.Database;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -66,7 +67,11 @@ namespace eZamjena.Services
             return Mapper.Map<IList<Model.Korisnik>>(list);
         }
 
-       
+        public override Model.Korisnik GetById(int id)
+        {
+            Debug.WriteLine("Ovo je funkcija učitavanja et by ID korisnika."+ id);
+            return base.GetById(id);
+        }
 
         public override void BeforeInsert(KorisnikInsertRequest insert, Database.Korisnik entity)
         {

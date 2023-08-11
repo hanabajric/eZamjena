@@ -10,8 +10,9 @@ class UserProvider extends BaseProvider<User> {
   @override
   User fromJson(data) {
     // TODO: implement fromJson
-    return User();
+    return User.fromJson(data);
   }
+  
   Future<int> getLoggedInUserId() async {
     var url = Uri.parse("$publicUrl/user-role");
 

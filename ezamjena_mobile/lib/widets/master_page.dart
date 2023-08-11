@@ -1,3 +1,4 @@
+import 'package:ezamjena_mobile/pages/user_pages/my_profile_page.dart';
 import 'package:ezamjena_mobile/pages/product_pages/product_details.dart';
 import 'package:ezamjena_mobile/pages/product_pages/product_overview.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,9 @@ class _MasterPageWidgetState extends State<MasterPageWidget> {
       Navigator.pushNamed(context, ProductListPage.routeName);
     } else if (currentIndex == 1) {
       //Navigator.pushNamed(context, CartScreen.routeName);
+    }
+     else if (currentIndex == 2) {
+      Navigator.pushNamed(context, MyProfilePage.routeName);
     }
   }
 

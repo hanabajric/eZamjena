@@ -1,9 +1,11 @@
 import 'package:ezamjena_mobile/pages/buy_pages/buy_history.dart';
+import 'package:ezamjena_mobile/pages/user_pages/my_profile_page.dart';
 import 'package:ezamjena_mobile/pages/exchange_pages/exchange_history.dart';
 import 'package:ezamjena_mobile/pages/product_pages/my_product_overview.dart';
 import 'package:ezamjena_mobile/pages/product_pages/product_details.dart';
 import 'package:ezamjena_mobile/pages/product_pages/product_overview.dart';
 import 'package:ezamjena_mobile/providers/buy_provider.dart';
+import 'package:ezamjena_mobile/providers/city_provider.dart';
 import 'package:ezamjena_mobile/providers/exchange_provider.dart';
 import 'package:ezamjena_mobile/providers/product_category_provider.dart';
 import 'package:ezamjena_mobile/providers/products_provider.dart';
@@ -20,6 +22,7 @@ void main() => runApp(MultiProvider(
           ChangeNotifierProvider(create: (_) => ExchangeProvider()),
           ChangeNotifierProvider(create: (_) => BuyProvider()),
           ChangeNotifierProvider(create: (_) => ProductCategoryProvider()),
+          ChangeNotifierProvider(create: (_) => CityProvider()),
          
         ],
         child: MaterialApp(
@@ -60,6 +63,10 @@ void main() => runApp(MultiProvider(
              if (settings.name == BuyHistoryPage.routeName) {
               return MaterialPageRoute(
                   builder: ((context) => const BuyHistoryPage()));
+            }
+              if (settings.name == MyProfilePage.routeName) {
+              return MaterialPageRoute(
+                  builder: ((context) => const MyProfilePage()));
             }
             var uri = Uri.parse(settings.name!);
             if (uri.pathSegments.length == 2 &&

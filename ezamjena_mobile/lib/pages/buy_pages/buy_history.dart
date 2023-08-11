@@ -34,12 +34,6 @@ class _BuyHistoryPageState extends State<BuyHistoryPage> {
     _buyProvider = context.read<BuyProvider>();
     loadData();
   }
-//   @override
-// void didChangeDependencies() {
-//   super.didChangeDependencies();
-//   _buyProvider = context.watch<BuyProvider>();
-//   loadData();
-// }
 
   Future loadData() async {
     var tempData = await _buyProvider?.get(null);
