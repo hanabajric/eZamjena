@@ -141,10 +141,6 @@ class _ProductListPagetState extends State<ProductListPage> {
             children: [
               Container(
                 width: MediaQuery.of(context).size.width * 0.4,
-                // decoration: BoxDecoration(
-                //   border: Border.all(color: Colors.grey),
-                //   borderRadius: BorderRadius.circular(10),
-                // ),
                 child: DropdownButton<String>(
                   value: _selectedCategory,
                   onChanged: (newValue) async {

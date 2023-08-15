@@ -15,6 +15,9 @@ class User {
   int? brojAktivnihArtikala;
   String? adresa;
   String? nazivGrada;
+  String? password;
+  int? ulogaId;
+  int? gradId;
 
   User() {}
 

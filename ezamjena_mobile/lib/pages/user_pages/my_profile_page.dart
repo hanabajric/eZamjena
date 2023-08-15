@@ -9,6 +9,8 @@ import '../../providers/user_provider.dart';
 import '../../utils/logged_in_usser.dart';
 import '../../utils/utils.dart';
 import '../../widets/master_page.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 
 class MyProfilePage extends StatefulWidget {
   static const String routeName = "/my_profile";
@@ -25,6 +27,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
   User? user;
   String? _selectedGrad;
   List<City> gradovi = [];
+  final ImagePicker _imagePicker = ImagePicker();
   TextEditingController _korisnickoImeController = TextEditingController();
   TextEditingController _imeController = TextEditingController();
   TextEditingController _prezimeController = TextEditingController();
@@ -32,14 +35,15 @@ class _MyProfilePageState extends State<MyProfilePage> {
   TextEditingController _gradController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _brojTelefonaController = TextEditingController();
-  TextEditingController _lozinkaController = TextEditingController();
-  TextEditingController _lozinkaPotvrdaController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+  TextEditingController _passwordPotvrdaController = TextEditingController();
   @override
   void initState() {
     super.initState();
     _userProvider = context.read<UserProvider>();
     _cityProvider = context.read<CityProvider>();
     loadData();
+    _loadCities();
   }
 
   Future<void> loadData() async {
@@ -58,7 +62,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
           _emailController.text = user?.email ?? '';
           _brojTelefonaController.text = user?.telefon ?? '';
           _selectedGrad = user?.nazivGrada;
-          //_lozinkaController.text = user?.password ?? '';
+          _passwordController.text = user?.password ?? '';
         });
       } else {
         print('Data loading failed or returned null.');
@@ -78,15 +82,34 @@ class _MyProfilePageState extends State<MyProfilePage> {
   }
 
   void _handleCancel() {
-    // Implement cancel logic
+    Navigator.pop(context);
   }
 
   Future<void> _handleSave() async {
-    // Implement save logic
-    if (user != null) {
-      // Update user data in the database
-      await _userProvider?.update(user!.id!);
-      print('User data saved.');
+    try {
+      if (user != null) {
+        user!.ulogaId = user!.ulogaId;
+        await _userProvider?.update(user!.id!);
+        print('User data saved.');
+      }
+    } catch (e) {
+      print('Error while updating user data: $e');
+      
+    }
+  }
+
+  Future<void> _changeProfilePicture() async {
+    final pickedFile = await _imagePicker.pickImage(
+        source: ImageSource
+            .gallery); 
+
+    if (pickedFile != null) {
+      final fileBytes = File(pickedFile.path).readAsBytesSync();
+      final String base64Stringg = base64String(fileBytes);
+
+      setState(() {
+        user?.slika = base64Stringg;
+      });
     }
   }
 
@@ -103,10 +126,10 @@ class _MyProfilePageState extends State<MyProfilePage> {
               children: [
                 GestureDetector(
                   onTap: () {
-                    // Implement logic for changing profile picture
+                    _changeProfilePicture();
                   },
                   child: CircleAvatar(
-                    radius: 50,
+                    radius: 60,
                     backgroundImage: user?.slika != null
                         ? imageFromBase64String(user?.slika).image
                         : null,
@@ -127,7 +150,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                 ),
               ],
             ),
-            SizedBox(height: 40),
+            SizedBox(height: 30),
             TextFieldWithTitle(
               title: "Korisničko ime:",
               controller: _korisnickoImeController,
@@ -151,29 +174,45 @@ class _MyProfilePageState extends State<MyProfilePage> {
                 });
               },
             ),
-            TextFieldWithTitle(
-              title: "Grad:",
-              controller: TextEditingController(
-                text: _selectedGrad,
-              ),
-              onChanged: (value) {
-                setState(() {
-                  _selectedGrad = value;
-                });
-              },
-              child: DropdownButtonFormField<String>(
-                value: _selectedGrad,
-                onChanged: (newValue) {
-                  setState(() {
-                    _selectedGrad = newValue;
-                  });
-                },
-                items: gradovi.map((City grad) {
-                  return DropdownMenuItem<String>(
-                    value: grad.naziv,
-                    child: Text(grad.naziv!),
-                  );
-                }).toList(),
+            SizedBox(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Text("Grad:",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 15)),
+                      SizedBox(
+                        width: 94,
+                      ),
+                    ],
+                  ),
+                  Expanded(
+                    child: DropdownButton<String>(
+                      value: _selectedGrad,
+                      onChanged: (newValue) async {
+                        setState(() {
+                          _selectedGrad = newValue!;
+                          var selectedCity = gradovi
+                              .firstWhere((city) => city.naziv == newValue);
+                          user?.gradId = selectedCity.id;
+                        });
+                        
+                      },
+                      items: gradovi.map((City grad) {
+                        return DropdownMenuItem<String>(
+                          value: grad.naziv,
+                          child: Text(grad.naziv!),
+                        );
+                      }).toList(),
+                      icon: Icon(Icons.arrow_drop_down),
+                      isExpanded:
+                          true, // Opcija za proširenje DropdownButton-a na širinu Expanded
+                    ),
+                    //),
+                  ),
+                ],
               ),
             ),
 
@@ -204,8 +243,25 @@ class _MyProfilePageState extends State<MyProfilePage> {
                 });
               },
             ),
-            // Add other text fields similarly
-
+            TextFieldWithTitle(
+              title: "Lozinka:",
+              controller: _passwordController,
+              onChanged: (value) {
+                setState(() {
+                  user?.password = value;
+                });
+              },
+            ),
+            TextFieldWithTitle(
+              title: "Potvrda lozinke:",
+              controller: _passwordPotvrdaController,
+              onChanged: (value) {
+                setState(() {
+                  user?.password = value;
+                });
+              },
+            ),
+            SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -230,36 +286,46 @@ class TextFieldWithTitle extends StatelessWidget {
   final String title;
   final TextEditingController controller;
   final ValueChanged<String>? onChanged;
-  final Widget? child; // Dodali smo "child" kao dodatni atribut
+  final Widget? child;
 
   const TextFieldWithTitle({
     required this.title,
     required this.controller,
     this.onChanged,
-    this.child, // Dodali smo "child" ovdje
+    this.child,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(title),
-            SizedBox(width: 10),
-            Flexible(
-              child: TextFormField(
-                controller: controller,
-                onChanged: onChanged,
-                // Add more text field properties here
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 5),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              SizedBox(
+                width: 120,
+                child: Text(title,
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
               ),
-            ),
-          ],
-        ),
-        if (child != null) child!,
-        SizedBox(height: 15),
-      ],
+              SizedBox(width: 10),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: TextFormField(
+                    controller: controller,
+                    onChanged: onChanged,
+                    // Add more text field properties here
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (child != null) child!,
+        ],
+      ),
     );
   }
 }

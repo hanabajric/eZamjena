@@ -69,9 +69,18 @@ namespace eZamjena.Services
 
         public override Model.Korisnik GetById(int id)
         {
-            Debug.WriteLine("Ovo je funkcija učitavanja et by ID korisnika."+ id);
-            return base.GetById(id);
+            Debug.WriteLine("Ovo je funkcija učitavanja po ID korisnika: " + id);
+
+            var entity = Context.Korisniks.Include(k => k.Grad).FirstOrDefault(k => k.Id == id);
+
+            if (entity == null)
+            {
+                return null;
+            }
+
+            return Mapper.Map<Model.Korisnik>(entity);
         }
+
 
         public override void BeforeInsert(KorisnikInsertRequest insert, Database.Korisnik entity)
         {
