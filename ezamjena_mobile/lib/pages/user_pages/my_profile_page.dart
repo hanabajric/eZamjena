@@ -88,8 +88,11 @@ class _MyProfilePageState extends State<MyProfilePage> {
   Future<void> _handleSave() async {
     try {
       if (user != null) {
-        user!.ulogaId = user!.ulogaId;
-        await _userProvider?.update(user!.id!);
+         var selectedCityID = gradovi
+                              .firstWhere((city) => city.naziv == _selectedGrad).id;
+        user!.gradId= selectedCityID;
+        //user!.ulogaId = ;
+        await _userProvider?.update(user!.id!,user);
         print('User data saved.');
       }
     } catch (e) {

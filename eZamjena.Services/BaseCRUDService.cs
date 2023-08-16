@@ -42,7 +42,8 @@ namespace eZamjena.Services
             var entity = set.Find(id);
             if (entity != null)
             {
-                Mapper.Map(update, entity); // mapiramo insert objekat u bazu
+                Mapper.Map(update, entity);
+                BeforeUpdate(entity, update);
             }
             else { return null; }
 

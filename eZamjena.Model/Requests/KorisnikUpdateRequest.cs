@@ -21,6 +21,6 @@ namespace eZamjena.Model.Requests
         public string Adresa { get; set; }
         public byte[] Slika { get; set; }
         public int? GradId { get; set; }
-        public int? UlogaId { get; set; }
+    
     }
 }

@@ -89,7 +89,17 @@ namespace eZamjena.Services
             entity.LozinkaHash = GenerateHash(salt, insert.Password);
             base.BeforeInsert(insert, entity);
         }
-
+        public override void BeforeUpdate(Database.Korisnik entity, KorisnikUpdateRequest update)
+        {
+            if (!string.IsNullOrWhiteSpace(update.Password) )
+            {
+                var passwordSalt = GenerateSalt();
+                var passwordHash = GenerateHash(passwordSalt, update.Password);
+                entity.LozinkaSalt = passwordSalt;
+                entity.LozinkaHash = passwordHash;
+                base.BeforeUpdate(entity,update);
+            }
+        }
         public static string GenerateSalt()
         {
             RNGCryptoServiceProvider provider = new RNGCryptoServiceProvider();
