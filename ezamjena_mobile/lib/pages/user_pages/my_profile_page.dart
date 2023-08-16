@@ -2,6 +2,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../main.dart';
 import '../../model/city.dart';
 import '../../model/user.dart';
 import '../../providers/city_provider.dart';
@@ -27,6 +28,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
   User? user;
   String? _selectedGrad;
   List<City> gradovi = [];
+  bool _dataChanged = false;
   final ImagePicker _imagePicker = ImagePicker();
   TextEditingController _korisnickoImeController = TextEditingController();
   TextEditingController _imeController = TextEditingController();
@@ -85,26 +87,76 @@ class _MyProfilePageState extends State<MyProfilePage> {
     Navigator.pop(context);
   }
 
-  Future<void> _handleSave() async {
+  Future<void> _handleSave(BuildContext context) async {
     try {
       if (user != null) {
-         var selectedCityID = gradovi
-                              .firstWhere((city) => city.naziv == _selectedGrad).id;
-        user!.gradId= selectedCityID;
-        //user!.ulogaId = ;
-        await _userProvider?.update(user!.id!,user);
-        print('User data saved.');
+        var selectedCityID =
+            gradovi.firstWhere((city) => city.naziv == _selectedGrad).id;
+        user!.gradId = selectedCityID;
+print(_passwordController.text);
+        bool passwordChanged = _passwordController.text.isNotEmpty &&
+            _passwordController.text != user?.password;
+
+        var updatedUser = await _userProvider?.update(user!.id!, user);
+
+        if (updatedUser != null) {
+          if (_passwordController.text.isNotEmpty) {
+            print('Mjenja se lozinka.');
+            _showPasswordChangedDialog(context);
+          } else {
+            _showDataChangedDialog(context);
+          }
+        } else {
+          print('User data saved but password not changed.');
+        }
       }
     } catch (e) {
       print('Error while updating user data: $e');
-      
     }
   }
 
+  void _showPasswordChangedDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: Text("Uspješno ste promijenili lozinku"),
+        actions: [
+          TextButton(
+            child: Text("OK"),
+            onPressed: () {
+              Navigator.pop(context);
+              _userProvider?.setPasswordChanged(true);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => HomePage()),
+              );
+            },
+          )
+        ],
+      ),
+    );
+  }
+
+  void _showDataChangedDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: Text("Uspješno ste promijenili podatke"),
+        actions: [
+          TextButton(
+            child: Text("OK"),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          )
+        ],
+      ),
+    );
+  }
+
   Future<void> _changeProfilePicture() async {
-    final pickedFile = await _imagePicker.pickImage(
-        source: ImageSource
-            .gallery); 
+    final pickedFile =
+        await _imagePicker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
       final fileBytes = File(pickedFile.path).readAsBytesSync();
@@ -160,10 +212,10 @@ class _MyProfilePageState extends State<MyProfilePage> {
               onChanged: (value) {
                 setState(() {
                   user?.korisnickoIme = value;
+                  
                 });
               },
             ),
-
             TextFieldWithTitle(
               title: "Ime i prezime:",
               controller: TextEditingController(
@@ -201,7 +253,6 @@ class _MyProfilePageState extends State<MyProfilePage> {
                               .firstWhere((city) => city.naziv == newValue);
                           user?.gradId = selectedCity.id;
                         });
-                        
                       },
                       items: gradovi.map((City grad) {
                         return DropdownMenuItem<String>(
@@ -218,7 +269,6 @@ class _MyProfilePageState extends State<MyProfilePage> {
                 ],
               ),
             ),
-
             TextFieldWithTitle(
               title: "Adresa:",
               controller: _adresaController,
@@ -273,7 +323,9 @@ class _MyProfilePageState extends State<MyProfilePage> {
                   child: Text("Odustani"),
                 ),
                 ElevatedButton(
-                  onPressed: _handleSave,
+                  onPressed: () async {
+                    _handleSave(context); // Proslijedite trenutni context
+                  },
                   child: Text("Spremi"),
                 ),
               ],

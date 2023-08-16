@@ -89,6 +89,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     _userProvider =
         Provider.of<UserProvider>(context, listen: false); 
+      
     return Scaffold(
       appBar: AppBar(
         title: Text("eRazmjena"),
@@ -198,6 +199,7 @@ class HomePage extends StatelessWidget {
                                 LoggedInUser.userId = loggedInUserId;
 
                               await _userProvider.get();
+                              _userProvider.setPasswordChanged(false);
                               Navigator.pushNamed(
                                   context, ProductListPage.routeName);
                             } catch (e) {

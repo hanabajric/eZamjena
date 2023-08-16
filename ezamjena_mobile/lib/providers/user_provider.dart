@@ -12,7 +12,14 @@ class UserProvider extends BaseProvider<User> {
     // TODO: implement fromJson
     return User.fromJson(data);
   }
-  
+   bool _passwordChanged = false;
+
+  bool get passwordChanged => _passwordChanged;
+
+  void setPasswordChanged(bool value) {
+    _passwordChanged = value;
+    notifyListeners();
+  }
   Future<int> getLoggedInUserId() async {
     var url = Uri.parse("$publicUrl/user-role");
 
