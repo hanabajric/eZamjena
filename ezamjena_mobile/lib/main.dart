@@ -35,16 +35,16 @@ void main() => runApp(MultiProvider(
                 style: TextButton.styleFrom(
                     primary: Colors.blue,
                     textStyle: const TextStyle(
-                        fontSize: 24,
+                        fontSize: 20,
                        
                         ))),
 
             // Define the default `TextTheme`. Use this to specify the default
             // text styling for headlines, titles, bodies of text, and more.
-            textTheme: const TextTheme(
-              headline1: TextStyle(fontSize: 72.0, fontWeight: FontWeight.bold),
-              headline6: TextStyle(fontSize: 36.0, fontStyle: FontStyle.italic),
-            ),
+            // textTheme: const TextTheme(
+            //   headline1: TextStyle(fontSize: 72.0, fontWeight: FontWeight.bold),
+            //   headline6: TextStyle(fontSize: 36.0, fontStyle: FontStyle.italic),
+            // ),
           ),
           home: HomePage(),
           onGenerateRoute: (settings) {
