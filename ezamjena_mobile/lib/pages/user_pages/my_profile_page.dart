@@ -49,6 +49,8 @@ class _MyProfilePageState extends State<MyProfilePage> {
   bool _passwordConfirmationVisible = false;
   String? _brojTelefonaError;
   String? _emailErrorText;
+  String? _passwordErrorText;
+  String? _passwordConfirmationErrorText;
   final GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
   @override
   void initState() {
@@ -341,7 +343,6 @@ class _MyProfilePageState extends State<MyProfilePage> {
                     });
                   }
                 },
-                // Prosljedite poruku o grešci koja je spremljena u _brojTelefonaError
                 errorText: _brojTelefonaError,
               ),
               TextFieldWithTitle(
@@ -359,27 +360,44 @@ class _MyProfilePageState extends State<MyProfilePage> {
                     });
                   }
                 },
-                // Prosljedite poruku o grešci koja je spremljena u _brojTelefonaError
                 errorText: _emailErrorText,
               ),
               TextFieldWithTitle(
                 title: "Lozinka:",
                 controller: _passwordController,
                 onChanged: (value) {
-                  setState(() {
-                    user?.password = value;
-                  });
+                  if (value.length < 8) {
+                    setState(() {
+                      _passwordErrorText =
+                          "Minimalna dužina lozinke je 8 karaktera!";
+                    });
+                  } else {
+                    setState(() {
+                      _passwordErrorText = null;
+                      user?.password = value;
+                    });
+                  }
                 },
+                errorText: _passwordErrorText,
                 passwordField: true,
               ),
               TextFieldWithTitle(
                 title: "Potvrda lozinke:",
                 controller: _passwordPotvrdaController,
                 onChanged: (value) {
-                  setState(() {
-                    user?.password = value;
-                  });
+                    if (_passwordPotvrdaController.text != _passwordController.text) {
+                      setState(() {
+                        _passwordConfirmationErrorText =
+                            "Lozinka i potvrda lozinke se ne podudaraju!";
+                      });
+                    } else {
+                      setState(() {
+                        _passwordConfirmationErrorText = null;
+                        user?.password = value;
+                     });
+                  }
                 },
+                errorText: _passwordConfirmationErrorText,
                 passwordField: true,
               ),
               SizedBox(height: 20),
@@ -399,7 +417,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                             _handleSave(
                                 context); // Proslijedite trenutni context
                           }
-                        : null, // Onemogućite gumb ako lozinka i potvrda lozinke nisu iste ili postoje error tekstovi
+                        : null,
                     child: Text("Spremi"),
                   ),
                 ],
@@ -420,7 +438,9 @@ class TextFieldWithTitle extends StatefulWidget {
   final FormFieldValidator<String>? validator;
   final TextInputType? keyboardType;
   final String? errorText;
-  final String? emailErrorText; // Dodajte ovu varijablu
+  final String? emailErrorText;
+  final String? passwordErrorText;
+  final String? passwordConfirmationErrorText;
 
   const TextFieldWithTitle({
     required this.title,
@@ -431,6 +451,8 @@ class TextFieldWithTitle extends StatefulWidget {
     this.keyboardType,
     this.errorText,
     this.emailErrorText,
+    this.passwordErrorText,
+    this.passwordConfirmationErrorText,
   });
 
   @override
@@ -473,14 +495,17 @@ class _TextFieldWithTitleState extends State<TextFieldWithTitle> {
                     validator: widget.validator,
                     keyboardType: widget.keyboardType,
                     decoration: InputDecoration(
-                      errorText: widget.errorText ?? widget.emailErrorText,
-                      // Ostatak postavki dekoracije
+                      errorText: widget.errorText ??
+                          widget.emailErrorText ??
+                          widget.passwordErrorText ??
+                          widget.passwordConfirmationErrorText,
+                      
                     ),
                     // Add more text field properties here
                   ),
                 ),
               ),
-              if (isPasswordField && widget.passwordField)
+              if (isPasswordField || isConfirmationField && widget.passwordField)
                 IconButton(
                   onPressed: () {
                     setState(() {
@@ -491,20 +516,20 @@ class _TextFieldWithTitleState extends State<TextFieldWithTitle> {
                     _passwordVisible ? Icons.visibility : Icons.visibility_off,
                   ),
                 ),
-              if (isConfirmationField && widget.passwordField)
-                IconButton(
-                  onPressed: () {
-                    setState(() {
-                      _passwordConfirmationVisible =
-                          !_passwordConfirmationVisible;
-                    });
-                  },
-                  icon: Icon(
-                    _passwordConfirmationVisible
-                        ? Icons.visibility
-                        : Icons.visibility_off,
-                  ),
-                ),
+              // if (isConfirmationField && widget.passwordField)
+              //   IconButton(
+              //     onPressed: () {
+              //       setState(() {
+              //         _passwordConfirmationVisible =
+              //             !_passwordConfirmationVisible;
+              //       });
+              //     },
+              //     icon: Icon(
+              //       _passwordConfirmationVisible
+              //           ? Icons.visibility
+              //           : Icons.visibility_off,
+              //     ),
+              //   ),
             ],
           ),
         ],
