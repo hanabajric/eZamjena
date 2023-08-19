@@ -8,8 +8,8 @@ class City {
   String? naziv;
  
 
-  City() {}
-
+  City({this.id, this.naziv});
+  
   factory City.fromJson(Map<String, dynamic> json) =>
       _$CityFromJson(json);
 

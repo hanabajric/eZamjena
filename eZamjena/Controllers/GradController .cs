@@ -14,6 +14,12 @@ namespace eZamjena.Controllers
         public GradController(IGradService service) : base(service)
         {
         }
-       
+
+        [AllowAnonymous]
+        public override IEnumerable<Grad> Get([FromQuery] GradSearchObject search = null)
+        {
+            return base.Get(search);
+        }
+
     }
 }

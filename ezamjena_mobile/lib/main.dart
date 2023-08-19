@@ -4,6 +4,7 @@ import 'package:ezamjena_mobile/pages/exchange_pages/exchange_history.dart';
 import 'package:ezamjena_mobile/pages/product_pages/my_product_overview.dart';
 import 'package:ezamjena_mobile/pages/product_pages/product_details.dart';
 import 'package:ezamjena_mobile/pages/product_pages/product_overview.dart';
+import 'package:ezamjena_mobile/pages/user_pages/registration.dart';
 import 'package:ezamjena_mobile/providers/buy_provider.dart';
 import 'package:ezamjena_mobile/providers/city_provider.dart';
 import 'package:ezamjena_mobile/providers/exchange_provider.dart';
@@ -23,7 +24,6 @@ void main() => runApp(MultiProvider(
           ChangeNotifierProvider(create: (_) => BuyProvider()),
           ChangeNotifierProvider(create: (_) => ProductCategoryProvider()),
           ChangeNotifierProvider(create: (_) => CityProvider()),
-         
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: true,
@@ -35,9 +35,8 @@ void main() => runApp(MultiProvider(
                 style: TextButton.styleFrom(
                     primary: Colors.blue,
                     textStyle: const TextStyle(
-                        fontSize: 20,
-                       
-                        ))),
+                      fontSize: 20,
+                    ))),
 
             // Define the default `TextTheme`. Use this to specify the default
             // text styling for headlines, titles, bodies of text, and more.
@@ -56,17 +55,21 @@ void main() => runApp(MultiProvider(
               return MaterialPageRoute(
                   builder: ((context) => const MyProductListPage()));
             }
-             if (settings.name == ExchangeHistoryPage.routeName) {
+            if (settings.name == ExchangeHistoryPage.routeName) {
               return MaterialPageRoute(
                   builder: ((context) => const ExchangeHistoryPage()));
             }
-             if (settings.name == BuyHistoryPage.routeName) {
+            if (settings.name == BuyHistoryPage.routeName) {
               return MaterialPageRoute(
                   builder: ((context) => const BuyHistoryPage()));
             }
-              if (settings.name == MyProfilePage.routeName) {
+            if (settings.name == MyProfilePage.routeName) {
               return MaterialPageRoute(
                   builder: ((context) => const MyProfilePage()));
+            }
+             if (settings.name == RegistrationPage.routeName) {
+              return MaterialPageRoute(
+                  builder: ((context) => const RegistrationPage()));
             }
             var uri = Uri.parse(settings.name!);
             if (uri.pathSegments.length == 2 &&
@@ -87,9 +90,8 @@ class HomePage extends StatelessWidget {
   HomePage({super.key});
   @override
   Widget build(BuildContext context) {
-    _userProvider =
-        Provider.of<UserProvider>(context, listen: false); 
-      
+    _userProvider = Provider.of<UserProvider>(context, listen: false);
+
     return Scaffold(
       appBar: AppBar(
         title: Text("eRazmjena"),
@@ -98,12 +100,12 @@ class HomePage extends StatelessWidget {
         children: [
           Container(
             decoration: BoxDecoration(
-              // image: DecorationImage(
-              //   // image: AssetImage(
-              //   //     ),
-              //   fit: BoxFit.cover,
-              // ),
-            ),
+                // image: DecorationImage(
+                //   // image: AssetImage(
+                //   //     ),
+                //   fit: BoxFit.cover,
+                // ),
+                ),
           ),
           Container(
             color: Colors.black.withOpacity(0.4),
@@ -195,8 +197,9 @@ class HomePage extends StatelessWidget {
                               Authorization.username = _usernameController.text;
                               Authorization.password = _passwordController.text;
 
-                              var loggedInUserId = await _userProvider.getLoggedInUserId();
-                                LoggedInUser.userId = loggedInUserId;
+                              var loggedInUserId =
+                                  await _userProvider.getLoggedInUserId();
+                              LoggedInUser.userId = loggedInUserId;
 
                               await _userProvider.get();
                               _userProvider.setPasswordChanged(false);
@@ -230,10 +233,16 @@ class HomePage extends StatelessWidget {
                           ))),
                     ),
                     SizedBox(height: 20),
-                    Text(
-                      "Forgot password?",
-                      style: TextStyle(
-                        color: Colors.white,
+                    InkWell(
+                      onTap: () {
+                        Navigator.pushNamed(
+                            context, RegistrationPage.routeName);
+                      },
+                      child: Text(
+                        "Nemate profil? Registrujte se!",
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                     SizedBox(height: 20),
@@ -247,4 +256,3 @@ class HomePage extends StatelessWidget {
     );
   }
 }
-

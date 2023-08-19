@@ -1,3 +1,4 @@
+import 'package:ezamjena_mobile/widets/custom_alert_dialog.dart';
 import 'package:flutter/material.dart';
 
 Widget AlertDialogWidget(
@@ -13,3 +14,15 @@ Widget AlertDialogWidget(
     ],
   );
 }
+void _showMissingFieldsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => CustomAlertDialog(
+        title: "Nedostajući podaci",
+        message: "Molimo popunite sva obavezna polja.",
+        onOkPressed: () {
+          Navigator.pop(context); // Zatvaranje dijaloga
+        },
+      ),
+    );
+  }

@@ -82,7 +82,7 @@ namespace eZamjena.WinUI
                     Telefon=txtBrojTelefona.Text,
                     GradId = (int)cmbGrad.SelectedValue,
                     Slika = ImageHelper.FromImageToByte(pbKorisnici.Image),
-                    UlogaId=_korisnik.UlogaID,
+                    //UlogaId=_korisnik.UlogaID,
                  
 
                 };

@@ -12,11 +12,14 @@ import '../../providers/user_provider.dart';
 import '../../utils/logged_in_usser.dart';
 import '../../utils/utils.dart';
 import '../../widets/custom_alert_dialog.dart';
+import '../../widets/alert_dialog_widet.dart';
 import '../../widets/master_page.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+
+import '../../widets/text_field_with_title.dart';
 
 class MyProfilePage extends StatefulWidget {
   static const String routeName = "/my_profile";
@@ -144,7 +147,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
     }
   }
 
-  void _showMissingFieldsDialog(BuildContext context) {
+void _showMissingFieldsDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) => CustomAlertDialog(
@@ -412,7 +415,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                     onPressed: (_passwordController.text ==
                                 _passwordPotvrdaController.text) &&
                             _brojTelefonaError == null &&
-                            _emailErrorText == null
+                            _emailErrorText == null && _passwordErrorText==null
                         ? () async {
                             _handleSave(
                                 context); // Proslijedite trenutni context
@@ -430,110 +433,4 @@ class _MyProfilePageState extends State<MyProfilePage> {
   }
 }
 
-class TextFieldWithTitle extends StatefulWidget {
-  final String title;
-  final TextEditingController controller;
-  final ValueChanged<String>? onChanged;
-  final bool passwordField;
-  final FormFieldValidator<String>? validator;
-  final TextInputType? keyboardType;
-  final String? errorText;
-  final String? emailErrorText;
-  final String? passwordErrorText;
-  final String? passwordConfirmationErrorText;
 
-  const TextFieldWithTitle({
-    required this.title,
-    required this.controller,
-    this.onChanged,
-    this.passwordField = false,
-    this.validator,
-    this.keyboardType,
-    this.errorText,
-    this.emailErrorText,
-    this.passwordErrorText,
-    this.passwordConfirmationErrorText,
-  });
-
-  @override
-  _TextFieldWithTitleState createState() => _TextFieldWithTitleState();
-}
-
-class _TextFieldWithTitleState extends State<TextFieldWithTitle> {
-  bool _passwordVisible = false;
-  bool _passwordConfirmationVisible = false;
-
-  @override
-  Widget build(BuildContext context) {
-    bool isPasswordField = widget.title.toLowerCase().contains('lozinka');
-    bool isConfirmationField =
-        widget.title.toLowerCase().contains('potvrda lozinke');
-
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 5),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              SizedBox(
-                width: 120,
-                child: Text(widget.title,
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-              ),
-              SizedBox(width: 10),
-              Expanded(
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: TextFormField(
-                    controller: widget.controller,
-                    onChanged: widget.onChanged,
-                    obscureText: isPasswordField || isConfirmationField
-                        ? (widget.passwordField ? !_passwordVisible : true)
-                        : false,
-                    validator: widget.validator,
-                    keyboardType: widget.keyboardType,
-                    decoration: InputDecoration(
-                      errorText: widget.errorText ??
-                          widget.emailErrorText ??
-                          widget.passwordErrorText ??
-                          widget.passwordConfirmationErrorText,
-                      
-                    ),
-                    // Add more text field properties here
-                  ),
-                ),
-              ),
-              if (isPasswordField || isConfirmationField && widget.passwordField)
-                IconButton(
-                  onPressed: () {
-                    setState(() {
-                      _passwordVisible = !_passwordVisible;
-                    });
-                  },
-                  icon: Icon(
-                    _passwordVisible ? Icons.visibility : Icons.visibility_off,
-                  ),
-                ),
-              // if (isConfirmationField && widget.passwordField)
-              //   IconButton(
-              //     onPressed: () {
-              //       setState(() {
-              //         _passwordConfirmationVisible =
-              //             !_passwordConfirmationVisible;
-              //       });
-              //     },
-              //     icon: Icon(
-              //       _passwordConfirmationVisible
-              //           ? Icons.visibility
-              //           : Icons.visibility_off,
-              //     ),
-              //   ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
