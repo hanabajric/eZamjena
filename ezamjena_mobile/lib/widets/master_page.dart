@@ -4,6 +4,7 @@ import 'package:ezamjena_mobile/pages/product_pages/product_overview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import '../pages/product_pages/new_product.dart';
 import 'ezamjena_drawer.dart';
 
 class MasterPageWidget extends StatefulWidget {
@@ -23,8 +24,9 @@ class _MasterPageWidgetState extends State<MasterPageWidget> {
     });
     if (currentIndex == 0) {
       Navigator.pushNamed(context, ProductListPage.routeName);
-    } else if (currentIndex == 1) {
-      //Navigator.pushNamed(context, CartScreen.routeName);
+    } 
+     else if (currentIndex == 1) {
+      Navigator.pushNamed(context, NewProductPage.routeName);
     }
      else if (currentIndex == 2) {
       Navigator.pushNamed(context, MyProfilePage.routeName);

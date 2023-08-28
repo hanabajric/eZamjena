@@ -1,4 +1,5 @@
 import 'package:ezamjena_mobile/pages/buy_pages/buy_history.dart';
+import 'package:ezamjena_mobile/pages/product_pages/new_product.dart';
 import 'package:ezamjena_mobile/pages/user_pages/my_profile_page.dart';
 import 'package:ezamjena_mobile/pages/exchange_pages/exchange_history.dart';
 import 'package:ezamjena_mobile/pages/product_pages/my_product_overview.dart';
@@ -70,6 +71,10 @@ void main() => runApp(MultiProvider(
              if (settings.name == RegistrationPage.routeName) {
               return MaterialPageRoute(
                   builder: ((context) => const RegistrationPage()));
+            }
+             if (settings.name == NewProductPage.routeName) {
+              return MaterialPageRoute(
+                  builder: ((context) => const NewProductPage()));
             }
             var uri = Uri.parse(settings.name!);
             if (uri.pathSegments.length == 2 &&

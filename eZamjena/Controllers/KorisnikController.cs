@@ -10,9 +10,7 @@ using eZamjena.Utils;
 namespace eZamjena.Controllers
 {
     
-    [ApiController]
-    [Route("[controller]")]
-    [Authorize]
+    
     public class KorisnikController : BaseCRUDController<Model.Korisnik, KorisnikSearchObject, KorisnikInsertRequest, KorisnikUpdateRequest>
     {
         public readonly IKorisnikService korisnikService;

@@ -31,6 +31,7 @@ namespace eZamjena.Model.Requests
         public int? GradID { get; set; }
         public int? UlogaID { get; set; }
 
+
         //public List<int> UlogeIdList { get; set; }= new List<int>(){ };
     }
 }

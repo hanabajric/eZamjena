@@ -45,10 +45,10 @@ namespace eZamjena.Services
             {
                 insert.Slika = GetDefaultImage();
             }
-            if (insert.Password != insert.PasswordPotvrda)
-            {
-                throw new UserException("Password and confirmation must be the same");
-            }
+            //if (insert.Password != insert.PasswordPotvrda)
+            //{
+            //    throw new UserException("Password and confirmation must be the same");
+            //}
             return base.Insert(insert);
         }
         public override IEnumerable<Model.Korisnik> Get(KorisnikSearchObject search = null)

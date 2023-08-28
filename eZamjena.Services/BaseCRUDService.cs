@@ -17,7 +17,8 @@ namespace eZamjena.Services
 
         public BaseCRUDService(Ib190019Context context, IMapper mapper) : base(context, mapper) { }
 
-        public virtual T Insert(TInsert insert)
+        
+        public  virtual T Insert(TInsert insert)
         {
             ValidateInsert(insert);
             var set = Context.Set<TDb>();
