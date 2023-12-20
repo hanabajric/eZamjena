@@ -1,5 +1,10 @@
+
+
+import 'dart:io';
+
 import 'package:ezamjena_mobile/widets/master_page.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../../model/product.dart';
@@ -27,28 +32,51 @@ class _NewProductPageState extends State<NewProductPage> {
   Product? data;
   List<Product> list = [];
   Product? selectedProduct;
-  ExchangeProvider? _exchangeProvider = null;
   List<ProductCategory> categories = [];
+  ProductCategory? selectedCategory;
   ProductCategoryProvider? _productCategoryProvider = null;
+  bool isNew = false;
+    final TextEditingController _nazivController = TextEditingController();
+  final TextEditingController _procijenjenaCijenaController = TextEditingController();
+  final TextEditingController _opisController = TextEditingController();
+
+
+  final ImagePicker _imagePicker = ImagePicker();
 
   @override
   void initState() {
     super.initState();
-      _productCategoryProvider = context.read<ProductCategoryProvider>();
+    _productCategoryProvider = context.read<ProductCategoryProvider>();
     //id = widget.id;
     loadData();
   }
 
   Future loadData() async {
-     var tmpData = await _productCategoryProvider?.get(null);
+    var tmpData = await _productCategoryProvider?.get(null);
     setState(() {
       if (tmpData != null) {
         categories = tmpData;
       }
     });
-    }
+  }
+   Future<void> _addPicture() async {
+    final pickedFile =
+        await _imagePicker.pickImage(source: ImageSource.gallery);
 
-  
+    if (pickedFile != null) {
+      final fileBytes = File(pickedFile.path).readAsBytesSync();
+      final String base64Stringg = base64String(fileBytes);
+
+      setState(() {
+        data!.slika = base64Stringg;
+      });
+    } else {
+      // Korisnik nije odabrao sliku, postavite user.slika na null
+      setState(() {
+        data!.slika = null;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +88,6 @@ class _NewProductPageState extends State<NewProductPage> {
           children: [
             productInfoWidget(),
             SizedBox(height: 20),
-            
             Row(
               children: [
                 ElevatedButton(
@@ -89,72 +116,151 @@ class _NewProductPageState extends State<NewProductPage> {
     );
   }
 
-
-  Widget productInfoWidget() {
-    // if (data == null) {
-    //   return Center(child: CircularProgressIndicator());
-    // } else {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Dodavanje novog proizvoda ',
-          style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-        ),
-        SizedBox(height: 20),
-        Row(
-          children: [
-            Container(
-              width: 200,
-              height: 200,
-              color: Colors.grey, // Ovdje možete postaviti boju pozadine slike
-              child: data != null
-                  ? imageFromBase64String(data?.slika)
-                  : Container(),
+ Widget productInfoWidget() {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        'Dodavanje novog proizvoda ',
+        style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+      ),
+      SizedBox(height: 20),
+      Row(
+        children: [
+          GestureDetector(
+            onTap: () {
+              _addPicture(); // Pozivanje funkcije za dodavanje slike
+            },
+          child:Container(
+             
+            width: 200,
+            height: 230,
+            color: Colors.grey,
+            child: data != null ? Icon(Icons.add_a_photo) : null,
+          ),
+          ),
+          SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Naziv:', style: TextStyle(fontSize: 15)),
+                    SizedBox(height: 5),
+                    Container(
+                      width: 150, // Prilagodite veličinu prema potrebi
+                      height: 35, // Postavite željenu visinu
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: TextField(
+                        controller: _nazivController,
+                        // Add appropriate text field properties
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Kategorija:', style: TextStyle(fontSize: 15)),
+                    SizedBox(height: 5),
+                    Container(
+                      width: 150,
+                      height: 35, // Postavite željenu visinu
+                      padding: EdgeInsets.symmetric(horizontal: 5),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: DropdownButton<ProductCategory>(
+                        value: selectedCategory,
+                        onChanged: (category) {
+                          setState(() {
+                            selectedCategory = category;
+                          });
+                        },
+                        items: categories.map((category) {
+                          return DropdownMenuItem<ProductCategory>(
+                            value: category,
+                            child: Text(category.naziv ?? ""),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Procjenjena cijena:', style: TextStyle(fontSize: 15)),
+                    SizedBox(height: 5),
+                    Container(
+                      width: 80,
+                      height: 35, // Postavite željenu visinu
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: TextField(
+                        keyboardType: TextInputType.number,
+                        controller: _procijenjenaCijenaController,
+                        // Add appropriate text field properties
+                      ),
+                    ),
+                  ],
+                ),
+                //SizedBox(height: 5),
+                Row(
+                  children: [
+                    Text('Stanje:', style: TextStyle(fontSize: 15)),
+                    SizedBox(width: 10),
+                    Checkbox(
+                      value: isNew,
+                      onChanged: (value) {
+                        setState(() {
+                          isNew = value!;
+                        });
+                      },
+                    ),
+                    Text('Novo'),
+                  ],
+                ),
+              ],
             ),
-            SizedBox(width: 20),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Naziv: ',
-                      style: TextStyle(fontSize: 15)),
-                  SizedBox(height: 30),
-                  Text('Kategorija: ',
-                      style: TextStyle(fontSize: 15)),
-                  SizedBox(height: 30),
-                  Text('Procjenjena cijena: ',
-                      style: TextStyle(fontSize: 15)),
-                  SizedBox(height: 30),
-                  Text('Stanje:',
-                      style: TextStyle(fontSize: 15)),
-                ],
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 40),
-        Text(
-          'Opis proizvoda:  ',
-          style: TextStyle(fontSize: 20),
-        ),
-        SizedBox(height: 20),
-         Container(
-        height: 200, // Možete prilagoditi visinu prema potrebi
+          ),
+        ],
+      ),
+      SizedBox(height: 10),
+      Text(
+        'Opis proizvoda:',
+        style: TextStyle(fontSize: 20),
+      ),
+      SizedBox(height: 10),
+      Container(
+        height: 150,
         padding: EdgeInsets.symmetric(horizontal: 10),
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey),
           borderRadius: BorderRadius.circular(5),
         ),
         child: TextField(
-          maxLines: null, // Dozvoljava više redova
+          controller: _opisController,
+          maxLines: null,
           decoration: InputDecoration.collapsed(
             hintText: 'Unesite opis...',
           ),
         ),
       ),
-      ],
-    );
-  }
-  //}
+    ],
+  );
+}
+
+
+
 }

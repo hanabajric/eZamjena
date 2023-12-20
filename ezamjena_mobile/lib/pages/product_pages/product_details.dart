@@ -203,41 +203,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
   }
 
-  // void sendTradeRequest(
-  //     Product? selectedProduct, String id, TradeProvider tradeProvider) async {
-  //   if (selectedProduct != null) {
-  //     // Kreiranje objekta razmjene
-  //     Trade trade = Trade(
-  //       datum: DateTime.now().toString(),
-  //       proizvod1Id: selectedProduct.id,
-  //       proizvod2Id: int.parse(id),
-  //       statusRazmjeneId: 1,
-  //     );
-
-  //     // Slanje zahtjeva za razmjenu
-  //     await tradeProvider.insert(trade);
-  //     showDialog(
-  //       context: context,
-  //       builder: (BuildContext context) => AlertDialogWidget(
-  //         title: "Zahtjev poslan",
-  //         message:
-  //             'Uspješno ste poslali zahtjev za proizvod ${data?.naziv ?? ""} ',
-  //         context: context,
-  //       ),
-  //     );
-
-  //     // Dodajte odgovarajuću logiku nakon slanja zahtjeva (npr. prikaz poruke o uspješnom slanju)
-  //   } else {
-  //     showDialog(
-  //       context: context,
-  //       builder: (BuildContext context) => AlertDialogWidget(
-  //         title: "Upozorenje",
-  //         message: "Trenutno nemate proizvod da ponudite za razmjenu.",
-  //         context: context,
-  //       ),
-  //     );
-  //   }
-  // }
 
   Widget productInfoWidget() {
     // if (data == null) {
