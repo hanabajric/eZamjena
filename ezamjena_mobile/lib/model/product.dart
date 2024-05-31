@@ -1,3 +1,5 @@
+import 'package:ezamjena_mobile/model/product_category.dart';
+import 'package:ezamjena_mobile/model/user.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'product.g.dart';
@@ -13,6 +15,8 @@ class Product {
   bool? stanjeNovo;
   String? opis;
   int? korisnikId;
+  ProductCategory? kategorijaProizvoda;
+  User? korisnik;
 
   Product() {}
 

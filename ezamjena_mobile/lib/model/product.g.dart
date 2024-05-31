@@ -15,7 +15,14 @@ Product _$ProductFromJson(Map<String, dynamic> json) => Product()
   ..nazivKorisnika = json['nazivKorisnika'] as String?
   ..stanjeNovo = json['stanjeNovo'] as bool?
   ..opis = json['opis'] as String?
-  ..korisnikId = json['korisnikId'] as int?;
+  ..korisnikId = json['korisnikId'] as int?
+  ..kategorijaProizvoda = json['kategorijaProizvoda'] == null
+      ? null
+      : ProductCategory.fromJson(
+          json['kategorijaProizvoda'] as Map<String, dynamic>)
+  ..korisnik = json['korisnik'] == null
+      ? null
+      : User.fromJson(json['korisnik'] as Map<String, dynamic>);
 
 Map<String, dynamic> _$ProductToJson(Product instance) => <String, dynamic>{
       'id': instance.id,
@@ -27,4 +34,6 @@ Map<String, dynamic> _$ProductToJson(Product instance) => <String, dynamic>{
       'stanjeNovo': instance.stanjeNovo,
       'opis': instance.opis,
       'korisnikId': instance.korisnikId,
+      'kategorijaProizvoda': instance.kategorijaProizvoda,
+      'korisnik': instance.korisnik,
     };

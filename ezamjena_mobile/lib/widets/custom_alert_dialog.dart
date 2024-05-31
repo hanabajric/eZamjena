@@ -36,7 +36,7 @@ class CustomAlertDialog extends StatelessWidget {
               onPressed: onOkPressed,
               child: Text("OK"),
               style: ElevatedButton.styleFrom(
-                primary: Colors.blue,
+                foregroundColor: Colors.blue,
                 textStyle: TextStyle(fontSize: 16),
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               ),

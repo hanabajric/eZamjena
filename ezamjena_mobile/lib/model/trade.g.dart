@@ -16,7 +16,13 @@ Trade _$TradeFromJson(Map<String, dynamic> json) => Trade()
       json['datum'] == null ? null : DateTime.parse(json['datum'] as String)
   ..proizvod1Naziv = json['proizvod1Naziv'] as String?
   ..proizvod2Naziv = json['proizvod2Naziv'] as String?
-  ..statusRazmjeneId = json['statusRazmjeneId'] as int?;
+  ..statusRazmjeneId = json['statusRazmjeneId'] as int?
+  ..proizvod1 = json['proizvod1'] == null
+      ? null
+      : Product.fromJson(json['proizvod1'] as Map<String, dynamic>)
+  ..proizvod2 = json['proizvod2'] == null
+      ? null
+      : Product.fromJson(json['proizvod2'] as Map<String, dynamic>);
 
 Map<String, dynamic> _$TradeToJson(Trade instance) => <String, dynamic>{
       'id': instance.id,
@@ -28,4 +34,6 @@ Map<String, dynamic> _$TradeToJson(Trade instance) => <String, dynamic>{
       'proizvod1Naziv': instance.proizvod1Naziv,
       'proizvod2Naziv': instance.proizvod2Naziv,
       'statusRazmjeneId': instance.statusRazmjeneId,
+      'proizvod1': instance.proizvod1,
+      'proizvod2': instance.proizvod2,
     };

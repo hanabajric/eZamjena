@@ -1,5 +1,3 @@
-
-
 import 'package:provider/single_child_widget.dart';
 
 import 'package:ezamjena_mobile/widets/master_page.dart';
@@ -14,7 +12,6 @@ import '../../utils/logged_in_usser.dart';
 import '../../utils/utils.dart';
 import '../../widets/alert_dialog_widet.dart';
 import 'package:intl/intl.dart';
-
 
 class ExchangeHistoryPage extends StatefulWidget {
   static const String routeName = "/exchange_history";
@@ -46,8 +43,11 @@ class _ExchangeHistoryPageState extends State<ExchangeHistoryPage> {
     var tempData = await _exchangeProvider?.get(null);
     if (mounted && tempData != null) {
       setState(() {
-        
-        trades = tempData.where((trade) => trade.korisnik1Id == LoggedInUser.userId || trade.korisnik2Id == LoggedInUser.userId)
+        trades = tempData
+            .where((trade) =>
+                (trade.korisnik1Id == LoggedInUser.userId ||
+                    trade.korisnik2Id == LoggedInUser.userId) &&
+                trade.statusRazmjeneId == 2)
             .toList();
       });
     }
@@ -107,24 +107,25 @@ class _ExchangeHistoryPageState extends State<ExchangeHistoryPage> {
                 firstDate: DateTime(2000),
                 lastDate: DateTime(2100),
               );
-              
+
               if (selectedDate != null) {
                 var dateFormatter = DateFormat('yyyy-MM-dd');
                 var formattedDate = dateFormatter.format(selectedDate);
-                print("ovo je formatirani datum : " +
-                  formattedDate);
+                print("ovo je formatirani datum : " + formattedDate);
                 var tmpData =
                     await _exchangeProvider?.get({'datum': formattedDate});
                 print("ovo je tmpData razmjena: " + tmpData!.length.toString());
                 setState(() {
-                  trades = tmpData.where((trade) => trade.korisnik1Id == LoggedInUser.userId || trade.korisnik2Id == LoggedInUser.userId)
-            .toList();
+                  trades = tmpData
+                      .where((trade) =>
+                          trade.korisnik1Id == LoggedInUser.userId ||
+                          trade.korisnik2Id == LoggedInUser.userId)
+                      .toList();
                 });
               }
             },
             child: Text("Odaberi datum"),
           ),
-          
         ],
       ),
     );

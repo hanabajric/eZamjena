@@ -17,7 +17,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
 
   BaseProvider(String endpoint) {
     _baseUrl = const String.fromEnvironment("baseUrl",
-        defaultValue: "https://192.168.1.112:7224/");
+        defaultValue: "https://192.168.0.18:7224/");
     print("baseurl: $_baseUrl");
 
     if (_baseUrl!.endsWith("/") == false) {
@@ -72,7 +72,8 @@ abstract class BaseProvider<T> with ChangeNotifier {
       throw Exception("Exception... handle this gracefully");
     }
   }
- Future<T?> insert(dynamic request) async {
+
+  Future<T?> insert(dynamic request) async {
     var url = "$_baseUrl$_endpoint";
     var uri = Uri.parse(url);
 
@@ -87,8 +88,8 @@ abstract class BaseProvider<T> with ChangeNotifier {
       return null;
     }
   }
- 
-  Future<T?> update(int id, [dynamic request]) async {
+
+  Future<T?> update(int? id, [dynamic request]) async {
     var url = "$_baseUrl$_endpoint/$id";
     var uri = Uri.parse(url);
 

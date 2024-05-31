@@ -1,3 +1,4 @@
+import 'package:ezamjena_mobile/pages/exchange_pages/exchanege_requests.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -27,19 +28,25 @@ class eZamjenaDrawer extends StatelessWidget {
           ListTile(
             title: Text('Moji proizvodi'),
             onTap: () {
-               Navigator.pushNamed(context, MyProductListPage.routeName);
+              Navigator.pushNamed(context, MyProductListPage.routeName);
+            },
+          ),
+          ListTile(
+            title: Text('Zahtjevi za razmjenu'),
+            onTap: () {
+              Navigator.pushNamed(context, ExchangeRequestsPage.routeName);
             },
           ),
           ListTile(
             title: Text('Historija razmjena'),
             onTap: () {
-               Navigator.pushNamed(context, ExchangeHistoryPage.routeName);
+              Navigator.pushNamed(context, ExchangeHistoryPage.routeName);
             },
           ),
           ListTile(
             title: Text('Historija kupovina'),
             onTap: () {
-               Navigator.pushNamed(context, BuyHistoryPage.routeName);
+              Navigator.pushNamed(context, BuyHistoryPage.routeName);
             },
           ),
         ],

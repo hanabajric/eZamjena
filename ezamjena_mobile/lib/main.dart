@@ -1,4 +1,6 @@
 import 'package:ezamjena_mobile/pages/buy_pages/buy_history.dart';
+import 'package:ezamjena_mobile/pages/exchange_pages/exchanege_requests.dart';
+import 'package:ezamjena_mobile/pages/payment/payment_page.dart';
 import 'package:ezamjena_mobile/pages/product_pages/new_product.dart';
 import 'package:ezamjena_mobile/pages/user_pages/my_profile_page.dart';
 import 'package:ezamjena_mobile/pages/exchange_pages/exchange_history.dart';
@@ -16,76 +18,94 @@ import 'package:ezamjena_mobile/utils/logged_in_usser.dart';
 import 'package:ezamjena_mobile/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 
-void main() => runApp(MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (_) => ProductProvider()),
-          ChangeNotifierProvider(create: (_) => UserProvider()),
-          ChangeNotifierProvider(create: (_) => ExchangeProvider()),
-          ChangeNotifierProvider(create: (_) => BuyProvider()),
-          ChangeNotifierProvider(create: (_) => ProductCategoryProvider()),
-          ChangeNotifierProvider(create: (_) => CityProvider()),
-        ],
-        child: MaterialApp(
-          debugShowCheckedModeBanner: true,
-          theme: ThemeData(
-            // Define the default brightness and colors.
-            brightness: Brightness.light,
-            primaryColor: Colors.deepPurple,
-            textButtonTheme: TextButtonThemeData(
-                style: TextButton.styleFrom(
-                    primary: Colors.blue,
-                    textStyle: const TextStyle(
-                      fontSize: 20,
-                    ))),
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // Osigurava inicijalizaciju
+  Stripe.publishableKey =
+      'pk_test_51PGQHG011Z43wOZRRgtya8rxE9Vu9myupCJh2NTCIh5Hu15jPQ44QawwkAKoh094qX18iUoEMLpw3sDYa0I2dExx00atU67guj'; // Zamijenite sa vašim stvarnim ključem
+  await Stripe.instance.applySettings();
+  runApp(MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ProductProvider()),
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => ExchangeProvider()),
+        ChangeNotifierProvider(create: (_) => BuyProvider()),
+        ChangeNotifierProvider(create: (_) => ProductCategoryProvider()),
+        ChangeNotifierProvider(create: (_) => CityProvider()),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: true,
+        theme: ThemeData(
+          // Define the default brightness and colors.
+          brightness: Brightness.light,
+          primaryColor: Colors.deepPurple,
+          textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                  foregroundColor: Colors.blue,
+                  textStyle: const TextStyle(
+                    fontSize: 20,
+                  ))),
 
-            // Define the default `TextTheme`. Use this to specify the default
-            // text styling for headlines, titles, bodies of text, and more.
-            // textTheme: const TextTheme(
-            //   headline1: TextStyle(fontSize: 72.0, fontWeight: FontWeight.bold),
-            //   headline6: TextStyle(fontSize: 36.0, fontStyle: FontStyle.italic),
-            // ),
-          ),
-          home: HomePage(),
-          onGenerateRoute: (settings) {
-            if (settings.name == ProductListPage.routeName) {
-              return MaterialPageRoute(
-                  builder: ((context) => const ProductListPage()));
-            }
-            if (settings.name == MyProductListPage.routeName) {
-              return MaterialPageRoute(
-                  builder: ((context) => const MyProductListPage()));
-            }
-            if (settings.name == ExchangeHistoryPage.routeName) {
-              return MaterialPageRoute(
-                  builder: ((context) => const ExchangeHistoryPage()));
-            }
-            if (settings.name == BuyHistoryPage.routeName) {
-              return MaterialPageRoute(
-                  builder: ((context) => const BuyHistoryPage()));
-            }
-            if (settings.name == MyProfilePage.routeName) {
-              return MaterialPageRoute(
-                  builder: ((context) => const MyProfilePage()));
-            }
-             if (settings.name == RegistrationPage.routeName) {
-              return MaterialPageRoute(
-                  builder: ((context) => const RegistrationPage()));
-            }
-             if (settings.name == NewProductPage.routeName) {
-              return MaterialPageRoute(
-                  builder: ((context) => const NewProductPage()));
-            }
-            var uri = Uri.parse(settings.name!);
-            if (uri.pathSegments.length == 2 &&
-                "/${uri.pathSegments.first}" == ProductDetailsPage.routeName) {
-              var id = uri.pathSegments[1];
-              return MaterialPageRoute(
-                  builder: (context) => ProductDetailsPage(id));
-            }
-            return null;
-          },
-        )));
+          // Define the default `TextTheme`. Use this to specify the default
+          // text styling for headlines, titles, bodies of text, and more.
+          // textTheme: const TextTheme(
+          //   headline1: TextStyle(fontSize: 72.0, fontWeight: FontWeight.bold),
+          //   headline6: TextStyle(fontSize: 36.0, fontStyle: FontStyle.italic),
+          // ),
+        ),
+        home: HomePage(),
+        onGenerateRoute: (settings) {
+          if (settings.name == ProductListPage.routeName) {
+            return MaterialPageRoute(
+                builder: ((context) => const ProductListPage()));
+          }
+          if (settings.name == MyProductListPage.routeName) {
+            return MaterialPageRoute(
+                builder: ((context) => const MyProductListPage()));
+          }
+          if (settings.name == ExchangeHistoryPage.routeName) {
+            return MaterialPageRoute(
+                builder: ((context) => const ExchangeHistoryPage()));
+          }
+          if (settings.name == ExchangeRequestsPage.routeName) {
+            return MaterialPageRoute(
+                builder: ((context) => const ExchangeRequestsPage()));
+          }
+          if (settings.name == BuyHistoryPage.routeName) {
+            return MaterialPageRoute(
+                builder: ((context) => const BuyHistoryPage()));
+          }
+          if (settings.name == MyProfilePage.routeName) {
+            return MaterialPageRoute(
+                builder: ((context) => const MyProfilePage()));
+          }
+          if (settings.name == RegistrationPage.routeName) {
+            return MaterialPageRoute(
+                builder: ((context) => const RegistrationPage()));
+          }
+          if (settings.name == NewProductPage.routeName) {
+            return MaterialPageRoute(
+                builder: ((context) => const NewProductPage()));
+          }
+
+          var uri = Uri.parse(settings.name!);
+          if (uri.pathSegments.length == 2 &&
+              "/${uri.pathSegments.first}" == ProductDetailsPage.routeName) {
+            var id = uri.pathSegments[1];
+            return MaterialPageRoute(
+                builder: (context) => ProductDetailsPage(id));
+          }
+          if (uri.pathSegments.length == 2 &&
+              "/${uri.pathSegments.first}" == PaymentPage.routeName) {
+            var productId = uri.pathSegments[1];
+            return MaterialPageRoute(
+                builder: (context) => PaymentPage(productId));
+          }
+          return null;
+        },
+      )));
+}
 
 class HomePage extends StatelessWidget {
   final TextEditingController _usernameController = TextEditingController();

@@ -1,3 +1,4 @@
+import 'package:ezamjena_mobile/model/product.dart';
 import 'package:json_annotation/json_annotation.dart';
 part 'trade.g.dart';
 
@@ -13,6 +14,8 @@ class Trade {
   String? proizvod2Naziv;
   int? statusRazmjeneId;
 
+  Product? proizvod1; // Dodano
+  Product? proizvod2; // Dodano
   Trade() {}
 
   factory Trade.fromJson(Map<String, dynamic> json) => _$TradeFromJson(json);

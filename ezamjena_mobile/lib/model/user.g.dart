@@ -20,7 +20,7 @@ User _$UserFromJson(Map<String, dynamic> json) => User()
   ..adresa = json['adresa'] as String?
   ..nazivGrada = json['nazivGrada'] as String?
   ..password = json['password'] as String?
-  ..passwordPotvrda = json['password'] as String?
+  ..passwordPotvrda = json['passwordPotvrda'] as String?
   ..gradId = json['gradId'] as int?
   ..ulogaId = json['ulogaId'] as int?;
 
