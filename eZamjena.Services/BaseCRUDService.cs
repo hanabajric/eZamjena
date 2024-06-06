@@ -2,11 +2,24 @@
 using eZamjena.Model;
 using eZamjena.Model.SearchObjects;
 using eZamjena.Services.Database;
+using Microsoft.AspNetCore.JsonPatch;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using Newtonsoft.Json.Serialization;
+
+using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.JsonPatch.Adapters;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc;
+
+
+
+
+
 
 namespace eZamjena.Services
 {
@@ -47,7 +60,7 @@ namespace eZamjena.Services
                 BeforeUpdate(entity, update);
             }
             else { return null; }
-
+            Context.Entry(entity).CurrentValues.SetValues(update);
             Context.SaveChanges();
 
             return Mapper.Map<T>(entity);
@@ -72,7 +85,36 @@ namespace eZamjena.Services
 
             return Mapper.Map<T>(entity);
         }
-      
+        public virtual T Patch(int id, JsonPatchDocument<TUpdate> patchDoc)
+        {
+            try
+            {
+                var set = Context.Set<TDb>();
+                var entity = set.Find(id);
+
+                if (entity == null)
+                {
+                    throw new UserException($"{typeof(TDb).Name} sa tim ID ne postoji!");
+                }
+
+                var updateDto = Mapper.Map<TUpdate>(entity);
+                patchDoc.ApplyTo(updateDto);
+                Mapper.Map(updateDto, entity);
+
+                Context.SaveChanges();
+
+                return Mapper.Map<T>(entity);
+            }
+            catch (Exception ex)
+            {
+                // Log exception (you can use any logging framework)
+                Console.WriteLine($"Error in Patch method: {ex.Message}");
+                throw;
+            }
+        }
+
+
+
         public virtual void ValidateInsert(TInsert insert) { }
         public virtual void ValidateUpdate(int id, TUpdate update) { }
         public virtual void ValidateDelete(int id)
@@ -80,6 +122,7 @@ namespace eZamjena.Services
             if (Context.Set<TDb>().Find(id) == null)
                 throw new UserException($"{typeof(TDb).Name} sa tim ID ne postoji!");
         }
+
 
     }
 }

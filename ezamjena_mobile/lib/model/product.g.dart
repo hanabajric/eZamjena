@@ -7,7 +7,7 @@ part of 'product.dart';
 // **************************************************************************
 
 Product _$ProductFromJson(Map<String, dynamic> json) => Product()
-  ..id = json['id'] as int?
+  ..id = (json['id'] as num?)?.toInt()
   ..naziv = json['naziv'] as String?
   ..slika = json['slika'] as String?
   ..nazivKategorijeProizvoda = json['nazivKategorijeProizvoda'] as String?
@@ -15,7 +15,9 @@ Product _$ProductFromJson(Map<String, dynamic> json) => Product()
   ..nazivKorisnika = json['nazivKorisnika'] as String?
   ..stanjeNovo = json['stanjeNovo'] as bool?
   ..opis = json['opis'] as String?
-  ..korisnikId = json['korisnikId'] as int?
+  ..korisnikId = (json['korisnikId'] as num?)?.toInt()
+  ..statusProizvodaId = (json['statusProizvodaId'] as num?)?.toInt()
+  ..kategorijaProizvodaId = (json['kategorijaProizvodaId'] as num?)?.toInt()
   ..kategorijaProizvoda = json['kategorijaProizvoda'] == null
       ? null
       : ProductCategory.fromJson(
@@ -34,6 +36,8 @@ Map<String, dynamic> _$ProductToJson(Product instance) => <String, dynamic>{
       'stanjeNovo': instance.stanjeNovo,
       'opis': instance.opis,
       'korisnikId': instance.korisnikId,
+      'statusProizvodaId': instance.statusProizvodaId,
+      'kategorijaProizvodaId': instance.kategorijaProizvodaId,
       'kategorijaProizvoda': instance.kategorijaProizvoda,
       'korisnik': instance.korisnik,
     };

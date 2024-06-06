@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:ezamjena_mobile/model/product.dart';
 import 'package:ezamjena_mobile/model/user.dart';
+import 'package:ezamjena_mobile/pages/product_pages/product_overview.dart';
 import 'package:ezamjena_mobile/pages/user_pages/my_profile_page.dart';
 import 'package:ezamjena_mobile/providers/products_provider.dart';
 import 'package:ezamjena_mobile/providers/user_provider.dart';
@@ -84,16 +85,59 @@ class _PaymentPageState extends State<PaymentPage> {
         currencyCode: "USD",
         testEnv: true,
       );
-      Stripe.instance.initPaymentSheet(
+
+      await Stripe.instance.initPaymentSheet(
           paymentSheetParameters: SetupPaymentSheetParameters(
         paymentIntentClientSecret: paymentIntent!["client_secret"],
         style: ThemeMode.dark,
         merchantDisplayName: "Ana",
         googlePay: gpay,
       ));
-      displayPaymentSheet();
+
+      // Present the Stripe payment sheet modal
+      await Stripe.instance.presentPaymentSheet().then((value) {
+        // This block will run after successful payment
+        if (product != null) {
+          print("Payment successful. Updating product status...");
+          updateProductStatus(
+              product!.id!, 1003); // Assuming 1003 is your 'paid' status
+          showSuccessDialog();
+        }
+      }).catchError((e) {
+        print("Payment failed: $e");
+        showErrorDialog(e.toString());
+      });
     } catch (e) {
-      throw Exception(e.toString());
+      print("Error initializing payment: $e");
+      showErrorDialog("Failed to initialize payment. Please try again.");
+    }
+  }
+
+  Future<void> updateProductStatus(int productId, int? newStatus) async {
+    if (_productProvider != null) {
+      Product? currentProduct = await _productProvider!.getById(productId);
+      if (currentProduct != null) {
+        // Update only the status field
+        currentProduct.statusProizvodaId = newStatus;
+
+        // Log the product details to see what you are about to update
+        print("Updating product with ID: $productId");
+        print("New Status ID: $newStatus");
+        print("Current Category ID: ${currentProduct.kategorijaProizvodaId}");
+
+        // Perform the update
+        var updatedProduct =
+            await _productProvider!.update(productId, currentProduct.toJson());
+        if (updatedProduct != null) {
+          print("Product updated successfully.");
+        } else {
+          print("Failed to update the product.");
+        }
+      } else {
+        print("Product not found.");
+      }
+    } else {
+      print("Product provider is not initialized.");
     }
   }
 
@@ -109,7 +153,7 @@ class _PaymentPageState extends State<PaymentPage> {
   createPaymentIntent() async {
     try {
       Map<String, dynamic> body = {
-        "amount": "${product!.cijena}",
+        "amount": "1000",
         "currency": "USD",
       };
       http.Response response = await http.post(
@@ -224,7 +268,8 @@ class _PaymentPageState extends State<PaymentPage> {
           TextButton(
             child: const Text('OK'),
             onPressed: () {
-              Navigator.of(context).pop();
+              Navigator.of(context).pop(); // This will close the AlertDialog
+              Navigator.pushNamed(context, ProductListPage.routeName);
             },
           ),
         ],

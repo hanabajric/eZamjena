@@ -42,5 +42,6 @@ namespace eZamjena.Services
             var result = entity.Find(id);
             return Mapper.Map<T>(result);
         }
+
     }
 }

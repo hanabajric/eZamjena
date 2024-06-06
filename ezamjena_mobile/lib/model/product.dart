@@ -15,6 +15,8 @@ class Product {
   bool? stanjeNovo;
   String? opis;
   int? korisnikId;
+  int? statusProizvodaId;
+  int? kategorijaProizvodaId;
   ProductCategory? kategorijaProizvoda;
   User? korisnik;
 

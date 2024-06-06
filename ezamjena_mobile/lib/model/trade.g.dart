@@ -7,16 +7,16 @@ part of 'trade.dart';
 // **************************************************************************
 
 Trade _$TradeFromJson(Map<String, dynamic> json) => Trade()
-  ..id = json['id'] as int?
-  ..proizvod1Id = json['proizvod1Id'] as int?
-  ..proizvod2Id = json['proizvod2Id'] as int?
-  ..korisnik1Id = json['korisnik1Id'] as int?
-  ..korisnik2Id = json['korisnik2Id'] as int?
+  ..id = (json['id'] as num?)?.toInt()
+  ..proizvod1Id = (json['proizvod1Id'] as num?)?.toInt()
+  ..proizvod2Id = (json['proizvod2Id'] as num?)?.toInt()
+  ..korisnik1Id = (json['korisnik1Id'] as num?)?.toInt()
+  ..korisnik2Id = (json['korisnik2Id'] as num?)?.toInt()
   ..datum =
       json['datum'] == null ? null : DateTime.parse(json['datum'] as String)
   ..proizvod1Naziv = json['proizvod1Naziv'] as String?
   ..proizvod2Naziv = json['proizvod2Naziv'] as String?
-  ..statusRazmjeneId = json['statusRazmjeneId'] as int?
+  ..statusRazmjeneId = (json['statusRazmjeneId'] as num?)?.toInt()
   ..proizvod1 = json['proizvod1'] == null
       ? null
       : Product.fromJson(json['proizvod1'] as Map<String, dynamic>)

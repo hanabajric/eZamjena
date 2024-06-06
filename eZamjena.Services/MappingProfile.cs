@@ -48,6 +48,7 @@ namespace eZamjena.Services
             CreateMap<Database.Grad, Model.Grad>();
             CreateMap<GradUpsertRequest, Database.Grad>();
 
+
         }
     }
 }

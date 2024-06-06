@@ -7,22 +7,22 @@ part of 'user.dart';
 // **************************************************************************
 
 User _$UserFromJson(Map<String, dynamic> json) => User()
-  ..id = json['id'] as int?
+  ..id = (json['id'] as num?)?.toInt()
   ..korisnickoIme = json['korisnickoIme'] as String?
   ..ime = json['ime'] as String?
   ..prezime = json['prezime'] as String?
   ..slika = json['slika'] as String?
   ..telefon = json['telefon'] as String?
   ..email = json['email'] as String?
-  ..brojKupovina = json['brojKupovina'] as int?
-  ..brojRazmjena = json['brojRazmjena'] as int?
-  ..brojAktivnihArtikala = json['brojAktivnihArtikala'] as int?
+  ..brojKupovina = (json['brojKupovina'] as num?)?.toInt()
+  ..brojRazmjena = (json['brojRazmjena'] as num?)?.toInt()
+  ..brojAktivnihArtikala = (json['brojAktivnihArtikala'] as num?)?.toInt()
   ..adresa = json['adresa'] as String?
   ..nazivGrada = json['nazivGrada'] as String?
   ..password = json['password'] as String?
   ..passwordPotvrda = json['passwordPotvrda'] as String?
-  ..gradId = json['gradId'] as int?
-  ..ulogaId = json['ulogaId'] as int?;
+  ..gradId = (json['gradId'] as num?)?.toInt()
+  ..ulogaId = (json['ulogaId'] as num?)?.toInt();
 
 Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'id': instance.id,
