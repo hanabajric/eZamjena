@@ -1,9 +1,11 @@
 import 'dart:convert';
 
+import 'package:ezamjena_mobile/model/buy.dart';
 import 'package:ezamjena_mobile/model/product.dart';
 import 'package:ezamjena_mobile/model/user.dart';
 import 'package:ezamjena_mobile/pages/product_pages/product_overview.dart';
 import 'package:ezamjena_mobile/pages/user_pages/my_profile_page.dart';
+import 'package:ezamjena_mobile/providers/buy_provider.dart';
 import 'package:ezamjena_mobile/providers/products_provider.dart';
 import 'package:ezamjena_mobile/providers/user_provider.dart';
 import 'package:ezamjena_mobile/utils/logged_in_usser.dart';
@@ -29,14 +31,17 @@ class _PaymentPageState extends State<PaymentPage> {
   final _formKey = GlobalKey<FormState>();
   UserProvider? _userProvider = null;
   ProductProvider? _productProvider = null;
-  User? user;
+  BuyProvider? _buyProvider=null;
+  User? user ;
   Product? product;
+  Buy? buy = Buy();
   late String productId;
 
   @override
   void initState() {
     super.initState();
     _userProvider = context.read<UserProvider>();
+    _buyProvider = context.read<BuyProvider>();
     _productProvider = context.read<ProductProvider>();
     productId = widget.productId;
     loadData();
@@ -95,15 +100,14 @@ class _PaymentPageState extends State<PaymentPage> {
       ));
 
       // Present the Stripe payment sheet modal
-      await Stripe.instance.presentPaymentSheet().then((value) {
-        // This block will run after successful payment
-        if (product != null) {
-          print("Payment successful. Updating product status...");
-          updateProductStatus(
-              product!.id!, 1003); // Assuming 1003 is your 'paid' status
-          showSuccessDialog();
-        }
-      }).catchError((e) {
+      await Stripe.instance.presentPaymentSheet().then((value) async {
+      if (product != null && user != null) {
+          await updateProductStatus(product!.id!, 1003); // Assuming 1003 is your 'paid' status
+        await incrementUserPurchase();
+        await addPurchase(user!.id!, product!.id!);  // Here we assume `user.id` and `product.id` are available
+        showSuccessDialog();
+      }
+    }).catchError((e) {
         print("Payment failed: $e");
         showErrorDialog(e.toString());
       });
@@ -112,6 +116,37 @@ class _PaymentPageState extends State<PaymentPage> {
       showErrorDialog("Failed to initialize payment. Please try again.");
     }
   }
+
+  Future<bool> addPurchase(int userId, int productId) async {
+     buy?.korisnikId= userId;
+    buy?.proizvodId= productId;
+    buy?.datum= DateTime.now();
+  final response = await _buyProvider?.insert(buy);
+
+  if (response != null) {
+    return true; // Purchase was successful
+  } else {
+    return false; // Purchase failed
+  }
+}
+
+Future<void> incrementUserPurchase() async {
+
+  if (user != null) {
+    // Assuming the user object has a method to increment purchase count
+    user!.brojKupovina = (user!.brojKupovina ?? 0) + 1;
+
+
+    var updatedUser = await _userProvider!.update(user!.id, user!.toJson());
+    if (updatedUser != null) {
+      print("User purchase count updated successfully.");
+    } else {
+      print("Failed to update user purchase count.");
+    }
+  } else {
+    print("User is null, cannot increment purchase count.");
+  }
+}
 
   Future<void> updateProductStatus(int productId, int? newStatus) async {
     if (_productProvider != null) {
@@ -259,23 +294,26 @@ class _PaymentPageState extends State<PaymentPage> {
   }
 
   void showSuccessDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Payment Successful'),
-        content: const Text('Your payment was successfully processed.'),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('OK'),
-            onPressed: () {
-              Navigator.of(context).pop(); // This will close the AlertDialog
-              Navigator.pushNamed(context, ProductListPage.routeName);
-            },
-          ),
-        ],
-      ),
-    );
-  }
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Payment Successful'),
+      content: const Text('Your payment was successfully processed.'),
+      actions: <Widget>[
+        TextButton(
+          child: const Text('OK'),
+          onPressed: () {
+            Navigator.of(context).pop(); // Closes the AlertDialog
+          },
+        ),
+      ],
+    ),
+  ).then((_) {
+    // After dialog is dismissed, navigate to the product overview page
+    Navigator.pushNamed(context, "/products"); // Make sure this route is correctly configured in your MaterialApp
+  });
+}
+
 
   void showErrorDialog(String message) {
     showDialog(

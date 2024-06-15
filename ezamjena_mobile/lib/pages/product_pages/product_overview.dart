@@ -1,5 +1,7 @@
+import 'package:ezamjena_mobile/model/rating.dart';
 import 'package:ezamjena_mobile/pages/product_pages/product_details.dart';
 import 'package:ezamjena_mobile/providers/products_provider.dart';
+import 'package:ezamjena_mobile/providers/rating_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ezamjena_mobile/utils/utils.dart';
@@ -25,6 +27,7 @@ class _ProductListPagetState extends State<ProductListPage> {
   List<Product> data = [];
   List<ProductCategory> categories = [];
   ProductCategoryProvider? _productCategoryProvider = null;
+  RatingProvider? _ratingProvider = null;
   //late TradeProvider _tradeProvider;
   String _selectedCategory = "Sve kategorije";
   String _selectedCondition = "Svi proizvodi";
@@ -35,6 +38,7 @@ class _ProductListPagetState extends State<ProductListPage> {
     super.initState();
     _productProvider = context.read<ProductProvider>();
     _productCategoryProvider = context.read<ProductCategoryProvider>();
+    _ratingProvider=context.read<RatingProvider>();
     //_tradeProvider=context.read<TradeProvider>();
     loadData();
     _loadCategories();
@@ -48,9 +52,10 @@ class _ProductListPagetState extends State<ProductListPage> {
     if (mounted && tempData != null) {
       setState(() {
         if (tempData != null) {
-          data = tempData
-              .where((product) => product.korisnikId != LoggedInUser.userId)
-              .toList();
+         data = tempData
+    .where((product) => product.korisnikId != LoggedInUser.userId && product.statusProizvodaId == 1)
+    .toList();
+
         }
         print('Setirano stanje proizovda.');
       });
@@ -259,9 +264,19 @@ class _ProductListPagetState extends State<ProductListPage> {
                     Icons.star,
                     color: Colors.yellow,
                   ),
-                  onRatingUpdate: (rating) {
+                  onRatingUpdate: (rating) async {
                     // Ovdje možete dodati logiku za ažuriranje ocjene proizvoda
-                    print(rating);
+                     print("Ocjena: $rating");
+    await submitRating(rating, x.id!); // Assume each product has a unique id
+   /* if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Ocjena uspješno zabilježena!"))
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Došlo je do greške prilikom zabilježavanja ocjene."))
+      );
+    }*/
                   },
                 ),
               ],
@@ -273,4 +288,32 @@ class _ProductListPagetState extends State<ProductListPage> {
 
     return list;
   }
+Future<void> submitRating(double rating, int productId) async {
+  print("Attempting to submit rating for product ID: $productId");  // Debug log
+  try {
+    var response = await _ratingProvider?.insert({
+      'ocjena1': rating.round(),  // Ensure this matches the expected type
+      'datum': DateTime.now().toIso8601String(),
+      'proizvodId': productId,
+      'korisnikId': LoggedInUser.userId,
+    });
+    if (response != null) {
+      print("Rating submitted successfully.");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Ocjena je uspješno zabilježena!"))
+      );
+    } else {
+      print("Response was null, indicating failure on the server.");
+      throw Exception('Failed to submit rating');
+    }
+  } catch (e) {
+    print("Failed to submit rating: $e");  // More detailed error logging
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Došlo je do greške prilikom zabilježavanja ocjene: $e"))
+    );
+  }
+}
+
+
+
 }

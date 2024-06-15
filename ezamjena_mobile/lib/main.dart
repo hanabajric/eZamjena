@@ -13,6 +13,7 @@ import 'package:ezamjena_mobile/providers/city_provider.dart';
 import 'package:ezamjena_mobile/providers/exchange_provider.dart';
 import 'package:ezamjena_mobile/providers/product_category_provider.dart';
 import 'package:ezamjena_mobile/providers/products_provider.dart';
+import 'package:ezamjena_mobile/providers/rating_provider.dart';
 import 'package:ezamjena_mobile/providers/user_provider.dart';
 import 'package:ezamjena_mobile/utils/logged_in_usser.dart';
 import 'package:ezamjena_mobile/utils/utils.dart';
@@ -33,6 +34,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => BuyProvider()),
         ChangeNotifierProvider(create: (_) => ProductCategoryProvider()),
         ChangeNotifierProvider(create: (_) => CityProvider()),
+        ChangeNotifierProvider(create: (_) => RatingProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: true,
