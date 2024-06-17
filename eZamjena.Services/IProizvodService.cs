@@ -11,6 +11,6 @@ namespace eZamjena.Services
 {
     public interface IProizvodService :ICRUDService<Proizvod,ProizvodSearchObject,ProizvodUpsertRequest, ProizvodUpsertRequest>
     {
-        
+        public IEnumerable<Model.Proizvod> RecommendProducts(int userId);
     }
 }

@@ -48,34 +48,32 @@ class _MyProductListPage extends State<MyProductListPage> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return MasterPageWidget(
-      child: SingleChildScrollView(
-        child: Container(
-            child: Column(
-          // crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeader(),
-            SizedBox(height: 40),
-            Container(
-                height: 800,
-                child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: GridView(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 2 / 3,
-                          crossAxisSpacing: 20,
-                          mainAxisSpacing: 30),
-                      scrollDirection: Axis.vertical,
-                      children: _buildProductCardList(),
-                    )))
-          ],
-        )),
+@override
+Widget build(BuildContext context) {
+  return MasterPageWidget(
+    child: SingleChildScrollView(
+      child: Column(
+        children: [
+          _buildHeader(),
+          SizedBox(height: 40),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: GridView.count(
+              shrinkWrap: true, // Makes the GridView take the size of its children
+              crossAxisCount: 2,
+              childAspectRatio: 2 / 3,
+              crossAxisSpacing: 20,
+              mainAxisSpacing: 30,
+              physics: NeverScrollableScrollPhysics(), // Ensures the GridView does not scroll separately
+              children: _buildProductCardList(),
+            ),
+          )
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   Widget _buildHeader() {
     return Container(

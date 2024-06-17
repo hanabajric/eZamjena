@@ -71,35 +71,33 @@ class _ProductListPagetState extends State<ProductListPage> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return MasterPageWidget(
-      child: SingleChildScrollView(
-        child: Container(
-            child: Column(
-          // crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeader(),
-            _buildProductSearch(),
-            SizedBox(height: 40),
-            Container(
-                height: 800,
-                child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: GridView(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 3 / 4,
-                          crossAxisSpacing: 20,
-                          mainAxisSpacing: 30),
-                      scrollDirection: Axis.vertical,
-                      children: _buildProductCardList(),
-                    )))
-          ],
-        )),
+ @override
+Widget build(BuildContext context) {
+  return MasterPageWidget(
+    child: SingleChildScrollView(
+      child: Column(
+        children: [
+          _buildHeader(),
+          _buildProductSearch(),
+          SizedBox(height: 40),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: GridView.count(
+              shrinkWrap: true,  // This tells the GridView to size itself to its children
+              crossAxisCount: 2,
+              childAspectRatio: 3 / 4,
+              crossAxisSpacing: 20,
+              mainAxisSpacing: 30,
+              physics: NeverScrollableScrollPhysics(), // Disables scrolling within the GridView
+              children: _buildProductCardList(),
+            ),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   Widget _buildHeader() {
     return Container(
@@ -267,7 +265,8 @@ class _ProductListPagetState extends State<ProductListPage> {
                   onRatingUpdate: (rating) async {
                     // Ovdje možete dodati logiku za ažuriranje ocjene proizvoda
                      print("Ocjena: $rating");
-    await submitRating(rating, x.id!); // Assume each product has a unique id
+    await submitRating(rating, x.id!);
+
    /* if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Ocjena uspješno zabilježena!"))
@@ -290,6 +289,7 @@ class _ProductListPagetState extends State<ProductListPage> {
   }
 Future<void> submitRating(double rating, int productId) async {
   print("Attempting to submit rating for product ID: $productId");  // Debug log
+  print("Rating provider is initialized: ${_ratingProvider != null}");
   try {
     var response = await _ratingProvider?.insert({
       'ocjena1': rating.round(),  // Ensure this matches the expected type

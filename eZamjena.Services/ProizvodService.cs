@@ -11,19 +11,23 @@ using System.Threading.Tasks;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Diagnostics;
-
-
-
+using Microsoft.ML;
+using Microsoft.ML.Trainers;
+using Microsoft.ML.Data;
 
 namespace eZamjena.Services
 {
     public class ProizvodService :  BaseCRUDService<Model.Proizvod,Database.Proizvod,ProizvodSearchObject,ProizvodUpsertRequest, ProizvodUpsertRequest> ,IProizvodService
     {
 
-        
+        private static MLContext mlContext = new MLContext();
+        private static ITransformer model;
         public ProizvodService(Ib190019Context context, IMapper mapper) : base(context, mapper)
         {
-            
+            if (model == null)
+            {
+                TrainModel();
+            }
         }
         private byte[] GetDefaultImage()
         {
@@ -121,8 +125,78 @@ namespace eZamjena.Services
 
             Context.SaveChanges();
         }
+        private void TrainModel()
+        {
+            // Učitaj sve ocjene iz baze
+            var data = Context.Ocjenas.Select(o => new RatingEntry
+            {
+                UserId = (uint)o.KorisnikId,
+                ProductId = (uint)o.ProizvodId,
+                Label = (float)o.Ocjena1
+            }).ToList();
+
+            var trainData = mlContext.Data.LoadFromEnumerable(data);
+
+            // Konfiguracija Matrix Factorization trenera
+            var options = new MatrixFactorizationTrainer.Options
+            {
+                MatrixColumnIndexColumnName = nameof(RatingEntry.ProductId),
+                MatrixRowIndexColumnName = nameof(RatingEntry.UserId),
+                LabelColumnName = "Label",
+                NumberOfIterations = 20,
+                ApproximationRank = 100
+            };
+
+            var trainer = mlContext.Recommendation().Trainers.MatrixFactorization(options);
+            model = trainer.Fit(trainData);
+        }
+
+
+        public IEnumerable<Model.Proizvod> RecommendProducts(int userId)
+        {
+            // Učitaj sve proizvode
+            var allProducts = Context.Proizvods.ToList();
+
+            // Kreiraj PredictionEngine
+            var engine = mlContext.Model.CreatePredictionEngine<RatingEntry, RatingPrediction>(model);
+
+            var results = new List<Model.Proizvod>();
+
+            foreach (var product in allProducts)
+            {
+                var prediction = engine.Predict(new RatingEntry
+                {
+                    UserId = (uint)userId,
+                    ProductId = (uint)product.Id
+                });
+
+                if (prediction.Score > 3.5)  // Primjer: filtriranje proizvoda s visokom predviđenom ocjenom
+                {
+                    results.Add(Mapper.Map<Model.Proizvod>(product));
+                }
+            }
+
+            return results;
+        }
+
+        public class RatingEntry
+        {
+            [KeyType(count: 10000)] // Primer: pretpostavimo da imate manje od 10,000 različitih korisnika
+            public uint UserId { get; set; }
+
+            [KeyType(count: 10000)] // Primer: pretpostavimo da imate manje od 10,000 različitih proizvoda
+            public uint ProductId { get; set; }
+
+            public float Label { get; set; }
+        }
+
+        public class RatingPrediction
+        {
+            public float Score { get; set; }
+        }
+
 
 
     }
-   
+
 }
