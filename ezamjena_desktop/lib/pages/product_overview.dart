@@ -1,0 +1,406 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:ezamjena_desktop/model/product.dart';
+import 'package:ezamjena_desktop/model/product_category.dart';
+import 'package:ezamjena_desktop/providers/product_category_provider.dart';
+import 'package:ezamjena_desktop/providers/products_provider.dart';
+import 'package:ezamjena_desktop/utils/utils.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart';
+import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:collection/collection.dart';
+
+class ProductOverviewPage extends StatefulWidget {
+  static const String routeName = '/productOverview';
+
+  const ProductOverviewPage({super.key});
+  @override
+  _ProductOverviewPageState createState() => _ProductOverviewPageState();
+}
+
+class _ProductOverviewPageState extends State<ProductOverviewPage>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  late List<bool> _selectedCategories;
+  List<Product> products = [];
+  List<ProductCategory> categories = [];
+  ProductCategoryProvider? _productCategoryProvider = null;
+  ProductProvider? _productProvider;
+  bool _isNovo = true; // Example state for 'new' toggle
+  bool? isNew; // Initial state set in dialog setup
+  String _searchQuery = ""; // State to hold the search text
+  final ImagePicker _imagePicker = ImagePicker();
+  @override
+  void initState() {
+    super.initState();
+    _tabController =
+        TabController(length: 5, vsync: this); // Broj tabova prilagođen
+    _productProvider = context.read<ProductProvider>();
+    _productCategoryProvider = context.read<ProductCategoryProvider>();
+
+    _loadCategories();
+    _loadProducts();
+  }
+
+  Future<void> _loadCategories() async {
+    var tmpData = await _productCategoryProvider?.get(null);
+    if (tmpData != null) {
+      setState(() {
+        categories = tmpData;
+        _selectedCategories = List<bool>.filled(categories.length, false);
+      });
+    }
+  }
+
+  Future<void> _loadProducts() async {
+    if (_productProvider == null) {
+      print("ProductProvider not initialized");
+      return;
+    }
+
+    try {
+      // Učitavanje svih proizvoda bez filtriranja
+      List<Product> allProducts = await _productProvider!.get();
+
+      // Filtriranje proizvoda na klijentskoj strani
+      List<Product> filteredProducts = allProducts.where((product) {
+        // Proverava da li je neka kategorija izabrana
+        bool isAnyCategorySelected =
+            _selectedCategories.any((selected) => selected);
+        // Filtriranje po kategoriji
+        bool categoryMatch = !isAnyCategorySelected ||
+            _selectedCategories.asMap().entries.any((entry) {
+              int index = entry.key;
+              bool selected = entry.value;
+              return selected &&
+                  categories[index].naziv == product.kategorijaProizvoda?.naziv;
+            });
+        // Filtriranje po novom/polovnom
+        bool conditionMatch =
+            (_isNovo == null || product.stanjeNovo == _isNovo);
+        // Filtriranje po imenu
+        bool nameMatch = _searchQuery.isEmpty ||
+            product.naziv!.toLowerCase().contains(_searchQuery.toLowerCase());
+        return categoryMatch && conditionMatch && nameMatch;
+      }).toList();
+
+      setState(() {
+        products = filteredProducts;
+      });
+    } catch (e) {
+      print("Error loading products: $e");
+    }
+  }
+
+  void updateFilters({bool? isNovo, String? searchQuery}) {
+    if (isNovo != null) _isNovo = isNovo;
+    if (searchQuery != null) _searchQuery = searchQuery;
+    _loadProducts();
+  }
+
+  Future<void> _addPicture(Product product) async {
+    final pickedFile =
+        await _imagePicker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      final fileBytes = await File(pickedFile.path).readAsBytes();
+      final String base64String = base64Encode(fileBytes);
+
+      setState(() {
+        product = (product)..slika = base64String;
+      });
+    } else {
+      // Optionally handle the case when the user cancels the image picker.
+      print("No image selected.");
+    }
+  }
+
+  Future<void> _showEditProductDialog(Product product) async {
+    TextEditingController nameController =
+        TextEditingController(text: product.naziv);
+    TextEditingController priceController =
+        TextEditingController(text: product.cijena.toString());
+    TextEditingController descriptionController =
+        TextEditingController(text: product.opis);
+    TextEditingController userController =
+        TextEditingController(text: product.nazivKorisnika);
+    String? selectedCategory = product.kategorijaProizvoda?.naziv;
+
+    bool? isNew =
+        product.stanjeNovo; // Initially use the current state of the product
+
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+            // Ovaj builder omogućava ažuriranje stanja unutar dijaloga
+            builder: (BuildContext context, StateSetter setState) {
+          return AlertDialog(
+            title: Text(
+                'Pregled/uređivanje podataka o artiklu - ${product.naziv}'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      InkWell(
+                        onTap: () => _addPicture(product),
+                        child: Container(
+                          width: 200,
+                          height: 230,
+                          decoration: BoxDecoration(
+                            color: Colors.grey,
+                            image: product.slika != null
+                                ? DecorationImage(
+                                    image: MemoryImage(
+                                        base64Decode(product.slika!)),
+                                    fit: BoxFit.cover,
+                                  )
+                                : null,
+                          ),
+                          child: product.slika == null
+                              ? Icon(Icons.camera_alt, color: Colors.white70)
+                              : null,
+                        ),
+                      ),
+                      SizedBox(width: 20),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            TextFormField(
+                              controller: nameController,
+                              decoration: InputDecoration(labelText: 'Naziv:'),
+                            ),
+                            SizedBox(height: 20),
+                            Text('Kategorija:'),
+                            DropdownButton<String>(
+                              isExpanded: true,
+                              value: selectedCategory,
+                              onChanged: (String? newValue) {
+                                setState(() => selectedCategory = newValue);
+                              },
+                              items: categories.map<DropdownMenuItem<String>>(
+                                  (ProductCategory category) {
+                                return DropdownMenuItem<String>(
+                                  value: category.naziv,
+                                  child: Text(category.naziv!),
+                                );
+                              }).toList(),
+                            ),
+                            TextFormField(
+                              controller: priceController,
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                  labelText: 'Procenjena cena:'),
+                            ),
+                            SizedBox(height: 20),
+                            TextFormField(
+                              controller: userController,
+                              keyboardType: TextInputType.text,
+                              decoration:
+                                  InputDecoration(labelText: 'Korisnik:'),
+                            ),
+                            CheckboxListTile(
+                              title: Text('Novo'),
+                              value: isNew,
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  isNew =
+                                      value; // Direktno postavljanje nove vrijednosti
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 20),
+                    child: TextFormField(
+                      controller: descriptionController,
+                      decoration: InputDecoration(labelText: 'Opis proizvoda:'),
+                      maxLines: 3,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: Text('Odustani'),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              TextButton(
+                child: Text('Spremi'),
+                onPressed: () async {
+                  if (nameController.text.isEmpty ||
+                      priceController.text.isEmpty) {
+                    print("Error: Essential fields are empty.");
+                    return; // Exit if key fields are not valid
+                  }
+
+                  var updateData = {
+                    "naziv": nameController.text,
+                    "cijena": double.tryParse(priceController.text) ??
+                        0.0, // Default to 0.0 if conversion fails
+                    "opis": descriptionController.text,
+                    "slika": product.slika,
+                    "korisnikId": product.korisnikId,
+                    "kategorijaProizvodaId": categories
+                        .firstWhereOrNull((c) => c.naziv == selectedCategory)
+                        ?.id,
+                    "stanjeNovo": isNew,
+                    "statusProizvodaId": 1
+                  };
+
+                  await _productProvider!.update(product.id, updateData);
+                  Navigator.of(context).pop();
+                  _showSuccessDialog(product.naziv!);
+                  _loadProducts(); // Refresh the list
+                },
+              ),
+            ],
+          );
+        });
+      },
+    );
+  }
+
+  Future<void> _showSuccessDialog(String productName) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible:
+          false, // Korisnik mora da pritisne dugme da zatvori dijalog
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Ažuriranje uspješno'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Uspješno ste uredili proizvod: $productName.'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Zatvara dijalog
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('eZamjena'),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: [
+            Tab(text: 'Artikli'),
+            Tab(text: 'Zahtjevi'),
+            Tab(text: 'Historija Razmjene'),
+            Tab(text: 'Historija Kupovina'),
+            Tab(text: 'Profil'),
+          ],
+        ),
+      ),
+      body: Column(
+        children: <Widget>[
+          TextField(
+            onChanged: (value) => updateFilters(searchQuery: value),
+            decoration: InputDecoration(
+              labelText: 'Pretraži po nazivu',
+              suffixIcon: Icon(Icons.search),
+            ),
+          ),
+          Wrap(
+            children: List<Widget>.generate(categories.length, (int index) {
+              return ChoiceChip(
+                label: Text(categories[index].naziv!),
+                selected: _selectedCategories[index],
+                onSelected: (bool selected) {
+                  setState(() {
+                    _selectedCategories[index] = selected;
+                  });
+                  _loadProducts();
+                },
+              );
+            }),
+          ),
+          ToggleButtons(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text('Novo'),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text('Polovno'),
+              ),
+            ],
+            isSelected: [_isNovo, !_isNovo],
+            onPressed: (int index) {
+              updateFilters(isNovo: index == 0);
+            },
+          ),
+          Expanded(
+            child: ListView(
+              children: <Widget>[
+                DataTable(
+                  columns: const <DataColumn>[
+                    DataColumn(label: Text('Naziv')),
+                    DataColumn(label: Text('Kategorija')),
+                    DataColumn(label: Text('Opis')),
+                    DataColumn(label: Text('Cijena')),
+                    DataColumn(label: Text('Fotografija')),
+                    DataColumn(label: Text('Uredi')),
+                    DataColumn(label: Text('Obriši')),
+                  ],
+                  rows: products
+                      .map<DataRow>((Product product) => DataRow(
+                            cells: <DataCell>[
+                              DataCell(Text(product.naziv ?? '')),
+                              DataCell(Text(
+                                  product.kategorijaProizvoda?.naziv ?? '')),
+                              DataCell(Text(product.opis ?? '')),
+                              DataCell(Text(product.cijena?.toString() ?? '')),
+                              DataCell(product.slika != null
+                                  ? Container(
+                                      width: 100,
+                                      height: 50,
+                                      child:
+                                          imageFromBase64String(product.slika),
+                                    )
+                                  : const Icon(Icons.image_not_supported)),
+                              DataCell(
+                                Center(
+                                    child: InkWell(
+                                  child: Icon(Icons.edit),
+                                  onTap: () => _showEditProductDialog(product),
+                                )),
+                              ),
+                              DataCell(Icon(Icons.delete)),
+                            ],
+                          ))
+                      .toList(),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
