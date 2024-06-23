@@ -301,6 +301,42 @@ class _ProductOverviewPageState extends State<ProductOverviewPage>
     );
   }
 
+  Future<void> _showDeleteConfirmationDialog(Product product) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Potvrda brisanja'),
+          content: Text(
+              'Da li ste sigurni da želite obrisati proizvod "${product.naziv}"?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Ne'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Zatvara samo dijalog za potvrdu
+              },
+            ),
+            TextButton(
+              child: Text('Da'),
+              onPressed: () async {
+                Navigator.of(context).pop(); // Zatvara dijalog za potvrdu
+                await _deleteProduct(product); // Poziva funkciju za brisanje
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _deleteProduct(Product product) async {
+    await _productProvider!
+        .delete(product.id!); // Pretpostavljamo da postoji metoda delete
+    _showSuccessDialog("Proizvod '${product.naziv}' je uspješno obrisan");
+    _loadProducts(); // Osvježava listu proizvoda nakon brisanja
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -391,7 +427,11 @@ class _ProductOverviewPageState extends State<ProductOverviewPage>
                                   onTap: () => _showEditProductDialog(product),
                                 )),
                               ),
-                              DataCell(Icon(Icons.delete)),
+                              DataCell(
+                                Icon(Icons.delete),
+                                onTap: () =>
+                                    _showDeleteConfirmationDialog(product),
+                              ),
                             ],
                           ))
                       .toList(),
