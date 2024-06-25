@@ -22,7 +22,6 @@ class ProductOverviewPage extends StatefulWidget {
 
 class _ProductOverviewPageState extends State<ProductOverviewPage>
     with SingleTickerProviderStateMixin {
-  late TabController _tabController;
   late List<bool> _selectedCategories;
   List<Product> products = [];
   List<ProductCategory> categories = [];
@@ -35,8 +34,7 @@ class _ProductOverviewPageState extends State<ProductOverviewPage>
   @override
   void initState() {
     super.initState();
-    _tabController =
-        TabController(length: 5, vsync: this); // Broj tabova prilagođen
+
     _productProvider = context.read<ProductProvider>();
     _productCategoryProvider = context.read<ProductCategoryProvider>();
 
@@ -337,21 +335,9 @@ class _ProductOverviewPageState extends State<ProductOverviewPage>
     _loadProducts(); // Osvježava listu proizvoda nakon brisanja
   }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('eZamjena'),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: [
-            Tab(text: 'Artikli'),
-            Tab(text: 'Zahtjevi'),
-            Tab(text: 'Historija Razmjene'),
-            Tab(text: 'Historija Kupovina'),
-            Tab(text: 'Profil'),
-          ],
-        ),
-      ),
       body: Column(
         children: <Widget>[
           TextField(

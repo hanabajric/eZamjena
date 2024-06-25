@@ -1,4 +1,6 @@
+import 'package:ezamjena_desktop/pages/main_page.dart';
 import 'package:ezamjena_desktop/pages/product_overview.dart';
+import 'package:ezamjena_desktop/pages/request_overview.dart';
 import 'package:ezamjena_desktop/providers/product_category_provider.dart';
 import 'package:ezamjena_desktop/providers/products_provider.dart';
 import 'package:ezamjena_desktop/utils/logged_in_usser.dart';
@@ -32,6 +34,13 @@ void main() {
           if (settings.name == ProductOverviewPage.routeName) {
             return MaterialPageRoute(
                 builder: ((context) => const ProductOverviewPage()));
+          }
+          if (settings.name == RequestOverviewPage.routeName) {
+            return MaterialPageRoute(
+                builder: ((context) => const RequestOverviewPage()));
+          }
+          if (settings.name == MainPage.routeName) {
+            return MaterialPageRoute(builder: ((context) => const MainPage()));
           }
           return null;
         }),
@@ -95,7 +104,7 @@ class LoginPage extends StatelessWidget {
 
       await userProvider.get();
       userProvider.setPasswordChanged(false);
-      Navigator.pushNamed(context, ProductOverviewPage.routeName);
+      Navigator.pushNamed(context, MainPage.routeName);
     } catch (e) {
       showDialog(
         context: context,
