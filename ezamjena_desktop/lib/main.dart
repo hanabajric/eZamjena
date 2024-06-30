@@ -1,6 +1,10 @@
 import 'package:ezamjena_desktop/pages/main_page.dart';
 import 'package:ezamjena_desktop/pages/product_overview.dart';
+import 'package:ezamjena_desktop/pages/purchase_history.dart';
+import 'package:ezamjena_desktop/pages/request_history.dart';
 import 'package:ezamjena_desktop/pages/request_overview.dart';
+import 'package:ezamjena_desktop/providers/buy_provider.dart';
+import 'package:ezamjena_desktop/providers/exchange_provider.dart';
 import 'package:ezamjena_desktop/providers/product_category_provider.dart';
 import 'package:ezamjena_desktop/providers/products_provider.dart';
 import 'package:ezamjena_desktop/utils/logged_in_usser.dart';
@@ -16,6 +20,8 @@ void main() {
       ChangeNotifierProvider(create: (_) => UserProvider()),
       ChangeNotifierProvider(create: (_) => ProductProvider()),
       ChangeNotifierProvider(create: (_) => ProductCategoryProvider()),
+      ChangeNotifierProvider(create: (_) => ExchangeProvider()),
+      ChangeNotifierProvider(create: (_) => BuyProvider()),
     ],
     child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -38,6 +44,14 @@ void main() {
           if (settings.name == RequestOverviewPage.routeName) {
             return MaterialPageRoute(
                 builder: ((context) => const RequestOverviewPage()));
+          }
+          if (settings.name == RequestHistoryPage.routeName) {
+            return MaterialPageRoute(
+                builder: ((context) => const RequestHistoryPage()));
+          }
+          if (settings.name == RequestHistoryPage.routeName) {
+            return MaterialPageRoute(
+                builder: ((context) => const PurchaseHistoryPage()));
           }
           if (settings.name == MainPage.routeName) {
             return MaterialPageRoute(builder: ((context) => const MainPage()));

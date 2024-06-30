@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:ezamjena_desktop/pages/product_overview.dart';
+import 'package:ezamjena_desktop/pages/purchase_history.dart';
+import 'package:ezamjena_desktop/pages/request_history.dart';
 import 'package:ezamjena_desktop/pages/request_overview.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
@@ -60,9 +62,8 @@ class _MainPageState extends State<MainPage>
         children: <Widget>[
           ProductOverviewPage(), // Your existing Products page
           RequestOverviewPage(), // Your new Requests page
-          Container(
-              child: Text("Historija Razmjene")), // Placeholder for other pages
-          Container(child: Text("Historija Kupovina")),
+          RequestHistoryPage(), // Placeholder for other pages
+          PurchaseHistoryPage(),
           Container(child: Text("Profil")),
         ],
       ),

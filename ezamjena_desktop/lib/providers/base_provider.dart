@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:http/http.dart';
 import 'package:http/io_client.dart';
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 
 import '../utils/utils.dart';
 
@@ -67,6 +68,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
     print("done $response");
     if (isValidResponseCode(response)) {
       var data = jsonDecode(response.body);
+
       return data.map((x) => fromJson(x)).cast<T>().toList();
     } else {
       throw Exception("Exception... handle this gracefully");
@@ -153,7 +155,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
   }
 
   String getQueryString(Map params,
-      {String prefix = '&', bool inRecursion = false}) {
+      {String prefix = '', bool inRecursion = false}) {
     String query = '';
     params.forEach((key, value) {
       if (inRecursion) {
@@ -166,18 +168,18 @@ abstract class BaseProvider<T> with ChangeNotifier {
         }
       }
       if (value is String || value is int || value is double || value is bool) {
-        var encoded = value;
-        if (value is String) {
-          encoded = Uri.encodeComponent(value);
-        }
-        query += '$prefix$key=$encoded';
+        var encoded = Uri.encodeComponent(value.toString());
+        query += '${!query.isEmpty ? '&' : ''}$key=$encoded';
       } else if (value is DateTime) {
-        query += '$prefix$key=${(value as DateTime).toIso8601String()}';
+        var formattedDate =
+            DateFormat('yyyy-MM-ddTHH:mm:ss').format(value) + 'Z';
+        query +=
+            '${!query.isEmpty ? '&' : ''}$key=${Uri.encodeComponent(formattedDate)}';
       } else if (value is List || value is Map) {
         if (value is List) value = value.asMap();
         value.forEach((k, v) {
-          query +=
-              getQueryString({k: v}, prefix: '$prefix$key', inRecursion: true);
+          query += getQueryString({k: v},
+              prefix: '${!query.isEmpty ? '&' : ''}$key', inRecursion: true);
         });
       }
     });

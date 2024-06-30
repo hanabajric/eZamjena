@@ -24,7 +24,7 @@ namespace eZamjena.Services
         public override IEnumerable<Model.Razmjena> Get(RazmjenaSearchObject search = null)
         {
             Debug.WriteLine("Ovo je funkcija učitavanja RAZMJENA.");
-            var entity = Context.Razmjenas.Include(x=>x.Proizvod1.KategorijaProizvoda).Include(k => k.Proizvod2.KategorijaProizvoda).AsQueryable();
+            var entity = Context.Razmjenas.Include(x=>x.Proizvod1.KategorijaProizvoda).Include(k => k.Proizvod2.KategorijaProizvoda).Include(x => x.Proizvod1.Korisnik).Include(x => x.Proizvod2.Korisnik).AsQueryable();
 
             entity = AddFilter(entity, search);
             

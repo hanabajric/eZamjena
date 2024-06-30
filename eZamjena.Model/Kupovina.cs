@@ -12,9 +12,9 @@ namespace eZamjena.Model
         public int? ProizvodId { get; set; }
         public virtual Korisnik Korisnik { get; set; }
         public virtual Proizvod Proizvod { get; set; }
-        //public float? Cijena =>Proizvod.Cijena;
-        //public string NazivProizvoda => Proizvod.Naziv;
-        //public string NazivKorisnika => Korisnik.KorisnickoIme;
+        public float? Cijena =>Proizvod.Cijena;
+        public string NazivProizvoda => Proizvod.Naziv;
+        public string NazivKorisnika => Korisnik.KorisnickoIme;
         //public string formatiraniDatum => Datum.HasValue ? Datum.Value.ToString("dd/MM/yyyy") : "";
     }
 }
