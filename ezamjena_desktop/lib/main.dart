@@ -1,9 +1,11 @@
+import 'package:ezamjena_desktop/pages/all_profiles.dart';
 import 'package:ezamjena_desktop/pages/main_page.dart';
 import 'package:ezamjena_desktop/pages/product_overview.dart';
 import 'package:ezamjena_desktop/pages/purchase_history.dart';
 import 'package:ezamjena_desktop/pages/request_history.dart';
 import 'package:ezamjena_desktop/pages/request_overview.dart';
 import 'package:ezamjena_desktop/providers/buy_provider.dart';
+import 'package:ezamjena_desktop/providers/city_provider.dart';
 import 'package:ezamjena_desktop/providers/exchange_provider.dart';
 import 'package:ezamjena_desktop/providers/product_category_provider.dart';
 import 'package:ezamjena_desktop/providers/products_provider.dart';
@@ -22,6 +24,7 @@ void main() {
       ChangeNotifierProvider(create: (_) => ProductCategoryProvider()),
       ChangeNotifierProvider(create: (_) => ExchangeProvider()),
       ChangeNotifierProvider(create: (_) => BuyProvider()),
+      ChangeNotifierProvider(create: (_) => CityProvider()),
     ],
     child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -55,6 +58,10 @@ void main() {
           }
           if (settings.name == MainPage.routeName) {
             return MaterialPageRoute(builder: ((context) => const MainPage()));
+          }
+          if (settings.name == UserProfilePage.routeName) {
+            return MaterialPageRoute(
+                builder: ((context) => const UserProfilePage()));
           }
           return null;
         }),

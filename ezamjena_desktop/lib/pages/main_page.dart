@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:ezamjena_desktop/pages/all_profiles.dart';
 import 'package:ezamjena_desktop/pages/product_overview.dart';
 import 'package:ezamjena_desktop/pages/purchase_history.dart';
 import 'package:ezamjena_desktop/pages/request_history.dart';
@@ -64,7 +65,7 @@ class _MainPageState extends State<MainPage>
           RequestOverviewPage(), // Your new Requests page
           RequestHistoryPage(), // Placeholder for other pages
           PurchaseHistoryPage(),
-          Container(child: Text("Profil")),
+          UserProfilePage()
         ],
       ),
     );
