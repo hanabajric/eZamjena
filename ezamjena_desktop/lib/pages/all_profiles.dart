@@ -14,7 +14,7 @@ class UserProfilePage extends StatefulWidget {
 }
 
 class _UserProfilePageState extends State<UserProfilePage> {
-  String? selectedCityId;
+  String? selectedCityId = null; // Default to 'Svi gradovi'
   String filterByUsername = '';
   List<User> users = [];
   List<City> cities = [];
@@ -44,8 +44,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
       if (filterByUsername.isNotEmpty) {
         searchQuery['KorisnickoIme'] = filterByUsername;
       }
-      if (selectedCityId != null) {
-        searchQuery['GradID'] = selectedCityId;
+      if (selectedCityId != null && selectedCityId != "") {
+        searchQuery['grad.Id'] = selectedCityId;
       }
 
       var userProvider = Provider.of<UserProvider>(context, listen: false);
@@ -81,7 +81,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     onChanged: (newValue) {
                       setState(() {
                         selectedCityId = newValue;
-                        _loadUsers(); // Reload users when city changes
+                        _loadUsers();
                       });
                     },
                     items: cities.map((City city) {
@@ -103,7 +103,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     onChanged: (value) {
                       setState(() {
                         filterByUsername = value;
-                        _loadUsers(); // Reload users when text changes
+                        _loadUsers();
                       });
                     },
                   ),
