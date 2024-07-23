@@ -3,6 +3,7 @@ using eZamjena.Model;
 using eZamjena.Model.Requests;
 using eZamjena.Model.SearchObjects;
 using eZamjena.Model.Utils;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,5 +17,7 @@ namespace eZamjena.Services
     
         Task<Model.Korisnik> Login (string username, string password);
         Task<LoggedUser> GetUserRole(string username, string password);
+        Task<Korisnik> AdminUpdate(int id, AdminKorisnikUpdateRequest update);
+
     }
 }

@@ -14,6 +14,8 @@ namespace eZamjena.Services
             CreateMap<Database.Korisnik,Model.Korisnik>();
             CreateMap<KorisnikInsertRequest, Database.Korisnik>();
             CreateMap<KorisnikUpdateRequest, Database.Korisnik>();
+            CreateMap<AdminKorisnikUpdateRequest, Database.Korisnik>().ForMember(dest => dest.LozinkaHash, opt => opt.Ignore())  // Ignoriraj hash lozinke
+                .ForMember(dest => dest.LozinkaSalt, opt => opt.Ignore()); ;
 
             CreateMap<Database.Uloga, Model.Uloga>();
 

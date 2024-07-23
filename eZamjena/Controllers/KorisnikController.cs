@@ -24,6 +24,21 @@ namespace eZamjena.Controllers
         {
             return base.Insert(insert);
         }
+        [Authorize("Administrator")]
+        [HttpPut("AdminUpdate/{id}")] 
+        public async Task<ActionResult<Korisnik>> AdminUpdate(int id, [FromBody] AdminKorisnikUpdateRequest update)
+        {
+            try
+            {
+                var result = await korisnikService.AdminUpdate(id, update);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         //[Authorize("Administrator")]
         public override IEnumerable<Korisnik> Get([FromQuery] KorisnikSearchObject search = null)
         {

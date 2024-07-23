@@ -60,4 +60,32 @@ class UserProvider extends BaseProvider<User> {
       return null;
     }
   }
+
+  Future<User?> adminUpdate(int? id, dynamic request) async {
+    var url = "$publicUrl/AdminUpdate/$id"; // Promijenjeni URL za AdminUpdate
+    var uri = Uri.parse(url);
+
+    Map<String, String> headers = createHeaders();
+
+    try {
+      var response =
+          await http!.put(uri, headers: headers, body: jsonEncode(request));
+
+      if (isValidResponseCode(response)) {
+        var data = jsonDecode(response.body);
+        print("Response data: $data");
+        if (data != null && data is Map<String, dynamic>) {
+          return fromJson(data) as User;
+        } else {
+          throw Exception('Invalid JSON data');
+        }
+      } else {
+        print("Invalid response: ${response.statusCode}");
+        return null;
+      }
+    } catch (e) {
+      print("Error during the update: $e");
+      return null;
+    }
+  }
 }

@@ -4,6 +4,7 @@ import 'package:ezamjena_desktop/pages/product_overview.dart';
 import 'package:ezamjena_desktop/pages/purchase_history.dart';
 import 'package:ezamjena_desktop/pages/request_history.dart';
 import 'package:ezamjena_desktop/pages/request_overview.dart';
+import 'package:ezamjena_desktop/pages/top3_profiles.dart';
 import 'package:ezamjena_desktop/providers/buy_provider.dart';
 import 'package:ezamjena_desktop/providers/city_provider.dart';
 import 'package:ezamjena_desktop/providers/exchange_provider.dart';
@@ -62,6 +63,10 @@ void main() {
           if (settings.name == UserProfilePage.routeName) {
             return MaterialPageRoute(
                 builder: ((context) => const UserProfilePage()));
+          }
+          if (settings.name == TopThreeProfilesPage.routeName) {
+            return MaterialPageRoute(
+                builder: ((context) => const TopThreeProfilesPage()));
           }
           return null;
         }),

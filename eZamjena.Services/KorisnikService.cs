@@ -177,7 +177,27 @@ namespace eZamjena.Services
             Model.Korisnik trenutniKorisnik =await  Login(username, password);
             return new LoggedUser { UserId = trenutniKorisnik.Id, UserRole = trenutniKorisnik.Uloga.Naziv };
         }
+        public async Task<Model.Korisnik> AdminUpdate(int id, AdminKorisnikUpdateRequest update)
+        {
+            var entity = Context.Korisniks.FirstOrDefault(k => k.Id == id);
+            if (entity == null)
+                throw new UserException("Korisnik ne postoji.");
 
-        
+            if (update.Slika == null || update.Slika.Length == 0)
+            {
+                update.Slika = GetDefaultImage();
+            }
+
+            // Mapping the update request to the entity while ignoring the password fields
+            Mapper.Map(update, entity);
+
+            // Optionally update other fields if needed, exclude password update logic
+            // entity.SomeOtherField = update.SomeOtherField;
+
+            await Context.SaveChangesAsync();
+            return Mapper.Map<Model.Korisnik>(entity);
+        }
+
+
     }
 }
