@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:ezamjena_desktop/utils/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:pdf/pdf.dart';
 import 'package:provider/provider.dart';
 import 'package:ezamjena_desktop/model/city.dart';
 import 'package:ezamjena_desktop/model/user.dart';
@@ -10,6 +12,10 @@ import 'package:ezamjena_desktop/providers/city_provider.dart';
 import 'package:ezamjena_desktop/providers/user_provider.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
+import 'package:provider/provider.dart';
 
 class UserProfilePage extends StatefulWidget {
   static const String routeName = '/allProfiles';
@@ -84,25 +90,25 @@ class _UserProfilePageState extends State<UserProfilePage> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context)
         .size
-        .width; // Širina ekrana za dinamičko prilagođavanje
+        .width; // Screen width for dynamic adjustment
 
     return Scaffold(
       body: Padding(
         padding: EdgeInsets.symmetric(
-            horizontal: screenWidth * 0.05), // Dodavanje horizontalnog paddinga
+            horizontal: screenWidth * 0.05), // Horizontal padding
         child: Column(
           children: <Widget>[
-            SizedBox(height: 20), // Dodavanje malo prostora na vrhu
+            SizedBox(height: 20), // Adding some space at the top
             Padding(
               padding: EdgeInsets.symmetric(
-                  horizontal: 20), // Lokalni padding za red
+                  horizontal: 20), // Local padding for the row
               child: Row(
                 mainAxisAlignment:
-                    MainAxisAlignment.center, // Centriranje sadržaja reda
+                    MainAxisAlignment.center, // Centering row content
                 children: <Widget>[
-                  // Dropdown za gradove
+                  // Dropdown for cities
                   Expanded(
-                    flex: 3, // Manji dio za dropdown
+                    flex: 3, // Smaller part for the dropdown
                     child: DropdownButton<String>(
                       isExpanded: true,
                       value: selectedCityId,
@@ -121,22 +127,22 @@ class _UserProfilePageState extends State<UserProfilePage> {
                       }).toList(),
                     ),
                   ),
-                  SizedBox(width: 30), // Razmak između elemenata
-                  // Polje za pretraživanje
+                  SizedBox(width: 30), // Space between elements
+                  // Search field
                   Expanded(
-                    flex: 5, // Veći dio za polje za pretraživanje
+                    flex: 5, // Larger part for the search field
                     child: TextField(
                       decoration: InputDecoration(
                         labelText: 'Pretraži po korisničkom imenu',
                         suffixIcon: Icon(Icons.search),
                         border: OutlineInputBorder(
                           borderRadius:
-                              BorderRadius.circular(30), // Zaobljeni uglovi
+                              BorderRadius.circular(30), // Rounded corners
                         ),
                         contentPadding: EdgeInsets.symmetric(
                             vertical: 10,
                             horizontal:
-                                20), // Smanjena visina i dodat padding horizontalno
+                                20), // Reduced height and added horizontal padding
                       ),
                       onChanged: (value) {
                         setState(() {
@@ -196,11 +202,82 @@ class _UserProfilePageState extends State<UserProfilePage> {
                       ),
                     ),
             ),
-            SizedBox(height: 20), // Dodavanje prostora na dnu
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Padding(
+                padding: EdgeInsets.only(right: 20, bottom: 20, top: 10),
+                child: ElevatedButton(
+                  onPressed: () {
+                    generateReport();
+                  },
+                  child: Text('Kreiraj izvještaj'),
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> generateReport() async {
+    final fontData =
+        await rootBundle.load('assets/fonts/NotoSans_Condensed-Regular.ttf');
+    final byteData = ByteData.sublistView(fontData.buffer.asUint8List());
+    final ttf = pw.Font.ttf(byteData);
+
+    final pdf = pw.Document();
+    String title = 'User Report';
+    if (selectedCityId != null &&
+        cities.any((c) => c.id.toString() == selectedCityId)) {
+      title += ' for city ' +
+          cities.firstWhere((c) => c.id.toString() == selectedCityId).naziv!;
+    }
+    if (filterByUsername.isNotEmpty) {
+      title += ' filtered by username: $filterByUsername';
+    }
+
+    pdf.addPage(
+      pw.MultiPage(
+        build: (context) => [
+          pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text(title, style: pw.TextStyle(font: ttf, fontSize: 18)),
+              pw.Divider(),
+            ],
+          ),
+          pw.ListView.builder(
+            itemCount: users.length,
+            itemBuilder: (context, index) {
+              final user = users[index];
+              return pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text("Username: ${user.korisnickoIme ?? 'N/A'}",
+                      style: pw.TextStyle(font: ttf, fontSize: 14)),
+                  pw.Text("City: ${user.nazivGrada ?? 'N/A'}",
+                      style: pw.TextStyle(font: ttf, fontSize: 14)),
+                  pw.Text("Phone: ${user.telefon ?? 'N/A'}",
+                      style: pw.TextStyle(font: ttf, fontSize: 14)),
+                  pw.Text("Email: ${user.email ?? 'N/A'}",
+                      style: pw.TextStyle(font: ttf, fontSize: 14)),
+                  pw.Text("Exchanges: ${user.brojRazmjena ?? '0'}",
+                      style: pw.TextStyle(font: ttf, fontSize: 14)),
+                  pw.Text("Purchases: ${user.brojKupovina ?? '0'}",
+                      style: pw.TextStyle(font: ttf, fontSize: 14)),
+                  pw.Divider(),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
+
+    // Trigger the file download or sharing process
+    await Printing.sharePdf(
+        bytes: await pdf.save(), filename: 'user_report.pdf');
   }
 
   void _showEditDialog(User user) {

@@ -55,8 +55,8 @@ class _TopThreeProfilesPageState extends State<TopThreeProfilesPage> {
           ? Center(child: CircularProgressIndicator())
           : Padding(
               padding: EdgeInsets.symmetric(
-                  horizontal: MediaQuery.of(context).size.width *
-                      0.05), // Horizontal padding
+                  horizontal: MediaQuery.of(context).size.width * 0.05,
+                  vertical: MediaQuery.of(context).size.height * 0.05),
               child: Column(
                 children: [
                   Expanded(
@@ -86,13 +86,16 @@ class _TopThreeProfilesPageState extends State<TopThreeProfilesPage> {
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Implement the functionality to generate report
-                      },
-                      child: Text('Kreiraj izvještaj'),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // Implement the functionality to generate report
+                        },
+                        child: Text('Kreiraj izvještaj'),
+                      ),
                     ),
                   ),
                 ],
