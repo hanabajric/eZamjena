@@ -2,6 +2,7 @@ import 'package:ezamjena_desktop/pages/all_profiles.dart';
 import 'package:ezamjena_desktop/pages/main_page.dart';
 import 'package:ezamjena_desktop/pages/product_overview.dart';
 import 'package:ezamjena_desktop/pages/purchase_history.dart';
+import 'package:ezamjena_desktop/pages/registration.dart';
 import 'package:ezamjena_desktop/pages/request_history.dart';
 import 'package:ezamjena_desktop/pages/request_overview.dart';
 import 'package:ezamjena_desktop/pages/top3_profiles.dart';
@@ -68,16 +69,26 @@ void main() {
             return MaterialPageRoute(
                 builder: ((context) => const TopThreeProfilesPage()));
           }
+          if (settings.name == RegistrationPage.routeName) {
+            return MaterialPageRoute(
+                builder: ((context) => const RegistrationPage()));
+          }
           return null;
         }),
   ));
 }
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
+  LoginPage({super.key});
+
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
-  LoginPage({super.key});
+  bool _isPasswordVisible = false;
 
   @override
   Widget build(BuildContext context) {
@@ -99,18 +110,39 @@ class LoginPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              TextField(
+              TextFormField(
                 controller: _passwordController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Password',
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isPasswordVisible
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isPasswordVisible = !_isPasswordVisible;
+                      });
+                    },
+                  ),
                 ),
-                obscureText: true,
+                obscureText: !_isPasswordVisible,
               ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () => _login(context),
                 child: const Text('Login'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => RegistrationPage()),
+                  );
+                },
+                child: const Text('Nemate profil? Registrujte se!'),
               ),
             ],
           ),

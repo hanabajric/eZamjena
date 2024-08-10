@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ezamjena_desktop/model/user.dart';
 import 'package:ezamjena_desktop/providers/user_provider.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
+import 'package:provider/provider.dart';
 
 class TopThreeProfilesPage extends StatefulWidget {
   static const String routeName = '/top3Profiles';
@@ -48,6 +51,48 @@ class _TopThreeProfilesPageState extends State<TopThreeProfilesPage> {
     }
   }
 
+  Future<void> generateReport() async {
+    final pdf = pw.Document();
+    final title = 'Top 3 User Report';
+
+    pdf.addPage(
+      pw.MultiPage(
+        build: (pw.Context context) => [
+          pw.Header(
+              level: 0,
+              child: pw.Text(title, style: pw.TextStyle(fontSize: 18))),
+          pw.Table.fromTextArray(
+            context: context,
+            data: <List<String>>[
+              <String>[
+                'Username',
+                'City',
+                'Phone',
+                'Email',
+                'Exchanges',
+                'Purchases',
+                'Active Items'
+              ],
+              ...topUsers.map((user) => [
+                    user.korisnickoIme ?? 'N/A',
+                    user.nazivGrada ?? 'N/A',
+                    user.telefon ?? 'N/A',
+                    user.email ?? 'N/A',
+                    user.brojRazmjena.toString(),
+                    user.brojKupovina.toString(),
+                    user.brojAktivnihArtikala.toString(),
+                  ])
+            ],
+          ),
+        ],
+      ),
+    );
+
+    // Save the PDF file and share it
+    final bytes = await pdf.save();
+    await Printing.sharePdf(bytes: bytes, filename: 'top_3_user_report.pdf');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -92,7 +137,7 @@ class _TopThreeProfilesPageState extends State<TopThreeProfilesPage> {
                       padding: const EdgeInsets.all(10.0),
                       child: ElevatedButton(
                         onPressed: () {
-                          // Implement the functionality to generate report
+                          generateReport();
                         },
                         child: Text('Kreiraj izvještaj'),
                       ),

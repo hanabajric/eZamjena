@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.Extensions.Options;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -75,8 +76,8 @@ builder.Services.AddAuthorization(options =>
         {
             authBuilder.RequireRole("Klijent");
         });
-
 });
+
 
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
