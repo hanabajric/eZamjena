@@ -14,6 +14,8 @@ using System.Diagnostics;
 using Microsoft.ML;
 using Microsoft.ML.Trainers;
 using Microsoft.ML.Data;
+using EasyNetQ;
+using eZamjena.Model.Messages;
 
 namespace eZamjena.Services
 {
@@ -49,8 +51,12 @@ namespace eZamjena.Services
             {
                 insert.Slika = GetDefaultImage();
             }
+            var entitiy= base.Insert(insert);
+            ProizvodInserted message = new ProizvodInserted { Proizvod= entitiy };
+            var bus = RabbitHutch.CreateBus("host=localhost");
+             bus.PubSub.Publish(message);
 
-            return base.Insert(insert);
+            return entitiy;
         }
         public override Model.Proizvod GetById(int id)
         {

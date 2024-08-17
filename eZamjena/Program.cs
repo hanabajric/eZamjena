@@ -53,6 +53,7 @@ builder.Services.AddTransient<IStatusRazmjeneService, StatusRazmjeneService>();
 builder.Services.AddTransient<IUlogaService, UlogaService>();
 builder.Services.AddTransient<IGradService, GradService>();
 builder.Services.AddTransient<IService<eZamjena.Model.Uloga, BaseSearchObject>, BaseService<eZamjena.Model.Uloga, Uloga, BaseSearchObject >>();
+builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.AddAutoMapper(typeof(IKorisnikService));
 
 builder.Services.AddAuthentication("BasicAuthentication")

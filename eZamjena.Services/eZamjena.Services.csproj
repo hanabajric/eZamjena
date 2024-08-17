@@ -26,6 +26,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
+		<PackageReference Include="EasyNetQ" Version="7.8.0" />
 		<PackageReference Include="Microsoft.AspNet.Mvc" Version="5.3.0" />
 		<PackageReference Include="Microsoft.AspNetCore.JsonPatch" Version="8.0.6" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.1.38" />
@@ -41,10 +42,15 @@
 		<PackageReference Include="Microsoft.ML" Version="3.0.1" />
 		<PackageReference Include="Microsoft.ML.Recommender" Version="0.21.1" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="sib_api_v3_sdk" Version="4.0.2" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\eZamjena.Model\eZamjena.Model.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Templates\" />
 	</ItemGroup>
 
 </Project>

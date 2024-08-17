@@ -134,7 +134,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
           hintText: hintText,
           border: OutlineInputBorder(),
           errorStyle:
-              TextStyle(color: Colors.redAccent), // Style for the error text
+              TextStyle(color: Colors.redAccent), 
           contentPadding:
               EdgeInsets.all(12), // Adjust padding inside the text field
         ),
@@ -142,7 +142,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         keyboardType: keyboardType,
         validator: validator,
         autovalidateMode:
-            AutovalidateMode.onUserInteraction, // Validates on every change
+            AutovalidateMode.onUserInteraction, 
       ),
     );
   }
