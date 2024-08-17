@@ -9,6 +9,10 @@ using System.Net.Mail;
 using System.Net;
 using dotenv.net;
 using Models;
+using eZamjena.Services.Database;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Hosting;
+using AutoMapper;
 
 class Program
 {
@@ -19,7 +23,13 @@ class Program
         Console.WriteLine("Hello, World!");
 
         // Učitavanje .env fajla sa datom putanjom
-      
+
+        var services = new ServiceCollection();
+        ConfigureServices(services);
+        var serviceProvider = services.BuildServiceProvider();
+
+        var korisnikService = serviceProvider.GetRequiredService<IKorisnikService>();
+
 
         var configuration = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
@@ -28,8 +38,8 @@ class Program
 
         var emailUsername = configuration["BrevoApi:SenderEmail"];
         var brevoApiKey = configuration["BrevoApi:ApiKey"];
-        var smtpHost = "smtp-relay.brevo.com"; // Ako ovo takođe želite iz konfiguracije, dodajte u appsettings.json
-        var smtpPort = 587; // Ovo možete takođe staviti u appsettings.json ako varira
+        var smtpHost = "smtp-relay.brevo.com"; 
+        var smtpPort = 587; 
 
         Debug.WriteLine($"Email Username: {emailUsername}");
 
@@ -37,21 +47,22 @@ class Program
 
 
         var bus = RabbitHutch.CreateBus("host=localhost");
-        
 
-       bus.PubSub.SubscribeAsync<ProizvodInserted>("console_printer", msg =>
+
+        bus.PubSub.SubscribeAsync<ProizvodInserted>("console_printer", msg =>
         {
             Console.WriteLine($"Product activated: {msg.Proizvod.Naziv}");
         });
 
-         bus.PubSub.SubscribeAsync<ProizvodInserted>("email_sender", async msg =>
+        bus.PubSub.SubscribeAsync<ProizvodInserted>("email_sender", async msg =>
         {
-            Console.WriteLine($"Sending email for : {msg.Proizvod.Naziv}");
-            /* var email = emailBuilder.BuildNewProductNotificationEmail("ezamjena@gmail.com", "Recipient Name", msg.Proizvod.Naziv, "http://product-link.com");
-             await emailSender.SendEmailAsync(email);*/
-            await SendEmailAsync("Novi proizvod je dodan", emailUsername, brevoApiKey, smtpHost, smtpPort);
+            var otherUsers = korisnikService.GetOtherUsers(msg.Proizvod.KorisnikId);
+            foreach (var user in otherUsers)
+            {
+                Debug.WriteLine($"Sending email to: {user.Email}");
+                await SendEmailAsync(user.Email, user.Ime, msg.Proizvod.Naziv, "http://linkToProduct.com", emailUsername, brevoApiKey, smtpHost, smtpPort);
+            }
         });
-
 
 
         Console.WriteLine("Listening for messages, press <return> key to close");
@@ -59,13 +70,22 @@ class Program
     }
 
 
-    public static async Task SendEmailAsync(string emailBody, string emailUsername, string brevoApiKey, string smtpHost, int smtpPort)
+    public static async Task SendEmailAsync(string recipientEmail, string firstName, string productName, string productLink, string emailUsername, string brevoApiKey, string smtpHost, int smtpPort)
     {
-        
+        string basePath = AppDomain.CurrentDomain.BaseDirectory;
+        string templatePath = Path.Combine(basePath, "..", "..", "..", "Templates", "NewProductNotificationTemplate.html");
+        string emailTemplate = File.ReadAllText(templatePath); ;
+
+
+        // Replace placeholders
+        emailTemplate = emailTemplate.Replace("{{firstName}}", firstName);
+        emailTemplate = emailTemplate.Replace("{{productName}}", productName);
+        emailTemplate = emailTemplate.Replace("{{productLink}}", productLink);
+
         try
         {
-           // var userEmail = trenutniKorisnik.Email;
-           // Debug.WriteLine("Ovo je email usera " + userEmail);
+            // var userEmail = trenutniKorisnik.Email;
+            // Debug.WriteLine("Ovo je email usera " + userEmail);
             using (var smtpClient = new System.Net.Mail.SmtpClient())
             {
                 // Konfiguracija SMTP klijenta
@@ -78,11 +98,11 @@ class Program
                 var mailMessage = new MailMessage
                 {
                     From = new MailAddress("ezamjena@gmail.com"),
-                    Subject = "Povratne informacije od korisnika",
-                    Body = emailBody,
+                    Subject = "Novi proizvod u eZamjena aplikaciji",
+                    Body = emailTemplate,
                     IsBodyHtml = true,
                 };
-                mailMessage.To.Add("hnbajric@gmail.com");
+                mailMessage.To.Add(recipientEmail);
 
                 // Slanje e-mail poruke
                 await smtpClient.SendMailAsync(mailMessage);
@@ -102,7 +122,25 @@ class Program
         }
         // Možda ćete ovdje htjeti baciti izuzetak ili vratiti informaciju o grešci
     }
+
+    public static void ConfigureServices(IServiceCollection services)
+    {
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: true)
+            .Build();
+
+        services.AddSingleton<IConfiguration>(configuration);
+        services.AddDbContext<Ib190019Context>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+        services.AddScoped<IKorisnikService, KorisnikService>();
+        services.AddAutoMapper(typeof(MappingProfile)); // Pretpostavljamo da postoji MappingProfile u projektu
+    }
+
+
 }
+
+
+
 /*private static void ConfigureServices()
     {
         var services = new ServiceCollection();

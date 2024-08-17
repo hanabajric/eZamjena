@@ -18,6 +18,7 @@ namespace eZamjena.Services
         Task<Model.Korisnik> Login (string username, string password);
         Task<LoggedUser> GetUserRole(string username, string password);
         Task<Korisnik> AdminUpdate(int id, AdminKorisnikUpdateRequest update);
+        public List<Korisnik> GetOtherUsers(int excludingUserId);
 
     }
 }

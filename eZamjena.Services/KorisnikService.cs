@@ -5,6 +5,7 @@ using eZamjena.Model.SearchObjects;
 using eZamjena.Model.Utils;
 using eZamjena.Services.Database;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.ML;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -197,6 +198,13 @@ namespace eZamjena.Services
             await Context.SaveChangesAsync();
             return Mapper.Map<Model.Korisnik>(entity);
         }
+        public List<Model.Korisnik> GetOtherUsers(int excludingUserId)
+        {
+            var entity = Context.Korisniks.Where(k => k.Id != excludingUserId).ToList();
+
+            return Mapper.Map<List<Model.Korisnik>>(entity);
+        }
+
 
 
     }
