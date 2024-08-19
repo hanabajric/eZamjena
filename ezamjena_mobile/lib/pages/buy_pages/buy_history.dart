@@ -27,6 +27,7 @@ class BuyHistoryPage extends StatefulWidget {
 class _BuyHistoryPageState extends State<BuyHistoryPage> {
   List<Buy> buys = [];
   BuyProvider? _buyProvider = null;
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -36,11 +37,15 @@ class _BuyHistoryPageState extends State<BuyHistoryPage> {
   }
 
   Future loadData() async {
+    setState(() {
+      _isLoading = true;
+    });
     var tempData = await _buyProvider?.get(null);
     if (mounted && tempData != null) {
       setState(() {
         print('Setirano stanje istorije kupovina.');
-        buys = tempData;
+        buys = tempData ?? [];
+        _isLoading = false;
       });
     }
     print('Data loaded successfully.');
@@ -55,7 +60,9 @@ class _BuyHistoryPageState extends State<BuyHistoryPage> {
             children: [
               _buildHeader(),
               buildDateTimeSearch(),
-              buildExchangeList(buys),
+              _isLoading
+                  ? CircularProgressIndicator()
+                  : buildExchangeList(buys),
             ],
           ),
         ),
@@ -95,7 +102,7 @@ class _BuyHistoryPageState extends State<BuyHistoryPage> {
               fontWeight: FontWeight.bold,
             ),
           ),
-           ElevatedButton(
+          ElevatedButton(
             onPressed: () async {
               DateTime? selectedDate = await showDatePicker(
                 context: context,
@@ -103,16 +110,16 @@ class _BuyHistoryPageState extends State<BuyHistoryPage> {
                 firstDate: DateTime(2000),
                 lastDate: DateTime(2100),
               );
-              
+
               if (selectedDate != null) {
                 var dateFormatter = DateFormat('yyyy-MM-dd');
                 var formattedDate = dateFormatter.format(selectedDate);
-                var tmpData =
-                    await _buyProvider?.get({'datum': formattedDate});
+                var tmpData = await _buyProvider?.get({'datum': formattedDate});
                 print("ovo je tmpData razmjena: " + tmpData!.length.toString());
                 setState(() {
-                  buys = tmpData.where((buy) => buy.korisnikId == LoggedInUser.userId )
-            .toList();
+                  buys = tmpData
+                      .where((buy) => buy.korisnikId == LoggedInUser.userId)
+                      .toList();
                 });
               }
             },

@@ -1,3 +1,4 @@
+import 'package:ezamjena_mobile/key.dart';
 import 'package:ezamjena_mobile/pages/product_pages/product_details.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -22,7 +23,7 @@ class _MyProductListPage extends State<MyProductListPage> {
       _productProvider; // prvo pokretanje null dok se ne izvrši initState
   List<Product> data = [];
   //late BuildContext _context; // Dodajte varijablu za BuildContext
-
+  bool _isLoading = true;
   @override
   void initState() {
     super.initState();
@@ -38,42 +39,55 @@ class _MyProductListPage extends State<MyProductListPage> {
   // }
 
   Future loadData() async {
+    setState(() {
+      _isLoading = true; // Postavite učitavanje na true
+    });
     var tempData = await _productProvider?.get(null);
     if (mounted && tempData != null) {
       setState(() {
         data = tempData
-            .where((product) => product.korisnikId == LoggedInUser.userId)
+            .where((product) =>
+                product.korisnikId == LoggedInUser.userId &&
+                product.statusProizvodaId == 1)
             .toList();
+        _isLoading = false;
       });
     }
   }
 
-@override
-Widget build(BuildContext context) {
-  return MasterPageWidget(
-    child: SingleChildScrollView(
-      child: Column(
-        children: [
-          _buildHeader(),
-          SizedBox(height: 40),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: GridView.count(
-              shrinkWrap: true, // Makes the GridView take the size of its children
-              crossAxisCount: 2,
-              childAspectRatio: 2 / 3,
-              crossAxisSpacing: 20,
-              mainAxisSpacing: 30,
-              physics: NeverScrollableScrollPhysics(), // Ensures the GridView does not scroll separately
-              children: _buildProductCardList(),
-            ),
-          )
-        ],
+  @override
+  Widget build(BuildContext context) {
+    return MasterPageWidget(
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            _buildHeader(),
+            SizedBox(height: 40),
+            _isLoading
+                ? Center(
+                    child:
+                        CircularProgressIndicator()) // Prikazuje spinner dok se podaci učitavaju
+                : _buildProductGrid()
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
+  Widget _buildProductGrid() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: GridView.count(
+        shrinkWrap: true,
+        crossAxisCount: 2,
+        childAspectRatio: 2 / 3,
+        crossAxisSpacing: 20,
+        mainAxisSpacing: 30,
+        physics: NeverScrollableScrollPhysics(),
+        children: _buildProductCardList(),
+      ),
+    );
+  }
 
   Widget _buildHeader() {
     return Container(
@@ -123,7 +137,7 @@ Widget build(BuildContext context) {
                       IconButton(
                         onPressed: () {
                           showDialog(
-                              context: context,
+                              context: navigatorKey.currentContext!,
                               builder: (BuildContext context) => AlertDialog(
                                     title: Text("Brisanje proizvoda"),
                                     content: Text(
@@ -135,7 +149,8 @@ Widget build(BuildContext context) {
                                           var response = await _productProvider
                                               ?.delete(x.id!);
                                           showDialog(
-                                            context: context,
+                                            context: navigatorKey
+                                                .currentState!.overlay!.context,
                                             builder: (BuildContext context) =>
                                                 AlertDialogWidget(
                                               title: "Brisanje uspješno",

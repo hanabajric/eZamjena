@@ -20,10 +20,12 @@
 	  <ProjectReference Include="..\eZamjena.Model\eZamjena.Model.csproj" />
 	  <ProjectReference Include="..\eZamjena.Services\eZamjena.Services.csproj" />
 	</ItemGroup>
-	<ItemGroup>
+
+		<ItemGroup>
 		<Content Include="../eZamjena/appsettings.json">
 			<Link>appsettings.json</Link>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>
+
 </Project>

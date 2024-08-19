@@ -25,6 +25,7 @@ class ExchangeHistoryPage extends StatefulWidget {
 class _ExchangeHistoryPageState extends State<ExchangeHistoryPage> {
   List<Trade> trades = [];
   ExchangeProvider? _exchangeProvider = null;
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -40,15 +41,20 @@ class _ExchangeHistoryPageState extends State<ExchangeHistoryPage> {
 //   loadData();
 // }
   Future loadData() async {
+    setState(() {
+      _isLoading = true;
+    });
     var tempData = await _exchangeProvider?.get(null);
     if (mounted && tempData != null) {
       setState(() {
         trades = tempData
-            .where((trade) =>
-                (trade.korisnik1Id == LoggedInUser.userId ||
-                    trade.korisnik2Id == LoggedInUser.userId) &&
-                trade.statusRazmjeneId == 2)
-            .toList();
+                .where((trade) =>
+                    (trade.korisnik1Id == LoggedInUser.userId ||
+                        trade.korisnik2Id == LoggedInUser.userId) &&
+                    trade.statusRazmjeneId == 2)
+                .toList() ??
+            [];
+        _isLoading = false;
       });
     }
     print('Data loaded successfully.');
@@ -63,7 +69,10 @@ class _ExchangeHistoryPageState extends State<ExchangeHistoryPage> {
             children: [
               _buildHeader(),
               buildDateTimeSearch(),
-              buildExchangeList(),
+              _isLoading
+                  ? CircularProgressIndicator()
+                  : buildExchangeList(trades),
+
               // Add other widgets here
             ],
           ),
@@ -131,7 +140,22 @@ class _ExchangeHistoryPageState extends State<ExchangeHistoryPage> {
     );
   }
 
-  Widget buildExchangeList() {
+  Widget buildExchangeList(List<Trade> trades) {
+    if (trades.isEmpty) {
+      return Container(
+        margin: EdgeInsets.symmetric(vertical: 10),
+        padding: EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Text(
+          "Trenutno nemate nijednu razmjenu u historiji razmjena",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      );
+    }
+
     return ListView.builder(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
@@ -150,7 +174,7 @@ class _ExchangeHistoryPageState extends State<ExchangeHistoryPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Razmjenjen proizvod (${trade.proizvod1Naziv}) za proizvod (${trade.proizvod2Naziv})",
+                "Razmijenjen proizvod (${trade.proizvod1Naziv}) za proizvod (${trade.proizvod2Naziv})",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 5),

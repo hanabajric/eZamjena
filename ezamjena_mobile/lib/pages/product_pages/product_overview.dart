@@ -31,6 +31,7 @@ class _ProductListPagetState extends State<ProductListPage> {
   //late TradeProvider _tradeProvider;
   String _selectedCategory = "Sve kategorije";
   String _selectedCondition = "Svi proizvodi";
+  bool _isLoading = true;
 
   TextEditingController _searchController = TextEditingController();
   @override
@@ -38,13 +39,16 @@ class _ProductListPagetState extends State<ProductListPage> {
     super.initState();
     _productProvider = context.read<ProductProvider>();
     _productCategoryProvider = context.read<ProductCategoryProvider>();
-    _ratingProvider=context.read<RatingProvider>();
+    _ratingProvider = context.read<RatingProvider>();
     //_tradeProvider=context.read<TradeProvider>();
     loadData();
     _loadCategories();
   }
 
   Future loadData() async {
+    setState(() {
+      _isLoading = true; // Postavite učitavanje na true
+    });
     var tempData = await _productProvider?.get(null);
     //var tradeList = await _tradeProvider?.get(null); // Poziv get metode TradeProvider-a
     //print('Trade list: $tradeList');
@@ -52,10 +56,12 @@ class _ProductListPagetState extends State<ProductListPage> {
     if (mounted && tempData != null) {
       setState(() {
         if (tempData != null) {
-         data = tempData
-    .where((product) => product.korisnikId != LoggedInUser.userId && product.statusProizvodaId == 1)
-    .toList();
-
+          data = tempData
+              .where((product) =>
+                  product.korisnikId != LoggedInUser.userId &&
+                  product.statusProizvodaId == 1)
+              .toList();
+          _isLoading = false;
         }
         print('Setirano stanje proizovda.');
       });
@@ -70,41 +76,43 @@ class _ProductListPagetState extends State<ProductListPage> {
       }
     });
   }
-  
 
- @override
-Widget build(BuildContext context) {
-  return MasterPageWidget(
-    child: SingleChildScrollView(
-      child: Column(
-        children: [
-          _buildHeader(),
-          _buildProductSearch(),
-          SizedBox(height: 40),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: GridView.count(
-              shrinkWrap: true,  // This tells the GridView to size itself to its children
-              crossAxisCount: 2,
-              childAspectRatio: 3 / 4,
-              crossAxisSpacing: 20,
-              mainAxisSpacing: 30,
-              physics: NeverScrollableScrollPhysics(), // Disables scrolling within the GridView
-              children: _buildProductCardList(),
-            ),
-          ),
-        ],
+  @override
+  Widget build(BuildContext context) {
+    return MasterPageWidget(
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            _buildHeader(),
+            _buildProductSearch(),
+            SizedBox(height: 40),
+            _isLoading
+                ? Center(
+                    child:
+                        CircularProgressIndicator()) // Ako se podaci učitavaju, prikažite spinner
+                : Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: GridView.count(
+                      shrinkWrap: true,
+                      crossAxisCount: 2,
+                      childAspectRatio: 3 / 4,
+                      crossAxisSpacing: 20,
+                      mainAxisSpacing: 30,
+                      physics: NeverScrollableScrollPhysics(),
+                      children: _buildProductCardList(),
+                    ),
+                  ),
+          ],
+        ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 
   Widget _buildHeader() {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Text(
-        "Products",
+        "Proizvodi",
         style: TextStyle(
             color: Colors.grey, fontSize: 40, fontWeight: FontWeight.w600),
       ),
@@ -183,7 +191,8 @@ Widget build(BuildContext context) {
   Future<void> _applyFilters() async {
     var searchRequest = {
       'naziv': _searchController.text,
-      'nazivKategorije': _selectedCategory == "Sve kategorije" ? null : _selectedCategory,
+      'nazivKategorije':
+          _selectedCategory == "Sve kategorije" ? null : _selectedCategory,
       'novo': _selectedCondition == "Svi proizvodi"
           ? null
           : _selectedCondition == "Novo",
@@ -203,14 +212,12 @@ Widget build(BuildContext context) {
       value: "Sve kategorije",
       child: Text("Sve kategorije"),
     ));
-      for (var category in categories) {
-        items.add(DropdownMenuItem<String>(
-          value: category
-              .naziv, 
-          child: Text(category.naziv!),
-        ));
-      }
-    
+    for (var category in categories) {
+      items.add(DropdownMenuItem<String>(
+        value: category.naziv,
+        child: Text(category.naziv!),
+      ));
+    }
 
     return items;
   }
@@ -227,7 +234,12 @@ Widget build(BuildContext context) {
 
   List<Widget> _buildProductCardList() {
     if (data.length == 0) {
-      return [Text("Trenutno nema proizvoda.")];
+      return [
+        Text(
+          "Trenutno nema proizvoda.",
+          style: TextStyle(fontSize: 20),
+        )
+      ];
     }
     List<Widget> list = data
         .map((x) {
@@ -265,10 +277,10 @@ Widget build(BuildContext context) {
                   ),
                   onRatingUpdate: (rating) async {
                     // Ovdje možete dodati logiku za ažuriranje ocjene proizvoda
-                     print("Ocjena: $rating");
-    await submitRating(rating, x.id!);
+                    print("Ocjena: $rating");
+                    await submitRating(rating, x.id!);
 
-   /* if (success) {
+                    /* if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Ocjena uspješno zabilježena!"))
       );
@@ -288,33 +300,31 @@ Widget build(BuildContext context) {
 
     return list;
   }
-Future<void> submitRating(double rating, int productId) async {
-  print("Attempting to submit rating for product ID: $productId");  // Debug log
-  print("Rating provider is initialized: ${_ratingProvider != null}");
-  try {
-    var response = await _ratingProvider?.insert({
-      'ocjena1': rating.round(),  // Ensure this matches the expected type
-      'datum': DateTime.now().toIso8601String(),
-      'proizvodId': productId,
-      'korisnikId': LoggedInUser.userId,
-    });
-    if (response != null) {
-      print("Rating submitted successfully.");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Ocjena je uspješno zabilježena!"))
-      );
-    } else {
-      print("Response was null, indicating failure on the server.");
-      throw Exception('Failed to submit rating');
+
+  Future<void> submitRating(double rating, int productId) async {
+    print(
+        "Attempting to submit rating for product ID: $productId"); // Debug log
+    print("Rating provider is initialized: ${_ratingProvider != null}");
+    try {
+      var response = await _ratingProvider?.insert({
+        'ocjena1': rating.round(), // Ensure this matches the expected type
+        'datum': DateTime.now().toIso8601String(),
+        'proizvodId': productId,
+        'korisnikId': LoggedInUser.userId,
+      });
+      if (response != null) {
+        print("Rating submitted successfully.");
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Ocjena je uspješno zabilježena!")));
+      } else {
+        print("Response was null, indicating failure on the server.");
+        throw Exception('Failed to submit rating');
+      }
+    } catch (e) {
+      print("Failed to submit rating: $e"); // More detailed error logging
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content:
+              Text("Došlo je do greške prilikom zabilježavanja ocjene: $e")));
     }
-  } catch (e) {
-    print("Failed to submit rating: $e");  // More detailed error logging
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Došlo je do greške prilikom zabilježavanja ocjene: $e"))
-    );
   }
-}
-
-
-
 }

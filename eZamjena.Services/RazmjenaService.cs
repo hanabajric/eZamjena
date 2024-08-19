@@ -21,6 +21,30 @@ namespace eZamjena.Services
         {
             
         }
+
+        public override Model.Razmjena Update(int id, RazmjenaUpsertRequest update)
+        {
+            var set = Context.Set<Database.Razmjena>();
+            var entity = set.Find(id);
+            if (entity == null) return null;
+
+            // Ažuriranje statusa razmjene
+            if (update.StatusRazmjeneId.HasValue && update.StatusRazmjeneId == 2)
+            {
+                // Ako je status razmjene 'Razmjenjeno', postavi status oba proizvoda na 'Razmjenjen'
+                var product1 = Context.Proizvods.Find(entity.Proizvod1Id);
+                var product2 = Context.Proizvods.Find(entity.Proizvod2Id);
+                if (product1 != null) product1.StatusProizvodaId = 2; // Status 'Razmjenjen'
+                if (product2 != null) product2.StatusProizvodaId = 2; // Status 'Razmjenjen'
+            }
+
+            Mapper.Map(update, entity);
+            Context.Entry(entity).CurrentValues.SetValues(update);
+            Context.SaveChanges();
+
+            return Mapper.Map<Model.Razmjena>(entity);
+        }
+
         public override IEnumerable<Model.Razmjena> Get(RazmjenaSearchObject search = null)
         {
             Debug.WriteLine("Ovo je funkcija učitavanja RAZMJENA.");

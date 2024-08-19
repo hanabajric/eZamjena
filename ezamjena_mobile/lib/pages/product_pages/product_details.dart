@@ -138,7 +138,8 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                         context: context,
                         builder: (BuildContext context) => AlertDialogWidget(
                           title: "Zahtjev poslan",
-                          message: response.toString(),
+                          message:
+                              'Uspješno ste poslali zahtjev za proizvod ${data?.naziv ?? ""} ',
                           //message:
                           //'Uspješno ste poslali zahtjev za proizvod ${data?.naziv ?? ""} ',
                           context: context,

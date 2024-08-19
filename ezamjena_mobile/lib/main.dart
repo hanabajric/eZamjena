@@ -20,6 +20,7 @@ import 'package:ezamjena_mobile/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'key.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Osigurava inicijalizaciju
@@ -37,6 +38,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => RatingProvider()),
       ],
       child: MaterialApp(
+        navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: true,
         theme: ThemeData(
           // Define the default brightness and colors.
@@ -109,12 +111,19 @@ void main() async {
       )));
 }
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  HomePage({Key? key}) : super(key: key);
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   late UserProvider _userProvider;
+  bool _isObscured = true;
 
-  HomePage({super.key});
   @override
   Widget build(BuildContext context) {
     _userProvider = Provider.of<UserProvider>(context, listen: false);
@@ -127,15 +136,15 @@ class HomePage extends StatelessWidget {
         children: [
           Container(
             decoration: BoxDecoration(
-                // image: DecorationImage(
-                //   // image: AssetImage(
-                //   //     ),
-                //   fit: BoxFit.cover,
-                // ),
+              image: DecorationImage(
+                image: AssetImage('assets/images/login2.jpg'),
+                fit: BoxFit.cover,
+                colorFilter: ColorFilter.mode(
+                  Colors.black.withOpacity(0.3), // Slight dark overlay
+                  BlendMode.darken,
                 ),
-          ),
-          Container(
-            color: Colors.black.withOpacity(0.4),
+              ),
+            ),
           ),
           Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -144,15 +153,35 @@ class HomePage extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Opacity(
-                      opacity: 0.8,
-                      child: Text(
-                        "Prijava na aplikaciju",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 40,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    Text(
+                      "Prijava na aplikaciju eZamjena",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold,
+                        shadows: <Shadow>[
+                          Shadow(
+                            offset: Offset(-1.5, -1.5),
+                            blurRadius: 3.0,
+                            color: Colors.black,
+                          ),
+                          Shadow(
+                            offset: Offset(1.5, -1.5),
+                            blurRadius: 3.0,
+                            color: Colors.black,
+                          ),
+                          Shadow(
+                            offset: Offset(1.5, 1.5),
+                            blurRadius: 3.0,
+                            color: Colors.black,
+                          ),
+                          Shadow(
+                            offset: Offset(-1.5, 1.5),
+                            blurRadius: 3.0,
+                            color: Colors.black,
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -193,11 +222,24 @@ class HomePage extends StatelessWidget {
                               padding: EdgeInsets.all(8),
                               child: TextField(
                                 controller: _passwordController,
+                                obscureText: _isObscured,
                                 decoration: InputDecoration(
                                   border: InputBorder.none,
                                   hintText: "Password",
                                   hintStyle: TextStyle(
                                       color: Color.fromARGB(150, 27, 25, 25)),
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      _isObscured
+                                          ? Icons.visibility
+                                          : Icons.visibility_off,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _isObscured = !_isObscured;
+                                      });
+                                    },
+                                  ),
                                 ),
                               ),
                             ),
@@ -213,8 +255,8 @@ class HomePage extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                         gradient: LinearGradient(
                           colors: [
-                            Color.fromRGBO(233, 233, 236, 1),
-                            Color.fromRGBO(44, 43, 43, 0.756),
+                            Color.fromRGBO(71, 103, 148, 1),
+                            Color.fromRGBO(255, 255, 255, 0.753),
                           ],
                         ),
                       ),

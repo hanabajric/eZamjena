@@ -1,5 +1,8 @@
 import 'dart:convert';
 
+import 'package:ezamjena_mobile/utils/logged_in_usser.dart';
+import 'package:ezamjena_mobile/utils/utils.dart';
+
 import '../model/user.dart';
 import 'base_provider.dart';
 
@@ -38,29 +41,37 @@ class UserProvider extends BaseProvider<User> {
   }
 
   Future<User?> insertUserWithoutAuth(dynamic request) async {
-  var url = "$publicUrl";  // Promijenite ovo prema vašim potrebama
-  var uri = Uri.parse(url);
+    var url = "$publicUrl"; // Promijenite ovo prema vašim potrebama
+    var uri = Uri.parse(url);
 
-  var jsonRequest = jsonEncode(request);
-  
-  // U ovom slučaju, ne dodajemo nikakve headere, uključujući Authorization header
+    var jsonRequest = jsonEncode(request);
 
- var response = await http!.post(
-  uri,
-  headers: {
-           "Content-Type": "application/json",
-        },
-  body: jsonRequest,
- 
-);
+    // U ovom slučaju, ne dodajemo nikakve headere, uključujući Authorization header
 
+    var response = await http!.post(
+      uri,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: jsonRequest,
+    );
 
-  if (isValidResponseCode(response)) {
-    var data = jsonDecode(response.body);
-    return fromJson(data) as User;
-  } else {
-    return null;
+    if (isValidResponseCode(response)) {
+      var data = jsonDecode(response.body);
+      return fromJson(data) as User;
+    } else {
+      return null;
+    }
   }
-}
 
+  void clearUserData() {
+    // Reset all internal data to their initial states
+    // For example, if you store the user object, you should reset it:
+    // this.currentUser = null;
+    // Additionally, reset the passwordChanged flag if needed
+    _passwordChanged = false;
+
+    // Notify all listeners of the change
+    notifyListeners();
+  }
 }
