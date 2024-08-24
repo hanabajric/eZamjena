@@ -38,8 +38,8 @@ class Program
 
         var emailUsername = configuration["BrevoApi:SenderEmail"];
         var brevoApiKey = configuration["BrevoApi:ApiKey"];
-        var smtpHost = "smtp-relay.brevo.com"; 
-        var smtpPort = 587; 
+        var smtpHost = configuration["BrevoApi:SmtpHost"]; 
+        var smtpPort = configuration["BrevoApi:SmtpPort"];
 
         Debug.WriteLine($"Email Username: {emailUsername}");
 
@@ -70,7 +70,7 @@ class Program
     }
 
 
-    public static async Task SendEmailAsync(string recipientEmail, string firstName, string productName, string productLink, string emailUsername, string brevoApiKey, string smtpHost, int smtpPort)
+    public static async Task SendEmailAsync(string recipientEmail, string firstName, string productName, string productLink, string emailUsername, string brevoApiKey, string smtpHost, string smtpPort)
     {
         string basePath = AppDomain.CurrentDomain.BaseDirectory;
         string templatePath = Path.Combine(basePath, "..", "..", "..", "Templates", "NewProductNotificationTemplate.html");

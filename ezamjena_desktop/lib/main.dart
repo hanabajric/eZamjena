@@ -1,3 +1,4 @@
+import 'package:ezamjena_desktop/key.dart';
 import 'package:ezamjena_desktop/pages/all_profiles.dart';
 import 'package:ezamjena_desktop/pages/main_page.dart';
 import 'package:ezamjena_desktop/pages/product_overview.dart';
@@ -29,6 +30,7 @@ void main() {
       ChangeNotifierProvider(create: (_) => CityProvider()),
     ],
     child: MaterialApp(
+        navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primarySwatch: Colors.blue,
@@ -157,12 +159,34 @@ class _LoginPageState extends State<LoginPage> {
       Authorization.username = _usernameController.text;
       Authorization.password = _passwordController.text;
 
-      var loggedInUserId = await userProvider.getLoggedInUserId();
-      LoggedInUser.userId = loggedInUserId;
-
-      await userProvider.get();
-      userProvider.setPasswordChanged(false);
-      Navigator.pushNamed(context, MainPage.routeName);
+      var loggedInUserId = await userProvider?.getLoggedInUserId();
+      if (loggedInUserId != null &&
+          loggedInUserId.containsKey('userId') &&
+          loggedInUserId.containsKey('userRole')) {
+        LoggedInUser.userId = loggedInUserId['userId'];
+        print("ovo je id logovanog usera ${LoggedInUser.userId}");
+        if (loggedInUserId['userRole'] == "Administrator") {
+          await userProvider.get();
+          userProvider.setPasswordChanged(false);
+          Navigator.pushNamed(context, MainPage.routeName);
+        } else {
+          // Korisnik nema odgovarajuću ulogu
+          showDialog(
+            context: context,
+            builder: (BuildContext context) => AlertDialog(
+              title: Text("Pristup odbijen"),
+              content: Text(
+                  "Samo korisnici sa ulogom 'Administrator' mogu pristupiti aplikaciji."),
+              actions: [
+                TextButton(
+                  child: Text("Ok"),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+          );
+        }
+      }
     } catch (e) {
       showDialog(
         context: context,

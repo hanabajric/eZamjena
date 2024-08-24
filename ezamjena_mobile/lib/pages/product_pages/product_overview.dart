@@ -45,7 +45,7 @@ class _ProductListPagetState extends State<ProductListPage> {
     _loadCategories();
   }
 
-  Future loadData() async {
+  /*Future loadData() async {
     setState(() {
       _isLoading = true; // Postavite učitavanje na true
     });
@@ -64,6 +64,58 @@ class _ProductListPagetState extends State<ProductListPage> {
           _isLoading = false;
         }
         print('Setirano stanje proizovda.');
+      });
+    }
+  }*/
+
+  Future loadData() async {
+    if (LoggedInUser.userId == null) {
+      print("UserId is null. Ensure user is logged in.");
+      return; // Stop further execution if user is not logged in.
+    }
+    setState(() {
+      _isLoading = true; // Pokazivač da se podaci učitavaju
+    });
+
+    try {
+      // Dohvaćanje preporučenih proizvoda
+      var recommendedData =
+          await _productProvider?.getRecommendedProducts(LoggedInUser.userId);
+
+      // Dohvaćanje svih proizvoda koji zadovoljavaju uvjete
+      var allProducts = await _productProvider?.get(null);
+      var filteredProducts = allProducts
+          ?.where((product) =>
+              product.korisnikId != LoggedInUser.userId &&
+              product.statusProizvodaId == 1)
+          .toList();
+
+      // Izdvajanje ID-eva preporučenih proizvoda za provjeru dupliciranja
+      var recommendedIds =
+          recommendedData?.map((p) => p.id).toSet() ?? Set<int>();
+
+      // Filtriranje preostalih proizvoda da se uklone duplicirani
+      if (filteredProducts != null) {
+        filteredProducts = filteredProducts
+            .where((prod) => !recommendedIds.contains(prod.id))
+            .toList();
+      }
+
+      // Kombiniranje listi tako da preporučeni proizvodi budu prvi
+      List<Product> finalProducts = [];
+      if (recommendedData != null) finalProducts.addAll(recommendedData);
+      if (filteredProducts != null) finalProducts.addAll(filteredProducts);
+
+      if (mounted) {
+        setState(() {
+          data = finalProducts;
+          _isLoading = false; // Podaci su učitani
+        });
+      }
+    } catch (e) {
+      print('Error loading data: $e');
+      setState(() {
+        _isLoading = false;
       });
     }
   }

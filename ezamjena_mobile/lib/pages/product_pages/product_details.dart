@@ -53,7 +53,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     //print('Temp list of buys: $tempBuy');
 
     list = tempList!
-        .where((product) => product.korisnikId == LoggedInUser.userId)
+        .where((product) =>
+            product.korisnikId == LoggedInUser.userId &&
+            product.statusProizvodaId == 1)
         .toList();
     if (mounted && tempData != null) {
       setState(() {
@@ -76,6 +78,20 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Row(
+                children: [
+                  BackButton(), // Povratak na prethodnu stranicu
+                  Expanded(
+                    child: Text(
+                      'nazad',
+                      style: TextStyle(
+                        fontSize: 20,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
               productInfoWidget(),
               SizedBox(height: 20),
               RichText(
@@ -96,7 +112,8 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                       ),
                     ),
                     TextSpan(
-                      text: ' (preporučeno ite ili slične procjenjene cijene):',
+                      text:
+                          ' (preporučeno iste ili slične procjenjene cijene):',
                       style: TextStyle(
                         fontSize: 15,
                       ),
@@ -125,28 +142,47 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                       : Text('Trenutno nemate proizvode'),
                   Spacer(),
                   ElevatedButton(
-                    onPressed: () async {
-                      // _tradeProvider = context.read<TradeProvider>();
-                      trade.datum = DateTime.now();
-                      trade.proizvod1Id = selectedProduct?.id;
-                      trade.proizvod2Id = data?.id;
-                      trade.statusRazmjeneId = 1;
-                      _exchangeProvider = context.read<ExchangeProvider>();
-                      var response =
-                          await _exchangeProvider?.insert(trade.toJson());
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) => AlertDialogWidget(
-                          title: "Zahtjev poslan",
-                          message:
-                              'Uspješno ste poslali zahtjev za proizvod ${data?.naziv ?? ""} ',
-                          //message:
-                          //'Uspješno ste poslali zahtjev za proizvod ${data?.naziv ?? ""} ',
-                          context: context,
-                        ),
-                      );
-                    },
+                    onPressed: list.isNotEmpty
+                        ? () async {
+                            // Your exchange logic here
+                            trade.datum = DateTime.now();
+                            trade.proizvod1Id = selectedProduct?.id;
+                            trade.proizvod2Id = data?.id;
+                            trade.statusRazmjeneId = 1;
+                            _exchangeProvider =
+                                context.read<ExchangeProvider>();
+                            var response =
+                                await _exchangeProvider?.insert(trade.toJson());
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) =>
+                                  AlertDialogWidget(
+                                title: "Zahtjev poslan",
+                                message:
+                                    'Uspješno ste poslali zahtjev za proizvod ${data?.naziv ?? ""} ',
+                                context: context,
+                              ),
+                            );
+                          }
+                        : null,
                     child: Text('Pošaljite zahtjev'),
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                        (states) {
+                          if (states.contains(MaterialState.disabled)) {
+                            return Colors.grey; // Grey when button is disabled
+                          }
+                          return Theme.of(context)
+                              .colorScheme
+                              .primary; // Use primary color when enabled
+                        },
+                      ),
+                      foregroundColor: MaterialStateProperty.resolveWith<Color>(
+                        (states) {
+                          return Colors.white; // White text color in all states
+                        },
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -182,13 +218,16 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      // Ovdje postavite logiku za klik na prvo dugme
+                      Navigator.pop(context);
                     },
                     child: Text('Odustani'),
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all<Color>(
                         Color.fromARGB(255, 213, 71, 60),
                       ),
+                      foregroundColor: MaterialStateProperty.all<Color>(
+                        Colors.white,
+                      ), // White text color
                     ),
                   ),
                   Spacer(),

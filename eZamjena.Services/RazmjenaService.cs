@@ -36,6 +36,16 @@ namespace eZamjena.Services
                 var product2 = Context.Proizvods.Find(entity.Proizvod2Id);
                 if (product1 != null) product1.StatusProizvodaId = 2; // Status 'Razmjenjen'
                 if (product2 != null) product2.StatusProizvodaId = 2; // Status 'Razmjenjen'
+
+                // Update exchange count for both users involved
+                if (product1?.KorisnikId != null)
+                {
+                    IncrementUserExchanges(product1.KorisnikId);
+                }
+                if (product2?.KorisnikId != null)
+                {
+                    IncrementUserExchanges(product2.KorisnikId);
+                }
             }
 
             Mapper.Map(update, entity);
@@ -44,6 +54,17 @@ namespace eZamjena.Services
 
             return Mapper.Map<Model.Razmjena>(entity);
         }
+
+        private void IncrementUserExchanges(int userId)
+        {
+            var user = Context.Korisniks.Find(userId);
+            if (user != null)
+            {
+                user.BrojRazmjena = (user.BrojRazmjena ?? 0) + 1;
+                Context.SaveChanges();
+            }
+        }
+
 
         public override IEnumerable<Model.Razmjena> Get(RazmjenaSearchObject search = null)
         {

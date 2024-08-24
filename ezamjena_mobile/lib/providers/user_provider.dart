@@ -24,7 +24,7 @@ class UserProvider extends BaseProvider<User> {
     notifyListeners();
   }
 
-  Future<int> getLoggedInUserId() async {
+  Future<Map<String, dynamic>> getLoggedInUserId() async {
     var url = Uri.parse("$publicUrl/user-role");
 
     Map<String, String> headers = createHeaders();
@@ -34,7 +34,7 @@ class UserProvider extends BaseProvider<User> {
     if (isValidResponseCode(response)) {
       var data = jsonDecode(response.body);
 
-      return data['userId'];
+      return {'userId': data['userId'], 'userRole': data['userRole']};
     } else {
       throw Exception("An error occured!");
     }

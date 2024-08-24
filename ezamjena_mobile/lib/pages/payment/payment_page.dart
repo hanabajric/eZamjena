@@ -31,8 +31,8 @@ class _PaymentPageState extends State<PaymentPage> {
   final _formKey = GlobalKey<FormState>();
   UserProvider? _userProvider = null;
   ProductProvider? _productProvider = null;
-  BuyProvider? _buyProvider=null;
-  User? user ;
+  BuyProvider? _buyProvider = null;
+  User? user;
   Product? product;
   Buy? buy = Buy();
   late String productId;
@@ -83,34 +83,40 @@ class _PaymentPageState extends State<PaymentPage> {
   void makePayment() async {
     print("Pozvano");
     try {
-      paymentIntent = await createPaymentIntent();
+      if (product != null) {
+        paymentIntent = await createPaymentIntent(product!.cijena!);
 
-      var gpay = const PaymentSheetGooglePay(
-        merchantCountryCode: "US",
-        currencyCode: "USD",
-        testEnv: true,
-      );
+        var gpay = const PaymentSheetGooglePay(
+          merchantCountryCode: "US",
+          currencyCode: "USD",
+          testEnv: true,
+        );
 
-      await Stripe.instance.initPaymentSheet(
-          paymentSheetParameters: SetupPaymentSheetParameters(
-        paymentIntentClientSecret: paymentIntent!["client_secret"],
-        style: ThemeMode.dark,
-        merchantDisplayName: "Ana",
-        googlePay: gpay,
-      ));
+        await Stripe.instance.initPaymentSheet(
+            paymentSheetParameters: SetupPaymentSheetParameters(
+          paymentIntentClientSecret: paymentIntent!["client_secret"],
+          style: ThemeMode.dark,
+          merchantDisplayName: "Ana",
+          googlePay: gpay,
+        ));
 
-      // Present the Stripe payment sheet modal
-      await Stripe.instance.presentPaymentSheet().then((value) async {
-      if (product != null && user != null) {
-          await updateProductStatus(product!.id!, 1003); // Assuming 1003 is your 'paid' status
-        await incrementUserPurchase();
-        await addPurchase(user!.id!, product!.id!);  // Here we assume `user.id` and `product.id` are available
-        showSuccessDialog();
+        // Present the Stripe payment sheet modal
+        await Stripe.instance.presentPaymentSheet().then((value) async {
+          if (product != null && user != null) {
+            await updateProductStatus(
+                product!.id!, 1003); // Assuming 1003 is your 'paid' status
+            await incrementUserPurchase();
+            await addPurchase(
+                user!.id!,
+                product!
+                    .id!); // Here we assume `user.id` and `product.id` are available
+            showSuccessDialog();
+          }
+        }).catchError((e) {
+          print("Payment failed: $e");
+          showErrorDialog(e.toString());
+        });
       }
-    }).catchError((e) {
-        print("Payment failed: $e");
-        showErrorDialog(e.toString());
-      });
     } catch (e) {
       print("Error initializing payment: $e");
       showErrorDialog("Failed to initialize payment. Please try again.");
@@ -118,35 +124,33 @@ class _PaymentPageState extends State<PaymentPage> {
   }
 
   Future<bool> addPurchase(int userId, int productId) async {
-     buy?.korisnikId= userId;
-    buy?.proizvodId= productId;
-    buy?.datum= DateTime.now();
-  final response = await _buyProvider?.insert(buy);
+    buy?.korisnikId = userId;
+    buy?.proizvodId = productId;
+    buy?.datum = DateTime.now();
+    final response = await _buyProvider?.insert(buy);
 
-  if (response != null) {
-    return true; // Purchase was successful
-  } else {
-    return false; // Purchase failed
-  }
-}
-
-Future<void> incrementUserPurchase() async {
-
-  if (user != null) {
-    // Assuming the user object has a method to increment purchase count
-    user!.brojKupovina = (user!.brojKupovina ?? 0) + 1;
-
-
-    var updatedUser = await _userProvider!.update(user!.id, user!.toJson());
-    if (updatedUser != null) {
-      print("User purchase count updated successfully.");
+    if (response != null) {
+      return true; // Purchase was successful
     } else {
-      print("Failed to update user purchase count.");
+      return false; // Purchase failed
     }
-  } else {
-    print("User is null, cannot increment purchase count.");
   }
-}
+
+  Future<void> incrementUserPurchase() async {
+    if (user != null) {
+      // Assuming the user object has a method to increment purchase count
+      user!.brojKupovina = (user!.brojKupovina ?? 0) + 1;
+
+      var updatedUser = await _userProvider!.update(user!.id, user!.toJson());
+      if (updatedUser != null) {
+        print("User purchase count updated successfully.");
+      } else {
+        print("Failed to update user purchase count.");
+      }
+    } else {
+      print("User is null, cannot increment purchase count.");
+    }
+  }
 
   Future<void> updateProductStatus(int productId, int? newStatus) async {
     if (_productProvider != null) {
@@ -185,10 +189,11 @@ Future<void> incrementUserPurchase() async {
     }
   }
 
-  createPaymentIntent() async {
+  createPaymentIntent(double price) async {
     try {
+      int amount = (price * 100).toInt();
       Map<String, dynamic> body = {
-        "amount": "1000",
+        "amount": amount.toString(),
         "currency": "USD",
       };
       http.Response response = await http.post(
@@ -294,26 +299,26 @@ Future<void> incrementUserPurchase() async {
   }
 
   void showSuccessDialog() {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: const Text('Payment Successful'),
-      content: const Text('Your payment was successfully processed.'),
-      actions: <Widget>[
-        TextButton(
-          child: const Text('OK'),
-          onPressed: () {
-            Navigator.of(context).pop(); // Closes the AlertDialog
-          },
-        ),
-      ],
-    ),
-  ).then((_) {
-    // After dialog is dismissed, navigate to the product overview page
-    Navigator.pushNamed(context, "/products"); // Make sure this route is correctly configured in your MaterialApp
-  });
-}
-
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Payment Successful'),
+        content: const Text('Your payment was successfully processed.'),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('OK'),
+            onPressed: () {
+              Navigator.of(context).pop(); // Closes the AlertDialog
+            },
+          ),
+        ],
+      ),
+    ).then((_) {
+      // After dialog is dismissed, navigate to the product overview page
+      Navigator.pushNamed(context,
+          "/products"); // Make sure this route is correctly configured in your MaterialApp
+    });
+  }
 
   void showErrorDialog(String message) {
     showDialog(

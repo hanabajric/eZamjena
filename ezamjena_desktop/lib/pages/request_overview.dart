@@ -3,8 +3,10 @@ import 'dart:io';
 
 import 'package:ezamjena_desktop/model/product.dart';
 import 'package:ezamjena_desktop/model/product_category.dart';
+import 'package:ezamjena_desktop/model/user.dart';
 import 'package:ezamjena_desktop/providers/product_category_provider.dart';
 import 'package:ezamjena_desktop/providers/products_provider.dart';
+import 'package:ezamjena_desktop/providers/user_provider.dart';
 import 'package:ezamjena_desktop/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
@@ -38,7 +40,11 @@ class _RequestOverviewPageState extends State<RequestOverviewPage> {
     _productCategoryProvider = context.read<ProductCategoryProvider>();
 
     _loadCategories();
-    _loadProducts();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<ProductProvider>(context, listen: false)
+          .addListener(_loadProducts);
+      _loadProducts(); // Inicijalno učitavanje podataka
+    });
   }
 
   Future<void> _loadCategories() async {
@@ -49,6 +55,17 @@ class _RequestOverviewPageState extends State<RequestOverviewPage> {
         _selectedCategories = List<bool>.filled(categories.length, false);
       });
     }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _productProvider = context.watch<ProductProvider>();
+    _loadProducts();
+  }
+
+  void refreshPage() {
+    _loadProducts();
   }
 
   Future<void> _loadProducts() async {
@@ -140,6 +157,14 @@ class _RequestOverviewPageState extends State<RequestOverviewPage> {
               updateFilters(isNovo: index == 0);
             },
           ),
+          Align(
+            alignment: Alignment
+                .centerRight, // or Alignment.centerLeft for left alignment
+            child: IconButton(
+              icon: Icon(Icons.refresh),
+              onPressed: refreshPage,
+            ),
+          ),
           Expanded(
             child: ListView(
               children: <Widget>[
@@ -211,8 +236,10 @@ class _RequestOverviewPageState extends State<RequestOverviewPage> {
     // Calling update method
     await productProvider.update(product.id, updateData);
     _loadProducts(); // Refresh the list to reflect changes
+    productProvider.refreshProducts();
+    await _updateUserActiveProducts(product.korisnikId!);
     _showDialog(
-        'Product ${product.naziv} accepted for sale'); // Show confirmation dialog
+        'Proizvod ${product.naziv} je prihvaćen i u prodaji je.'); // Show confirmation dialog
   }
 
   void _rejectProduct(Product product) async {
@@ -220,7 +247,7 @@ class _RequestOverviewPageState extends State<RequestOverviewPage> {
     await productProvider.delete(product.id!);
     _loadProducts(); // Refresh the list to reflect changes
     _showDialog(
-        'Product ${product.naziv} rejected for sale'); // Show rejection dialog
+        'Proizvod ${product.naziv} je odbijen za prodaju'); // Show rejection dialog
   }
 
   void _acceptAll() async {
@@ -228,9 +255,12 @@ class _RequestOverviewPageState extends State<RequestOverviewPage> {
     for (var product in products) {
       var updateData = {...product.toJson(), 'statusProizvodaId': 1};
       await productProvider.update(product.id, updateData);
+      await _updateUserActiveProducts(product.korisnikId!);
     }
     _loadProducts();
-    _showDialog('All products accepted for sale');
+
+    productProvider.refreshProducts();
+    _showDialog('Svi proizvodi su prihvaceni i u prodaji su');
   }
 
   void _rejectAll() async {
@@ -239,7 +269,27 @@ class _RequestOverviewPageState extends State<RequestOverviewPage> {
       await productProvider.delete(product.id!);
     }
     _loadProducts();
-    _showDialog('All products rejected for sale');
+
+    _showDialog('Svi proizvodi su odbijeni za prodaju');
+  }
+
+  // Method to update the number of active products for a user
+  Future<void> _updateUserActiveProducts(int userId) async {
+    var userProvider = Provider.of<UserProvider>(context, listen: false);
+
+    // Retrieve current user data
+    User? userData = await userProvider.getById(userId);
+    var updatedActiveProducts =
+        userData!.brojAktivnihArtikala! + 1; // Increment the count
+
+    // Update the user data with the new count of active products
+    var updateUser = {
+      ...userData.toJson(), // Convert existing data to JSON
+      'brojAktivnihArtikala': updatedActiveProducts
+    };
+
+    await userProvider.update(
+        userId, updateUser); // Assuming you have such a method
   }
 
   void _showDialog(String message) {
@@ -247,7 +297,7 @@ class _RequestOverviewPageState extends State<RequestOverviewPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Notification"),
+          title: Text("Notifikacija"),
           content: Text(message),
           actions: <Widget>[
             TextButton(

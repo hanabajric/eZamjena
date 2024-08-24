@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:ezamjena_mobile/model/user.dart';
+import 'package:ezamjena_mobile/providers/user_provider.dart';
 import 'package:ezamjena_mobile/utils/logged_in_usser.dart';
 import 'package:ezamjena_mobile/widets/master_page.dart';
 import 'package:flutter/material.dart';
@@ -145,6 +147,8 @@ class _ExchangeRequestsPageState extends State<ExchangeRequestsPage> {
 
                   var updateResult =
                       await _exchangeProvider!.update(trade.id, request);
+                  _updateUserActiveProducts(trade.korisnik1Id!);
+                  _updateUserActiveProducts(trade.korisnik2Id!);
 
                   // If the update is successful, reload the requests
                   await loadRequests();
@@ -157,5 +161,24 @@ class _ExchangeRequestsPageState extends State<ExchangeRequestsPage> {
         ],
       ),
     );
+  }
+
+  // Method to update the number of active products for a user
+  Future<void> _updateUserActiveProducts(int userId) async {
+    var userProvider = Provider.of<UserProvider>(context, listen: false);
+
+    // Retrieve current user data
+    User? userData = await userProvider.getById(userId);
+    var updatedActiveProducts =
+        userData!.brojAktivnihArtikala! - 1; // Increment the count
+
+    // Update the user data with the new count of active products
+    var updateUser = {
+      ...userData.toJson(), // Convert existing data to JSON
+      'brojAktivnihArtikala': updatedActiveProducts
+    };
+
+    await userProvider.update(
+        userId, updateUser); // Assuming you have such a method
   }
 }

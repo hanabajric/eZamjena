@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  # SQL Server
+  eZamjena-sql:
+    image: mcr.microsoft.com/mssql/server:2017-latest-ubuntu
+    restart: unless-stopped
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourPassword123
+      - MSSQL_PID=Developer
+    ports:
+      - "1401:1433"
+    networks:
+      - app-network
+
+  # RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: unless-stopped
+    ports:
+      - "15672:15672" # Management UI
+      - "5672:5672"   # AMQP Port
+    networks:
+      - app-network
+
+  # eZamjena API
+  eZamjena-api:
+    build:
+      context: .
+      dockerfile: eZamjena/Dockerfile
+    environment:
+      - ConnectionStrings__DefaultConnection=Data Source=eZamjena-sql,1433;Initial Catalog=IB190019;user=SA;Password=YourPassword123;Encrypt=False;
+    ports:
+      - "5238:5238"
+    networks:
+      - app-network
+    depends_on:
+      - eZamjena-sql
+      - rabbitmq
+
+networks:
+  app-network:
+    driver: bridge

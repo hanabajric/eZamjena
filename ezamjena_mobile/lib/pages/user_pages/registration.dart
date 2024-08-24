@@ -159,7 +159,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
       Authorization.username = _korisnickoImeController.text;
       Authorization.password = _passwordController.text;
       var loggedInUserId = await _userProvider?.getLoggedInUserId();
-      LoggedInUser.userId = loggedInUserId;
+      LoggedInUser.userId = loggedInUserId?['userID'];
 
       Navigator.popAndPushNamed(context, ProductListPage.routeName);
     } catch (e) {

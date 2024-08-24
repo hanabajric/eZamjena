@@ -94,7 +94,7 @@ class _NewProductPageState extends State<NewProductPage> {
       "stanjeNovo": isNew,
       "slika": data?.slika, // Ensure this is base64 encoded if it's not null
       "korisnikId": LoggedInUser.userId,
-      "statusProizvodaId": 1,
+      "statusProizvodaId": 3, //na čekanju, čeka da admin odobri
       "kategorijaProizvodaId": selectedCategory!.id,
     };
 
@@ -104,9 +104,17 @@ class _NewProductPageState extends State<NewProductPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(
-                  'Vaš proizvod ${_nazivController.text} je uspješno dodan')),
+                  'Vaš proizvod ${_nazivController.text} je uspješno dodan. Molimo sačekajte da bude odobren od strane admina za prodaju.')),
         );
-        // Optionally reset the form or navigate the user away
+        // Reset the form after successful addition
+        _nazivController.clear();
+        _procijenjenaCijenaController.clear();
+        _opisController.clear();
+        setState(() {
+          data = null; // Reset the image
+          selectedCategory = null; // Reset the selected category
+          isNew = false; // Reset the checkbox
+        });
       } else {
         throw Exception('Failed to add the product');
       }

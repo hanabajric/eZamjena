@@ -69,13 +69,13 @@ class _TextFieldWithTitleState extends State<TextFieldWithTitle> {
                           widget.emailErrorText ??
                           widget.passwordErrorText ??
                           widget.passwordConfirmationErrorText,
-                      
                     ),
                     // Add more text field properties here
                   ),
                 ),
               ),
-              if (isPasswordField || isConfirmationField && widget.passwordField)
+              if (isPasswordField ||
+                  isConfirmationField && widget.passwordField)
                 IconButton(
                   onPressed: () {
                     setState(() {
@@ -83,7 +83,7 @@ class _TextFieldWithTitleState extends State<TextFieldWithTitle> {
                     });
                   },
                   icon: Icon(
-                    _passwordVisible ? Icons.visibility : Icons.visibility_off,
+                    _passwordVisible ? Icons.visibility_off : Icons.visibility,
                   ),
                 ),
               // if (isConfirmationField && widget.passwordField)

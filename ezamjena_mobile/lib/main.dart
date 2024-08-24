@@ -1,6 +1,7 @@
 import 'package:ezamjena_mobile/pages/buy_pages/buy_history.dart';
 import 'package:ezamjena_mobile/pages/exchange_pages/exchanege_requests.dart';
 import 'package:ezamjena_mobile/pages/payment/payment_page.dart';
+import 'package:ezamjena_mobile/pages/product_pages/my_product_details.dart';
 import 'package:ezamjena_mobile/pages/product_pages/new_product.dart';
 import 'package:ezamjena_mobile/pages/user_pages/my_profile_page.dart';
 import 'package:ezamjena_mobile/pages/exchange_pages/exchange_history.dart';
@@ -99,6 +100,12 @@ void main() async {
             var id = uri.pathSegments[1];
             return MaterialPageRoute(
                 builder: (context) => ProductDetailsPage(id));
+          }
+          if (uri.pathSegments.length == 2 &&
+              "/${uri.pathSegments.first}" == MyProductDetailsPage.routeName) {
+            var id = uri.pathSegments[1];
+            return MaterialPageRoute(
+                builder: (context) => MyProductDetailsPage(id));
           }
           if (uri.pathSegments.length == 2 &&
               "/${uri.pathSegments.first}" == PaymentPage.routeName) {
@@ -267,20 +274,46 @@ class _HomePageState extends State<HomePage> {
                               Authorization.password = _passwordController.text;
 
                               var loggedInUserId =
-                                  await _userProvider.getLoggedInUserId();
-                              LoggedInUser.userId = loggedInUserId;
-
-                              await _userProvider.get();
-                              _userProvider.setPasswordChanged(false);
-                              Navigator.pushNamed(
-                                  context, ProductListPage.routeName);
+                                  await _userProvider?.getLoggedInUserId();
+                              if (loggedInUserId != null &&
+                                  loggedInUserId.containsKey('userId') &&
+                                  loggedInUserId.containsKey('userRole')) {
+                                LoggedInUser.userId = loggedInUserId['userId'];
+                                print(
+                                    "ovo je id logovanog usera ${LoggedInUser.userId}");
+                                if (loggedInUserId['userRole'] == "Klijent") {
+                                  await _userProvider.get();
+                                  _userProvider.setPasswordChanged(false);
+                                  Navigator.pushNamed(
+                                      context, ProductListPage.routeName);
+                                } else {
+                                  // Korisnik nema odgovarajuću ulogu
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) =>
+                                        AlertDialog(
+                                      title: Text("Pristup odbijen"),
+                                      content: Text(
+                                          "Samo korisnici sa ulogom 'Klijent' mogu pristupiti aplikaciji."),
+                                      actions: [
+                                        TextButton(
+                                          child: Text("Ok"),
+                                          onPressed: () =>
+                                              Navigator.pop(context),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }
+                              }
                             } catch (e) {
                               showDialog(
                                   context: context,
                                   builder: (BuildContext context) =>
                                       AlertDialog(
-                                        title: Text("Error"),
-                                        content: Text(e.toString()),
+                                        title: Text("Greška"),
+                                        content: Text(
+                                            "Došlo je do greške prilikom prijave: $e.ToString()"),
                                         actions: [
                                           TextButton(
                                             child: Text("Ok"),

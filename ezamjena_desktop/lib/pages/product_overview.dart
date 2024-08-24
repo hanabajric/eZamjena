@@ -39,7 +39,25 @@ class _ProductOverviewPageState extends State<ProductOverviewPage>
     _productCategoryProvider = context.read<ProductCategoryProvider>();
 
     _loadCategories();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<ProductProvider>(context, listen: false)
+          .addListener(_loadProducts);
+      _loadProducts(); // Inicijalno učitavanje podataka
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _productProvider = context.watch<ProductProvider>();
     _loadProducts();
+  }
+
+  @override
+  void dispose() {
+    Provider.of<ProductProvider>(context, listen: false)
+        .removeListener(_loadProducts);
+    super.dispose();
   }
 
   Future<void> _loadCategories() async {
@@ -62,7 +80,6 @@ class _ProductOverviewPageState extends State<ProductOverviewPage>
       // Učitavanje svih proizvoda bez filtriranja
       List<Product> allProducts = await _productProvider!.get();
 
-      // Filtriranje proizvoda na klijentskoj strani
       List<Product> filteredProducts = allProducts.where((product) {
         // Proverava da li je neka kategorija izabrana
         bool isAnyCategorySelected =
@@ -81,7 +98,8 @@ class _ProductOverviewPageState extends State<ProductOverviewPage>
         // Filtriranje po imenu
         bool nameMatch = _searchQuery.isEmpty ||
             product.naziv!.toLowerCase().contains(_searchQuery.toLowerCase());
-        return categoryMatch && conditionMatch && nameMatch;
+        bool statusMatch = product.statusProizvodaId == 1;
+        return categoryMatch && conditionMatch && nameMatch && statusMatch;
       }).toList();
 
       setState(() {
@@ -107,7 +125,7 @@ class _ProductOverviewPageState extends State<ProductOverviewPage>
       final String base64String = base64Encode(fileBytes);
 
       setState(() {
-        product = (product)..slika = base64String;
+        product.slika = base64String;
       });
     } else {
       // Optionally handle the case when the user cancels the image picker.
@@ -126,8 +144,7 @@ class _ProductOverviewPageState extends State<ProductOverviewPage>
         TextEditingController(text: product.nazivKorisnika);
     String? selectedCategory = product.kategorijaProizvoda?.naziv;
 
-    bool? isNew =
-        product.stanjeNovo; // Initially use the current state of the product
+    bool? isNew = product.stanjeNovo;
 
     return showDialog<void>(
       context: context,
@@ -147,7 +164,11 @@ class _ProductOverviewPageState extends State<ProductOverviewPage>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       InkWell(
-                        onTap: () => _addPicture(product),
+                        onTap: () async {
+                          await _addPicture(product);
+                          setState(
+                              () {}); // Trigger re-render to show the new image
+                        },
                         child: Container(
                           width: 200,
                           height: 230,
@@ -163,7 +184,7 @@ class _ProductOverviewPageState extends State<ProductOverviewPage>
                           ),
                           child: product.slika == null
                               ? Icon(Icons.camera_alt, color: Colors.white70)
-                              : null,
+                              : imageFromBase64String(product.slika),
                         ),
                       ),
                       SizedBox(width: 20),

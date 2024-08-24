@@ -1,4 +1,5 @@
 import 'package:ezamjena_mobile/key.dart';
+import 'package:ezamjena_mobile/pages/product_pages/my_product_details.dart';
 import 'package:ezamjena_mobile/pages/product_pages/product_details.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -31,12 +32,12 @@ class _MyProductListPage extends State<MyProductListPage> {
     loadData();
   }
 
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-  //   _productProvider = context.watch<ProductProvider>();
-  // loadData();
-  // }
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _productProvider = context.watch<ProductProvider>();
+    loadData();
+  }
 
   Future loadData() async {
     setState(() {
@@ -120,8 +121,8 @@ class _MyProductListPage extends State<MyProductListPage> {
                     aspectRatio: 1,
                     child: InkWell(
                       onTap: () {
-                        Navigator.pushNamed(
-                            context, "${ProductDetailsPage.routeName}/${x.id}");
+                        Navigator.pushNamed(context,
+                            "${MyProductDetailsPage.routeName}/${x.id}");
                       },
                       child: Container(
                         child: imageFromBase64String(x.slika),

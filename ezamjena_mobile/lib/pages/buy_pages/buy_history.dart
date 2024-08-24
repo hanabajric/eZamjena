@@ -163,11 +163,11 @@ class _BuyHistoryPageState extends State<BuyHistoryPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Naziv kupljeno proizvoda: (${buy.proizvodId})",
+                "Naziv kupljeno proizvoda: (${buy.nazivProizvoda})",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               Text(
-                "Cijena: ",
+                "Cijena: ${buy.cijena}",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 5),

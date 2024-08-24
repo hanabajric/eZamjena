@@ -52,12 +52,38 @@ namespace eZamjena.Services
                 insert.Slika = GetDefaultImage();
             }
             var entitiy= base.Insert(insert);
-            ProizvodInserted message = new ProizvodInserted { Proizvod= entitiy };
+           /* ProizvodInserted message = new ProizvodInserted { Proizvod= entitiy };
             var bus = RabbitHutch.CreateBus("host=localhost");
-             bus.PubSub.Publish(message);
+             bus.PubSub.Publish(message);*/
 
             return entitiy;
         }
+        public override Model.Proizvod Update(int id, ProizvodUpsertRequest update)
+        {
+            var set = Context.Set<Database.Proizvod>();
+            var entity = set.Include(p => p.StatusProizvoda).FirstOrDefault(p => p.Id == id);
+
+            if (entity == null) return null; 
+
+            int? oldStatusId = entity.StatusProizvodaId;
+            Mapper.Map(update, entity);
+
+            Context.SaveChanges();
+
+            // Provjeri da li je došlo do promjene na StanjeProizvodaId na 1
+            if (oldStatusId != 1 && entity.StatusProizvodaId == 1)
+            {
+                // Mapiranje entiteta baze podataka u model
+                var modelEntity = Mapper.Map<Model.Proizvod>(entity);
+
+                ProizvodInserted message = new ProizvodInserted { Proizvod = modelEntity };
+                var bus = RabbitHutch.CreateBus("host=localhost");
+                bus.PubSub.Publish(message);
+            }
+
+            return Mapper.Map<Model.Proizvod>(entity);
+        }
+
         public override Model.Proizvod GetById(int id)
         {
             //var entity = Context.Proizvods .Include(k => k.KategorijaProizvoda).Include(x => x.Korisnik).FirstOrDefault(p => p.Id == id);
@@ -114,7 +140,14 @@ namespace eZamjena.Services
 
         public override void BeforeDelete(int id)
         {
-            //List<int> orderIds = context.OrderItems.Where(oi => oi.FurnitureItemId == id).Select(oi => oi.OrderId).ToList();
+            var product = Context.Proizvods
+      .Include(p => p.Korisnik) // Ensure the user is loaded
+      .FirstOrDefault(p => p.Id == id);
+
+            if (product == null)
+            {
+                throw new Exception("Product not found.");
+            }
 
             List<Kupovina> kupovina = Context.Kupovinas.Where(k => k.ProizvodId == id).ToList();
             List<Razmjena> razmjena = Context.Razmjenas.Where(r=> r.Proizvod1Id==id || r.Proizvod2Id==id).ToList();
@@ -124,10 +157,16 @@ namespace eZamjena.Services
             Context.RemoveRange(razmjena);
             Context.RemoveRange(ocjena);
 
+           if (product.StatusProizvodaId == 1)
+            {
+                if (product.Korisnik.BrojAktivnihArtikala > 0)
+                {
+                    product.Korisnik.BrojAktivnihArtikala--;
+                    // Optionally add more logic or integration events here if needed
+                }
+            }
 
-            //var orders = context.Orders.Where(o => orderIds.Contains(o.OrderId)).ToList();
-
-            //context.RemoveRange(orders);
+           
 
             Context.SaveChanges();
         }
@@ -161,7 +200,7 @@ namespace eZamjena.Services
         public IEnumerable<Model.Proizvod> RecommendProducts(int userId)
         {
             // Učitaj sve proizvode
-            var allProducts = Context.Proizvods.ToList();
+            var allProducts = Context.Proizvods.Where(p=> p.StatusProizvodaId==1).ToList();//u prodaji
 
             // Kreiraj PredictionEngine
             var engine = mlContext.Model.CreatePredictionEngine<RatingEntry, RatingPrediction>(model);
