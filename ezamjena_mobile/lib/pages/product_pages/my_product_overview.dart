@@ -32,12 +32,7 @@ class _MyProductListPage extends State<MyProductListPage> {
     loadData();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _productProvider = context.watch<ProductProvider>();
-    loadData();
-  }
+
 
   Future loadData() async {
     setState(() {

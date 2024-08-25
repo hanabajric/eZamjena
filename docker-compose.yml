@@ -2,8 +2,8 @@ version: '3.8'
 
 services:
   # SQL Server
-  eZamjena-sql:
-    image: mcr.microsoft.com/mssql/server:2017-latest-ubuntu
+  ezamjena-sql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
     restart: unless-stopped
     environment:
       - ACCEPT_EULA=Y
@@ -25,18 +25,18 @@ services:
       - app-network
 
   # eZamjena API
-  eZamjena-api:
+  ezamjena-api:
     build:
       context: .
-      dockerfile: eZamjena/Dockerfile
+      dockerfile: Dockerfile
     environment:
-      - ConnectionStrings__DefaultConnection=Data Source=eZamjena-sql,1433;Initial Catalog=IB190019;user=SA;Password=YourPassword123;Encrypt=False;
+      - ConnectionStrings__DefaultConnection=Data Source=ezamjena-sql,1433;Initial Catalog=IB190019;user=SA;Password=YourPassword123;Encrypt=False;
     ports:
-      - "5238:5238"
+      - "5224:80"
     networks:
       - app-network
     depends_on:
-      - eZamjena-sql
+      - ezamjena-sql
       - rabbitmq
 
 networks:

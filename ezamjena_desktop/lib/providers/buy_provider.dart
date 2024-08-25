@@ -13,7 +13,7 @@ class BuyProvider extends BaseProvider<Buy> {
 
   @override
   Future<List<Buy>> get([dynamic search]) async {
-    var url = "https://localhost:7224/Kupovina";
+    var url = "http://localhost:5224/Kupovina";
     if (search != null) {
       String queryString = getQueryString(search);
       url += "?$queryString";

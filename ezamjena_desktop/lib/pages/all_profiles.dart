@@ -156,52 +156,37 @@ class _UserProfilePageState extends State<UserProfilePage> {
               ),
             ),
             Expanded(
-              child: isLoading
-                  ? CircularProgressIndicator()
-                  : SingleChildScrollView(
-                      child: DataTable(
-                        columns: const <DataColumn>[
-                          DataColumn(label: Text('Korisničko ime')),
-                          DataColumn(label: Text('Grad')),
-                          DataColumn(label: Text('Broj telefona')),
-                          DataColumn(label: Text('Email')),
-                          DataColumn(label: Text('Broj razmjena')),
-                          DataColumn(label: Text('Broj kupovina')),
-                          DataColumn(label: Text('Uredi')),
-                          DataColumn(label: Text('Obriši')),
-                        ],
-                        rows: users.map<DataRow>((user) {
-                          return DataRow(cells: [
-                            DataCell(Text(user.korisnickoIme ?? 'N/A')),
-                            DataCell(Text(user.nazivGrada ?? 'N/A')),
-                            DataCell(Text(user.telefon ?? 'N/A')),
-                            DataCell(Text(user.email ?? 'N/A')),
-                            DataCell(Text(user.brojRazmjena.toString())),
-                            DataCell(Text(user.brojKupovina.toString())),
-                            DataCell(IconButton(
-                              icon: Icon(Icons.edit),
-                              onPressed: () async {
-                                if (_userProvider != null) {
-                                  User? userDetails =
-                                      await _userProvider?.getById(user.id);
-                                  if (userDetails != null) {
-                                    _showEditDialog(userDetails);
-                                  } else {
-                                    // Handle null userDetails, maybe show a message or log it
-                                    print('User details not found');
-                                  }
-                                } else {
-                                  // Handle the case when _userProvider is still null
-                                  print('User provider not initialized');
-                                }
-                              },
-                            )),
-                            DataCell(Icon(Icons.delete)),
-                          ]);
-                        }).toList(),
-                      ),
-                    ),
-            ),
+                child: isLoading
+                    ? CircularProgressIndicator()
+                    : SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: DataTable(
+                          columns: const <DataColumn>[
+                            DataColumn(label: Text('Korisničko ime')),
+                            DataColumn(label: Text('Grad')),
+                            DataColumn(label: Text('Broj telefona')),
+                            DataColumn(label: Text('Email')),
+                            DataColumn(label: Text('Broj razmjena')),
+                            DataColumn(label: Text('Broj kupovina')),
+                            DataColumn(label: Text('Uredi')),
+                            DataColumn(label: Text('Obriši')),
+                          ],
+                          rows: users.map<DataRow>((user) {
+                            return DataRow(cells: [
+                              DataCell(Text(user.korisnickoIme ?? 'N/A')),
+                              DataCell(Text(user.nazivGrada ?? 'N/A')),
+                              DataCell(Text(user.telefon ?? 'N/A')),
+                              DataCell(Text(user.email ?? 'N/A')),
+                              DataCell(Text(user.brojRazmjena.toString())),
+                              DataCell(Text(user.brojKupovina.toString())),
+                              DataCell(IconButton(
+                                  icon: Icon(Icons.edit), onPressed: () {})),
+                              DataCell(IconButton(
+                                  icon: Icon(Icons.delete), onPressed: () {})),
+                            ]);
+                          }).toList(),
+                        ),
+                      )),
             Align(
               alignment: Alignment.bottomRight,
               child: Padding(

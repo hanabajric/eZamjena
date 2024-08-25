@@ -45,28 +45,7 @@ class _ProductListPagetState extends State<ProductListPage> {
     _loadCategories();
   }
 
-  /*Future loadData() async {
-    setState(() {
-      _isLoading = true; // Postavite učitavanje na true
-    });
-    var tempData = await _productProvider?.get(null);
-    //var tradeList = await _tradeProvider?.get(null); // Poziv get metode TradeProvider-a
-    //print('Trade list: $tradeList');
-    print('Temp data cijela: $tempData');
-    if (mounted && tempData != null) {
-      setState(() {
-        if (tempData != null) {
-          data = tempData
-              .where((product) =>
-                  product.korisnikId != LoggedInUser.userId &&
-                  product.statusProizvodaId == 1)
-              .toList();
-          _isLoading = false;
-        }
-        print('Setirano stanje proizovda.');
-      });
-    }
-  }*/
+  
 
   Future loadData() async {
     if (LoggedInUser.userId == null) {
@@ -101,7 +80,7 @@ class _ProductListPagetState extends State<ProductListPage> {
             .toList();
       }
 
-      // Kombiniranje listi tako da preporučeni proizvodi budu prvi
+      // Preporuceni proizvodi prvi
       List<Product> finalProducts = [];
       if (recommendedData != null) finalProducts.addAll(recommendedData);
       if (filteredProducts != null) finalProducts.addAll(filteredProducts);

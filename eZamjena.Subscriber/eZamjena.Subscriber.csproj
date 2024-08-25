@@ -5,10 +5,12 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+	  <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	  <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+	  <UseAppHost>false</UseAppHost>
   </PropertyGroup>
 
 	<ItemGroup>
-	<PackageReference Include="dotenv.net" Version="3.2.0" />
 	<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.0" />
 	<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
 	<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />

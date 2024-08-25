@@ -7,14 +7,12 @@ using System;
 using System.Diagnostics;
 using System.Net.Mail;
 using System.Net;
-using dotenv.net;
-using Models;
 using eZamjena.Services.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
 using AutoMapper;
 
-class Program
+public partial class Program
 {
     private static IServiceProvider _serviceProvider;
     private static IConfigurationRoot configuration;
@@ -140,28 +138,3 @@ class Program
 }
 
 
-
-/*private static void ConfigureServices()
-    {
-        var services = new ServiceCollection();
-
-        // Add EasyNetQ Bus
-        services.AddSingleton<IBus>(RabbitHutch.CreateBus("host=localhost"));
-
-        // Configuration
-        var configuration = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-            .AddEnvironmentVariables()
-            .Build();
-
-        services.AddSingleton<IConfiguration>(configuration);
-
-        // Register Email Services
-        services.AddSingleton<IEmailBuilder, EmailBuilder>();
-        services.AddSingleton<IEmailSender, EmailSender>(); // Replace EmailSender with your implementation
-
-        _serviceProvider = services.BuildServiceProvider();
-    }
-}
-
-*/
