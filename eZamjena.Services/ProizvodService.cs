@@ -24,8 +24,10 @@ namespace eZamjena.Services
 
         private static MLContext mlContext = new MLContext();
         private static ITransformer model;
-        public ProizvodService(Ib190019Context context, IMapper mapper) : base(context, mapper)
+        private readonly IBus _bus;
+        public ProizvodService(IBus bus, Ib190019Context context, IMapper mapper) : base(context, mapper)
         {
+            _bus = bus;
             if (model == null)
             {
                 TrainModel();
@@ -73,11 +75,18 @@ namespace eZamjena.Services
             // Provjeri da li je došlo do promjene na StanjeProizvodaId na 1
             if (oldStatusId != 1 && entity.StatusProizvodaId == 1)
             {
-                // Mapiranje entiteta baze podataka u model
                 var modelEntity = Mapper.Map<Model.Proizvod>(entity);
 
                 ProizvodInserted message = new ProizvodInserted { Proizvod = modelEntity };
-                var bus = RabbitHutch.CreateBus("host=localhost");
+
+                // Kreiraj novi bus s logovanjem
+                //var bus = RabbitHutch.CreateBus("host=localhost;username=guest;password=guest", x =>
+                //{
+                //    x.EnableConsoleLogger();
+                //    //x.EnableExceptionLogger();
+                //});
+                var bus = RabbitHutch.CreateBus("host=rabbitmq");
+                // bus.PubSub.Publish(message, cfg => cfg.WithTopic("product_inserted"));
                 bus.PubSub.Publish(message);
             }
 

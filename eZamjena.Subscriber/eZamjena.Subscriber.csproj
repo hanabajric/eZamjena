@@ -21,6 +21,7 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\eZamjena.Model\eZamjena.Model.csproj" />
 	  <ProjectReference Include="..\eZamjena.Services\eZamjena.Services.csproj" />
+	  <ProjectReference Include="..\eZamjena\eZamjena.csproj" />
 	</ItemGroup>
 
 		<ItemGroup>

@@ -91,19 +91,21 @@ class _RequestHistoryPageState extends State<RequestHistoryPage> {
               ),
             ),
             Expanded(
-              child: SingleChildScrollView(
-                scrollDirection:
-                    Axis.vertical, // Ensures only vertical scrolling
-                child: DataTable(
-                  columns: const <DataColumn>[
-                    DataColumn(label: Text('Korisnik')),
-                    DataColumn(label: Text('Proizvod1')),
-                    DataColumn(label: Text('Korisnik2')),
-                    DataColumn(label: Text('Proizvod2')),
-                    DataColumn(label: Text('Datum razmjene')),
-                  ],
-                  rows: trades
-                      .map<DataRow>((Trade trade) => DataRow(cells: [
+              child: trades.isEmpty
+                  ? Center(child: Text('Trenutno nemate razmjena u historiji'))
+                  : SingleChildScrollView(
+                      scrollDirection:
+                          Axis.vertical, // Ensures only vertical scrolling
+                      child: DataTable(
+                        columns: const <DataColumn>[
+                          DataColumn(label: Text('Korisnik')),
+                          DataColumn(label: Text('Proizvod1')),
+                          DataColumn(label: Text('Korisnik2')),
+                          DataColumn(label: Text('Proizvod2')),
+                          DataColumn(label: Text('Datum razmjene')),
+                        ],
+                        rows: trades.map<DataRow>((Trade trade) {
+                          return DataRow(cells: [
                             DataCell(Text(trade.korisnik1 ?? 'Unknown')),
                             DataCell(
                                 Text(trade.proizvod1Naziv ?? 'No product')),
@@ -113,10 +115,10 @@ class _RequestHistoryPageState extends State<RequestHistoryPage> {
                             DataCell(Text(trade.datum != null
                                 ? DateFormat('yyyy-MM-dd').format(trade.datum!)
                                 : 'No date')),
-                          ]))
-                      .toList(),
-                ),
-              ),
+                          ]);
+                        }).toList(),
+                      ),
+                    ),
             ),
             Container(
               alignment: Alignment.centerRight,

@@ -399,20 +399,22 @@ class _ProductOverviewPageState extends State<ProductOverviewPage>
             },
           ),
           Expanded(
-            child: ListView(
-              children: <Widget>[
-                DataTable(
-                  columns: const <DataColumn>[
-                    DataColumn(label: Text('Naziv')),
-                    DataColumn(label: Text('Kategorija')),
-                    DataColumn(label: Text('Opis')),
-                    DataColumn(label: Text('Cijena')),
-                    DataColumn(label: Text('Fotografija')),
-                    DataColumn(label: Text('Uredi')),
-                    DataColumn(label: Text('Obriši')),
-                  ],
-                  rows: products
-                      .map<DataRow>((Product product) => DataRow(
+            child: products.isEmpty
+                ? Center(child: Text('Trenutno nema aktivnih artikala'))
+                : ListView(
+                    children: <Widget>[
+                      DataTable(
+                        columns: const <DataColumn>[
+                          DataColumn(label: Text('Naziv')),
+                          DataColumn(label: Text('Kategorija')),
+                          DataColumn(label: Text('Opis')),
+                          DataColumn(label: Text('Cijena')),
+                          DataColumn(label: Text('Fotografija')),
+                          DataColumn(label: Text('Uredi')),
+                          DataColumn(label: Text('Obriši')),
+                        ],
+                        rows: products.map<DataRow>((Product product) {
+                          return DataRow(
                             cells: <DataCell>[
                               DataCell(Text(product.naziv ?? '')),
                               DataCell(Text(
@@ -440,11 +442,11 @@ class _ProductOverviewPageState extends State<ProductOverviewPage>
                                     _showDeleteConfirmationDialog(product),
                               ),
                             ],
-                          ))
-                      .toList(),
-                ),
-              ],
-            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
           ),
         ],
       ),

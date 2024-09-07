@@ -9,11 +9,13 @@ using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Options;
-
+using eZamjena.Configurations;
+using EasyNetQ;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.WebHost.UseUrls("http://*:5238");
 
 builder.Services.AddControllers(x =>
 {
@@ -87,6 +89,21 @@ builder.Services.AddDbContext<Ib190019Context>(options =>
     options.UseSqlServer(connectionString));
 //builder.Services.AddDbContext<Ib190019Context>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+
+// RabbitMQ configuration
+var rabbitMqConfig = builder.Configuration.GetSection("RabbitMQ").Get<RabbitMqConfig>();
+builder.Services.AddSingleton(rabbitMqConfig);
+
+//var bus = RabbitHutch.CreateBus($"host={rabbitMqConfig.HostName};username={rabbitMqConfig.UserName};password={rabbitMqConfig.Password};virtualHost={rabbitMqConfig.VirtualHost};port={rabbitMqConfig.Port}");
+var bus = RabbitHutch.CreateBus("host=rabbitmq;username=guest;password=guest");
+
+
+builder.Services.AddSingleton(bus);
+
+// Payment provider configuration
+var paymentProviderConfig = builder.Configuration.GetSection("PaymentProvider").Get<PaymentProviderConfig>();
+builder.Services.AddSingleton(paymentProviderConfig);
+
 var app = builder.Build();
 
 
@@ -95,6 +112,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
 }
 app.UseSwagger();
 app.UseSwaggerUI(c =>
@@ -108,5 +126,12 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var database = scope.ServiceProvider.GetService<Ib190019Context>();
+    new DBSetup().Init(database);
+    new DBSetup().InsertData(database);
+}
 
 app.Run();

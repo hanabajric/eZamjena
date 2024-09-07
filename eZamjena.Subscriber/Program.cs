@@ -9,8 +9,9 @@ using System.Net.Mail;
 using System.Net;
 using eZamjena.Services.Database;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Hosting;
 using AutoMapper;
+using eZamjena.Configurations;
+using RabbitMQ.Client;
 
 public partial class Program
 {
@@ -19,80 +20,106 @@ public partial class Program
     static void Main(string[] args)
     {
         Console.WriteLine("Hello, World!");
-
         // Učitavanje .env fajla sa datom putanjom
-
         var services = new ServiceCollection();
         ConfigureServices(services);
         var serviceProvider = services.BuildServiceProvider();
-
         var korisnikService = serviceProvider.GetRequiredService<IKorisnikService>();
-
-
+        if (korisnikService == null)
+        {
+            Console.WriteLine("[Error]: KorisnikService not initialized!");
+        }
+        else
+        {
+            Console.WriteLine("[Log]: KorisnikService initialized successfully.");
+        }
         var configuration = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json", optional: true)
     .Build();
-
         var emailUsername = configuration["BrevoApi:SenderEmail"];
         var brevoApiKey = configuration["BrevoApi:ApiKey"];
-        var smtpHost = configuration["BrevoApi:SmtpHost"]; 
+        var smtpHost = configuration["BrevoApi:SmtpHost"];
         var smtpPort = configuration["BrevoApi:SmtpPort"];
-
-        Debug.WriteLine($"Email Username: {emailUsername}");
-
-        Debug.WriteLine($"eApi KEy: {brevoApiKey}");
-
-
-        var bus = RabbitHutch.CreateBus("host=localhost");
-
-
-        bus.PubSub.SubscribeAsync<ProizvodInserted>("console_printer", msg =>
+        Console.WriteLine($"Email Username: {emailUsername}");
+        Console.WriteLine($"eApi KEy: {brevoApiKey}");
+        Console.WriteLine($"Host: {smtpHost}");
+        Console.WriteLine($"Port: {smtpPort}");
+        var bus = RabbitHutch.CreateBus("host=rabbitmq");
+        bus.PubSub.SubscribeAsync<ProizvodInserted>("console_printer_queue", msg =>
         {
             Console.WriteLine($"Product activated: {msg.Proizvod.Naziv}");
         });
 
+        bus.PubSub.SubscribeAsync<ProizvodInserted>("email_sender_queue", async msg =>
+        {
+            Console.WriteLine($"Sending email to: hnbajric@gmail.com");
+            await SendEmailAsync("hnbajric@gmail.com", "Hana", msg.Proizvod.Naziv, "http://linkToProduct.com", emailUsername, brevoApiKey, smtpHost, smtpPort);
+        });
+
         bus.PubSub.SubscribeAsync<ProizvodInserted>("email_sender", async msg =>
         {
-            var otherUsers = korisnikService.GetOtherUsers(msg.Proizvod.KorisnikId);
-            foreach (var user in otherUsers)
+            int retryCount = 0;
+            const int maxRetry = 5;
+
+            while (retryCount < maxRetry)
             {
-                Debug.WriteLine($"Sending email to: {user.Email}");
-                await SendEmailAsync(user.Email, user.Ime, msg.Proizvod.Naziv, "http://linkToProduct.com", emailUsername, brevoApiKey, smtpHost, smtpPort);
+                try
+                {
+                    var otherUsers = korisnikService.GetOtherUsers(msg.Proizvod.KorisnikId);
+                    Console.WriteLine($"Found {otherUsers.Count()} other users.");
+                    foreach (var user in otherUsers)
+                    {
+                        Console.WriteLine($"Sending email to: {user.Email}");
+                        await SendEmailAsync(user.Email, user.Ime, msg.Proizvod.Naziv, "http://linkToProduct.com", emailUsername, brevoApiKey, smtpHost, smtpPort);
+                    }
+                    break; // uspješno poslano, izlazi iz petlje
+                }
+                catch (Exception ex)
+                {
+                    retryCount++;
+                    Console.WriteLine($"[Error]: {ex.Message}, retry {retryCount}/{maxRetry}");
+                    if (retryCount >= maxRetry)
+                    {
+                        Console.WriteLine("[Error]: Maximum retry attempts reached. Skipping message.");
+                    }
+                }
             }
         });
 
-
         Console.WriteLine("Listening for messages, press <return> key to close");
-        Console.ReadLine();
+        while (true)
+        {
+            Thread.Sleep(10000);
+        }
     }
-
-
     public static async Task SendEmailAsync(string recipientEmail, string firstName, string productName, string productLink, string emailUsername, string brevoApiKey, string smtpHost, string smtpPort)
     {
         string basePath = AppDomain.CurrentDomain.BaseDirectory;
-        string templatePath = Path.Combine(basePath, "..", "..", "..", "Templates", "NewProductNotificationTemplate.html");
-        string emailTemplate = File.ReadAllText(templatePath); ;
+        // string templatePath = Path.Combine(basePath, "..", "..", "..", "Templates", "NewProductNotificationTemplate.html");
+        string templatePath = Path.Combine("/app", "Templates", "NewProductNotificationTemplate.html");
 
-
-        // Replace placeholders
-        emailTemplate = emailTemplate.Replace("{{firstName}}", firstName);
-        emailTemplate = emailTemplate.Replace("{{productName}}", productName);
-        emailTemplate = emailTemplate.Replace("{{productLink}}", productLink);
+        Console.WriteLine($"[Log]: Base path for email template: {templatePath}");
 
         try
         {
-            // var userEmail = trenutniKorisnik.Email;
-            // Debug.WriteLine("Ovo je email usera " + userEmail);
-            using (var smtpClient = new System.Net.Mail.SmtpClient())
+            string emailTemplate = File.ReadAllText(templatePath);
+            Console.WriteLine("[Log]: Email template loaded successfully");
+
+            emailTemplate = emailTemplate.Replace("{{firstName}}", firstName);
+            emailTemplate = emailTemplate.Replace("{{productName}}", productName);
+            emailTemplate = emailTemplate.Replace("{{productLink}}", productLink);
+
+            Console.WriteLine("[Log]: Preparing to create SmtpClient...");
+            using (var smtpClient = new SmtpClient())
             {
-                // Konfiguracija SMTP klijenta
                 smtpClient.Host = smtpHost;
                 smtpClient.Port = Convert.ToInt32(smtpPort);
                 smtpClient.EnableSsl = true;
-                smtpClient.Credentials = new NetworkCredential(emailUsername, brevoApiKey); // Koristite sigurne metode za čuvanje lozinke
-                smtpClient.Timeout = 30000;
-                // Kreiranje e-mail poruke
+                smtpClient.Credentials = new NetworkCredential(emailUsername, brevoApiKey);
+                smtpClient.Timeout = 120000;
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
                 var mailMessage = new MailMessage
                 {
                     From = new MailAddress("ezamjena@gmail.com"),
@@ -102,39 +129,44 @@ public partial class Program
                 };
                 mailMessage.To.Add(recipientEmail);
 
-                // Slanje e-mail poruke
+                Console.WriteLine($"[Log]: Sending email to {recipientEmail} via {smtpHost}");
                 await smtpClient.SendMailAsync(mailMessage);
+                Console.WriteLine("[Log]: Finished sending email");
             }
         }
         catch (SmtpException smtpEx)
         {
-            Debug.WriteLine("Greška prilikom slanja e-maila: " + smtpEx.Message);
-            Debug.WriteLine($"SMTP Error: {smtpEx.StatusCode}");
-            Debug.WriteLine($"Inner Exception: {smtpEx.InnerException?.Message}");
-            // Obrada izuzetka SmtpException
+            Console.WriteLine($"[SMTP Error]: {smtpEx.Message}");
+            if (smtpEx.InnerException != null)
+            {
+                Console.WriteLine($"[Inner Exception]: {smtpEx.InnerException.Message}");
+            }
         }
         catch (Exception ex)
         {
-            Debug.WriteLine("Opći izuzetak: " + ex.Message);
-            // Obrada drugih izuzetaka koji nisu SmtpException
+            Console.WriteLine($"[General Error]: {ex.Message}");
         }
-        // Možda ćete ovdje htjeti baciti izuzetak ili vratiti informaciju o grešci
     }
+
+
 
     public static void ConfigureServices(IServiceCollection services)
     {
-        var configuration = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: true)
-            .Build();
+        configuration = new ConfigurationBuilder()
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: true)
+    .AddEnvironmentVariables() // Ovdje dodajemo environment varijable
+    .Build();
 
         services.AddSingleton<IConfiguration>(configuration);
-        services.AddDbContext<Ib190019Context>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
+        Console.WriteLine($"[Log]: Connection string: {connectionString}");
+
+        services.AddDbContext<Ib190019Context>(options =>
+            options.UseSqlServer(connectionString));
+
         services.AddScoped<IKorisnikService, KorisnikService>();
-        services.AddAutoMapper(typeof(MappingProfile)); // Pretpostavljamo da postoji MappingProfile u projektu
+        services.AddAutoMapper(typeof(MappingProfile));
     }
-
-
 }
-
-

@@ -166,49 +166,52 @@ class _RequestOverviewPageState extends State<RequestOverviewPage> {
             ),
           ),
           Expanded(
-            child: ListView(
-              children: <Widget>[
-                DataTable(
-                  columns: const <DataColumn>[
-                    DataColumn(label: Text('Naziv')),
-                    DataColumn(label: Text('Kategorija')),
-                    DataColumn(label: Text('Opis')),
-                    DataColumn(label: Text('Cijena')),
-                    DataColumn(label: Text('Fotografija')),
-                    DataColumn(label: Text('Potvrdi')),
-                    DataColumn(label: Text('Odbij')),
-                  ],
-                  rows: products.map<DataRow>((Product product) {
-                    return DataRow(
-                      cells: <DataCell>[
-                        DataCell(Text(product.naziv ?? '')),
-                        DataCell(
-                            Text(product.kategorijaProizvoda?.naziv ?? '')),
-                        DataCell(Text(product.opis ?? '')),
-                        DataCell(Text(product.cijena?.toString() ?? '')),
-                        DataCell(product.slika != null
-                            ? Container(
-                                width: 100,
-                                height: 50,
-                                child: imageFromBase64String(product.slika),
-                              )
-                            : const Icon(Icons.image_not_supported)),
-                        DataCell(
-                          Center(
-                              child: InkWell(
-                                  child: Icon(Icons.check),
-                                  onTap: () => _acceptProduct(product))),
-                        ),
-                        DataCell(
-                          Icon(Icons.close),
-                          onTap: () => _rejectProduct(product),
-                        ),
-                      ],
-                    );
-                  }).toList(),
-                ),
-              ],
-            ),
+            child: products.isEmpty
+                ? Center(child: Text('Trenutno nemate zahtjeva'))
+                : ListView(
+                    children: <Widget>[
+                      DataTable(
+                        columns: const <DataColumn>[
+                          DataColumn(label: Text('Naziv')),
+                          DataColumn(label: Text('Kategorija')),
+                          DataColumn(label: Text('Opis')),
+                          DataColumn(label: Text('Cijena')),
+                          DataColumn(label: Text('Fotografija')),
+                          DataColumn(label: Text('Potvrdi')),
+                          DataColumn(label: Text('Odbij')),
+                        ],
+                        rows: products.map<DataRow>((Product product) {
+                          return DataRow(
+                            cells: <DataCell>[
+                              DataCell(Text(product.naziv ?? '')),
+                              DataCell(Text(
+                                  product.kategorijaProizvoda?.naziv ?? '')),
+                              DataCell(Text(product.opis ?? '')),
+                              DataCell(Text(product.cijena?.toString() ?? '')),
+                              DataCell(product.slika != null
+                                  ? Container(
+                                      width: 100,
+                                      height: 50,
+                                      child:
+                                          imageFromBase64String(product.slika),
+                                    )
+                                  : const Icon(Icons.image_not_supported)),
+                              DataCell(
+                                Center(
+                                    child: InkWell(
+                                        child: Icon(Icons.check),
+                                        onTap: () => _acceptProduct(product))),
+                              ),
+                              DataCell(
+                                Icon(Icons.close),
+                                onTap: () => _rejectProduct(product),
+                              ),
+                            ],
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 20.0),

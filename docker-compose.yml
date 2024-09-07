@@ -13,6 +13,11 @@ services:
       - "1401:1433"
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "sqlcmd -S localhost -U SA -P YourPassword123 -Q 'SELECT 1'"]
+      interval: 10s
+      retries: 10
+      timeout: 5s
 
   # RabbitMQ
   rabbitmq:
@@ -23,6 +28,13 @@ services:
       - "5672:5672"   # AMQP Port
     networks:
       - app-network
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmq-diagnostics ping"]
+      interval: 10s
+      retries: 5
 
   # eZamjena API
   ezamjena-api:
@@ -30,15 +42,42 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      - ConnectionStrings__DefaultConnection=Data Source=ezamjena-sql,1433;Initial Catalog=IB190019;user=SA;Password=YourPassword123;Encrypt=False;
+      - ConnectionStrings__DefaultConnection=Data Source=ezamjena-sql,1433;Initial Catalog=IB190019;user=SA;Password=YourPassword123;ConnectRetryCount=0;Encrypt=False;
+      - ASPNETCORE_ENVIRONMENT=Development
     ports:
-      - "5224:80"
+      - "5238:5238"
     networks:
       - app-network
     depends_on:
       - ezamjena-sql
       - rabbitmq
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5238 || exit 1"]
+      interval: 10s
+      retries: 5
+
+  # eZamjena Subscriber
+  ezamjena-subscriber:
+    build:
+      context: .
+      dockerfile: eZamjena.Subscriber/Dockerfile
+    environment:
+      - ConnectionStrings__DefaultConnection=Data Source=ezamjena-sql,1433;Initial Catalog=IB190019;user=SA;Password=YourPassword123;ConnectRetryCount=0;Encrypt=False;
+      - BrevoApi__ApiKey=8rj4qsaZBVMI3SD1
+      - BrevoApi__SenderEmail=hnbajric@gmail.com
+      - BrevoApi__SenderName=eZamjena
+      - BrevoApi__SmtpHost=smtp-relay.brevo.com
+      - BrevoApi__SmtpPort=587
+    ports:
+      - "587:587"  
+    networks:
+      - app-network
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
 
 networks:
   app-network:
     driver: bridge
+

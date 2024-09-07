@@ -105,32 +105,43 @@ class _TopThreeProfilesPageState extends State<TopThreeProfilesPage> {
               child: Column(
                 children: [
                   Expanded(
-                      child: SingleChildScrollView(
-                    scrollDirection:
-                        Axis.horizontal, // Enable horizontal scrolling
-                    child: DataTable(
-                      columns: const <DataColumn>[
-                        DataColumn(label: Text('Korisničko ime')),
-                        DataColumn(label: Text('Grad')),
-                        DataColumn(label: Text('Broj telefona')),
-                        DataColumn(label: Text('Email')),
-                        DataColumn(label: Text('Broj razmjena')),
-                        DataColumn(label: Text('Broj kupovina')),
-                        DataColumn(label: Text('Broj aktivnih artikala')),
-                      ],
-                      rows: topUsers.map<DataRow>((user) {
-                        return DataRow(cells: [
-                          DataCell(Text(user.korisnickoIme ?? 'N/A')),
-                          DataCell(Text(user.nazivGrada ?? 'N/A')),
-                          DataCell(Text(user.telefon ?? 'N/A')),
-                          DataCell(Text(user.email ?? 'N/A')),
-                          DataCell(Text(user.brojRazmjena.toString())),
-                          DataCell(Text(user.brojKupovina.toString())),
-                          DataCell(Text(user.brojAktivnihArtikala.toString())),
-                        ]);
-                      }).toList(),
-                    ),
-                  )),
+                    child: isLoading
+                        ? Center(child: CircularProgressIndicator())
+                        : topUsers.isEmpty
+                            ? Center(
+                                child:
+                                    Text('Trenutno nemate aktivnih korisnika'))
+                            : SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: DataTable(
+                                  columns: const <DataColumn>[
+                                    DataColumn(label: Text('Korisničko ime')),
+                                    DataColumn(label: Text('Grad')),
+                                    DataColumn(label: Text('Broj telefona')),
+                                    DataColumn(label: Text('Email')),
+                                    DataColumn(label: Text('Broj razmjena')),
+                                    DataColumn(label: Text('Broj kupovina')),
+                                    DataColumn(
+                                        label: Text('Broj aktivnih artikala')),
+                                  ],
+                                  rows: topUsers.map<DataRow>((user) {
+                                    return DataRow(cells: [
+                                      DataCell(
+                                          Text(user.korisnickoIme ?? 'N/A')),
+                                      DataCell(Text(user.nazivGrada ?? 'N/A')),
+                                      DataCell(Text(user.telefon ?? 'N/A')),
+                                      DataCell(Text(user.email ?? 'N/A')),
+                                      DataCell(
+                                          Text(user.brojRazmjena.toString())),
+                                      DataCell(
+                                          Text(user.brojKupovina.toString())),
+                                      DataCell(Text(user.brojAktivnihArtikala
+                                          .toString())),
+                                    ]);
+                                  }).toList(),
+                                ),
+                              ),
+                  ),
                   Align(
                     alignment: Alignment.bottomRight,
                     child: Padding(

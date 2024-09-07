@@ -156,37 +156,42 @@ class _UserProfilePageState extends State<UserProfilePage> {
               ),
             ),
             Expanded(
-                child: isLoading
-                    ? CircularProgressIndicator()
-                    : SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: DataTable(
-                          columns: const <DataColumn>[
-                            DataColumn(label: Text('Korisničko ime')),
-                            DataColumn(label: Text('Grad')),
-                            DataColumn(label: Text('Broj telefona')),
-                            DataColumn(label: Text('Email')),
-                            DataColumn(label: Text('Broj razmjena')),
-                            DataColumn(label: Text('Broj kupovina')),
-                            DataColumn(label: Text('Uredi')),
-                            DataColumn(label: Text('Obriši')),
-                          ],
-                          rows: users.map<DataRow>((user) {
-                            return DataRow(cells: [
-                              DataCell(Text(user.korisnickoIme ?? 'N/A')),
-                              DataCell(Text(user.nazivGrada ?? 'N/A')),
-                              DataCell(Text(user.telefon ?? 'N/A')),
-                              DataCell(Text(user.email ?? 'N/A')),
-                              DataCell(Text(user.brojRazmjena.toString())),
-                              DataCell(Text(user.brojKupovina.toString())),
-                              DataCell(IconButton(
-                                  icon: Icon(Icons.edit), onPressed: () {})),
-                              DataCell(IconButton(
-                                  icon: Icon(Icons.delete), onPressed: () {})),
-                            ]);
-                          }).toList(),
+              child: isLoading
+                  ? CircularProgressIndicator()
+                  : users.isEmpty
+                      ? Center(child: Text('Trenutno nemate aktivnih profila'))
+                      : SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: DataTable(
+                            columns: const <DataColumn>[
+                              DataColumn(label: Text('Korisničko ime')),
+                              DataColumn(label: Text('Grad')),
+                              DataColumn(label: Text('Broj telefona')),
+                              DataColumn(label: Text('Email')),
+                              DataColumn(label: Text('Broj razmjena')),
+                              DataColumn(label: Text('Broj kupovina')),
+                              DataColumn(label: Text('Uredi')),
+                              DataColumn(label: Text('Obriši')),
+                            ],
+                            rows: users.map<DataRow>((user) {
+                              return DataRow(cells: [
+                                DataCell(Text(user.korisnickoIme ?? 'N/A')),
+                                DataCell(Text(user.nazivGrada ?? 'N/A')),
+                                DataCell(Text(user.telefon ?? 'N/A')),
+                                DataCell(Text(user.email ?? 'N/A')),
+                                DataCell(Text(user.brojRazmjena.toString())),
+                                DataCell(Text(user.brojKupovina.toString())),
+                                DataCell(IconButton(
+                                    icon: Icon(Icons.edit), onPressed: () {})),
+                                DataCell(IconButton(
+                                    icon: Icon(Icons.delete),
+                                    onPressed: () {})),
+                              ]);
+                            }).toList(),
+                          ),
                         ),
-                      )),
+            ),
+
             Align(
               alignment: Alignment.bottomRight,
               child: Padding(

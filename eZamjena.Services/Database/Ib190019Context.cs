@@ -2,18 +2,23 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.Configuration;
+
 
 namespace eZamjena.Services.Database
 {
     public partial class Ib190019Context : DbContext
     {
-        public Ib190019Context()
+        private readonly IConfiguration _configuration;
+        public Ib190019Context(IConfiguration configuration)
         {
+            _configuration = configuration;
         }
 
-        public Ib190019Context(DbContextOptions<Ib190019Context> options)
+        public Ib190019Context(DbContextOptions<Ib190019Context> options, IConfiguration configuration)
             : base(options)
         {
+            _configuration = configuration;
         }
 
         public virtual DbSet<Grad> Grads { get; set; } = null!;
@@ -27,15 +32,22 @@ namespace eZamjena.Services.Database
         public virtual DbSet<StatusRazmjene> StatusRazmjenes { get; set; } = null!;
         public virtual DbSet<Uloga> Ulogas { get; set; } = null!;
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Data Source=localhost,1434;Initial Catalog=IB190019; user=sa; Encrypt=False; Password=QWEasd123!");
-            }
-        }
-
+        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //{
+        //    if (!optionsBuilder.IsConfigured)
+        //    {
+        //        var connectionString = _configuration.GetConnectionString("DefaultConnection");
+        //        optionsBuilder.UseSqlServer(connectionString);
+        //    }
+        //}
+//        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+//        {
+//            if (!optionsBuilder.IsConfigured)
+//            {
+//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+//                optionsBuilder.UseSqlServer("Data Source=(local)\\mssqlserver_olap;Initial Catalog=IB190019;Integrated Security=True;");
+//            }
+//        }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Grad>(entity =>
@@ -133,6 +145,8 @@ namespace eZamjena.Services.Database
                 entity.Property(e => e.KorisnikId).HasColumnName("KorisnikID");
 
                 entity.Property(e => e.StatusProizvodaId).HasColumnName("StatusProizvodaID");
+                entity.Property(e => e.Cijena)
+        .HasColumnType("decimal(18,2)");
 
                 entity.HasOne(d => d.KategorijaProizvoda)
                     .WithMany(p => p.Proizvods)

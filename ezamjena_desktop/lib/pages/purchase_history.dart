@@ -93,29 +93,34 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage> {
               ),
             ),
             Expanded(
-              child: SingleChildScrollView(
-                scrollDirection:
-                    Axis.vertical, // Ensures only vertical scrolling
-                child: DataTable(
-                  columns: const <DataColumn>[
-                    DataColumn(label: Text('Korisnik')),
-                    DataColumn(label: Text('Proizvod')),
-                    DataColumn(label: Text('Cijena')),
-                    DataColumn(label: Text('Datum razmjene')),
-                  ],
-                  rows: purchases
-                      .map<DataRow>((Buy buy) => DataRow(cells: [
-                            DataCell(Text(buy.nazivKorisnika ?? 'Unknown')),
-                            DataCell(Text(buy.nazivProizvoda ?? 'No product')),
-                            DataCell(
-                                Text(buy.cijena?.toString() ?? 'No price')),
-                            DataCell(Text(buy.datum != null
-                                ? DateFormat('yyyy-MM-dd').format(buy.datum!)
-                                : 'No date')),
-                          ]))
-                      .toList(),
-                ),
-              ),
+              child: purchases.isEmpty
+                  ? Center(child: Text('Trenutno nemate kupovina u historiji'))
+                  : SingleChildScrollView(
+                      scrollDirection:
+                          Axis.vertical, // Ensures only vertical scrolling
+                      child: DataTable(
+                        columns: const <DataColumn>[
+                          DataColumn(label: Text('Korisnik')),
+                          DataColumn(label: Text('Proizvod')),
+                          DataColumn(label: Text('Cijena')),
+                          DataColumn(label: Text('Datum kupovine')),
+                        ],
+                        rows: purchases
+                            .map<DataRow>((Buy buy) => DataRow(cells: [
+                                  DataCell(
+                                      Text(buy.nazivKorisnika ?? 'Unknown')),
+                                  DataCell(
+                                      Text(buy.nazivProizvoda ?? 'No product')),
+                                  DataCell(Text(
+                                      buy.cijena?.toString() ?? 'No price')),
+                                  DataCell(Text(buy.datum != null
+                                      ? DateFormat('yyyy-MM-dd')
+                                          .format(buy.datum!)
+                                      : 'No date')),
+                                ]))
+                            .toList(),
+                      ),
+                    ),
             ),
             Container(
               alignment: Alignment.centerRight,

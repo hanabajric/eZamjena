@@ -1,0 +1,6 @@
+From: hnbajric@gmail.com
+To: recipient_email@gmail.com
+Subject: Test Email from Docker
+
+This is a test email body.
+
