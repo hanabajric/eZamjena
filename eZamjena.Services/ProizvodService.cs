@@ -35,8 +35,8 @@ namespace eZamjena.Services
         }
         private byte[] GetDefaultImage()
         {
-            string imagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Image", "default-image-300x169.png");
-
+            //string imagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Image", "default-image-300x169.png");
+            string imagePath = Path.Combine("/app", "Image", "default-image-300x169.png");
             if (File.Exists(imagePath))
             {
                 return File.ReadAllBytes(imagePath);
@@ -54,9 +54,7 @@ namespace eZamjena.Services
                 insert.Slika = GetDefaultImage();
             }
             var entitiy= base.Insert(insert);
-           /* ProizvodInserted message = new ProizvodInserted { Proizvod= entitiy };
-            var bus = RabbitHutch.CreateBus("host=localhost");
-             bus.PubSub.Publish(message);*/
+       
 
             return entitiy;
         }

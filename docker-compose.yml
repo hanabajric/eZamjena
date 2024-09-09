@@ -48,6 +48,8 @@ services:
       - "5238:5238"
     networks:
       - app-network
+    env_file:
+      - .env
     depends_on:
       - ezamjena-sql
       - rabbitmq
@@ -63,15 +65,17 @@ services:
       dockerfile: eZamjena.Subscriber/Dockerfile
     environment:
       - ConnectionStrings__DefaultConnection=Data Source=ezamjena-sql,1433;Initial Catalog=IB190019;user=SA;Password=YourPassword123;ConnectRetryCount=0;Encrypt=False;
-      - BrevoApi__ApiKey=8rj4qsaZBVMI3SD1
-      - BrevoApi__SenderEmail=hnbajric@gmail.com
-      - BrevoApi__SenderName=eZamjena
-      - BrevoApi__SmtpHost=smtp-relay.brevo.com
-      - BrevoApi__SmtpPort=587
+      - BrevoApi__ApiKey=${BREVO_API_KEY}
+      - BrevoApi__SenderEmail=${BREVO_SENDER_EMAIL}
+      - BrevoApi__SenderName=${BREVO_SENDER_NAME}
+      - BrevoApi__SmtpHost=${BREVO_SMTP_HOST}
+      - BrevoApi__SmtpPort=${BREVO_SMTP_PORT}
     ports:
       - "587:587"  
     networks:
       - app-network
+    env_file:
+      - .env
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -80,4 +84,3 @@ services:
 networks:
   app-network:
     driver: bridge
-

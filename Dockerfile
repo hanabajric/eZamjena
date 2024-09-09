@@ -6,6 +6,7 @@ ENV ASPNETCORE_URLS=http://+:5238
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY . .
+COPY .env /app/
 
 FROM build AS publish
 RUN dotnet publish "eZamjena/eZamjena.csproj" -c Release -o /app

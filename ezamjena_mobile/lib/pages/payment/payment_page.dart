@@ -10,6 +10,7 @@ import 'package:ezamjena_mobile/providers/products_provider.dart';
 import 'package:ezamjena_mobile/providers/user_provider.dart';
 import 'package:ezamjena_mobile/utils/logged_in_usser.dart';
 import 'package:ezamjena_mobile/utils/utils.dart';
+import 'package:ezamjena_mobile/widets/master_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:http/http.dart' as http;
@@ -218,7 +219,9 @@ class _PaymentPageState extends State<PaymentPage> {
         body: const Center(child: CircularProgressIndicator()),
       );
     }
-    return Scaffold(
+    // Ovaj dio wrappamo unutar MasterPageWidget
+    return MasterPageWidget(
+        child: Scaffold(
       appBar: AppBar(
         title: const Text('Payment'),
       ),
@@ -247,7 +250,7 @@ class _PaymentPageState extends State<PaymentPage> {
                 ),
               ),
               const SizedBox(height: 10),
-              Text('Cijena:  ${product?.cijena}',
+              Text('Cijena: ${product?.cijena}',
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
               const SizedBox(height: 20),
               Divider(),
@@ -295,7 +298,7 @@ class _PaymentPageState extends State<PaymentPage> {
           ),
         ),
       ),
-    );
+    ));
   }
 
   void showSuccessDialog() {

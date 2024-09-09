@@ -27,8 +27,8 @@ namespace eZamjena.Services
 
         private byte[] GetDefaultImage()
         {
-            string imagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Image", "generic-user-icon-10.jpg");
-
+            //string imagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Image", "generic-user-icon-10.jpg");
+            string imagePath = Path.Combine("/app", "Image", "generic-user-icon-10.jpg");
             if (File.Exists(imagePath))
             {
                 return File.ReadAllBytes(imagePath);

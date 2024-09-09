@@ -26,6 +26,6 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 
 # Kopiraj Templates direktorijum iz eZamjena.Services u /app/Templates unutar kontejnera
-COPY ./eZamjena.Services/Templates /app/Templates
+COPY ./eZamjena.Subscriber/Templates /app/Templates
 
 ENTRYPOINT ["dotnet", "eZamjena.Subscriber.dll"]

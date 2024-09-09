@@ -20,7 +20,7 @@ public partial class Program
     static void Main(string[] args)
     {
         Console.WriteLine("Hello, World!");
-        // Učitavanje .env fajla sa datom putanjom
+        
         var services = new ServiceCollection();
         ConfigureServices(services);
         var serviceProvider = services.BuildServiceProvider();
@@ -33,18 +33,20 @@ public partial class Program
         {
             Console.WriteLine("[Log]: KorisnikService initialized successfully.");
         }
-        var configuration = new ConfigurationBuilder()
-    .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.json", optional: true)
-    .Build();
-        var emailUsername = configuration["BrevoApi:SenderEmail"];
-        var brevoApiKey = configuration["BrevoApi:ApiKey"];
-        var smtpHost = configuration["BrevoApi:SmtpHost"];
-        var smtpPort = configuration["BrevoApi:SmtpPort"];
-        Console.WriteLine($"Email Username: {emailUsername}");
-        Console.WriteLine($"eApi KEy: {brevoApiKey}");
-        Console.WriteLine($"Host: {smtpHost}");
-        Console.WriteLine($"Port: {smtpPort}");
+    //    var configuration = new ConfigurationBuilder()
+    //.SetBasePath(Directory.GetCurrentDirectory())
+    //.AddJsonFile("appsettings.json", optional: true)
+    //.Build();
+        var emailUsername = Environment.GetEnvironmentVariable("BREVO_SENDER_EMAIL");
+        var brevoApiKey = Environment.GetEnvironmentVariable("BREVO_API_KEY");
+        var smtpHost = Environment.GetEnvironmentVariable("BREVO_SMTP_HOST");
+        var smtpPort = Environment.GetEnvironmentVariable("BREVO_SMTP_PORT");
+        Console.WriteLine($"BREVO_API_KEY: {Environment.GetEnvironmentVariable("BREVO_API_KEY")}");
+        Console.WriteLine($"BREVO_SENDER_EMAIL: {Environment.GetEnvironmentVariable("BREVO_SENDER_EMAIL")}");
+        Console.WriteLine($"BREVO_SENDER_NAME: {Environment.GetEnvironmentVariable("BREVO_SENDER_NAME")}");
+        Console.WriteLine($"BREVO_SMTP_HOST: {Environment.GetEnvironmentVariable("BREVO_SMTP_HOST")}");
+        Console.WriteLine($"BREVO_SMTP_PORT: {Environment.GetEnvironmentVariable("BREVO_SMTP_PORT")}");
+
         var bus = RabbitHutch.CreateBus("host=rabbitmq");
         bus.PubSub.SubscribeAsync<ProizvodInserted>("console_printer_queue", msg =>
         {
@@ -155,7 +157,7 @@ public partial class Program
         configuration = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json", optional: true)
-    .AddEnvironmentVariables() // Ovdje dodajemo environment varijable
+    .AddEnvironmentVariables() 
     .Build();
 
         services.AddSingleton<IConfiguration>(configuration);
