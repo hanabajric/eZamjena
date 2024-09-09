@@ -1,4 +1,6 @@
-# eRazmjena
+# eRazmjena - R2 seminarski rad
+
+Aplikacija eZamjena omogućava korisnicima da razmjenjuju proizvode koje više ne koriste i pronalaze druge artikle u sličnom cjenovnom rangu. Korisnici također imaju opciju kupovine proizvoda ukoliko ne žele razmjenu. Aplikacija se sastoji od desktop i mobilnog dijela. Admini koriste desktop aplikaciju za upravljanje korisnicima, proizvodima i izvještajima, dok korisnici putem mobilne aplikacije mogu dodavati, uređivati i pregledavati proizvode, slati i primati zahtjeve za razmjenu ili kupovinu.
 
 ## Application Access Credentials
 
