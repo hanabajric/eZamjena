@@ -1,27 +1,24 @@
 # eRazmjena
 
-Application Access Credentials
+## Application Access Credentials
 
+### Desktop Application
 
-Desktop Application
-
-Admin Credentials:
-Username: admin
+**Admin Credentials:**  
+Username: admin  
 Password: admin12345
 
+### Mobile Application
 
-Mobile Application
-User 1 Credentials:
+#### User 1 Credentials:
+- Username: hana123
+- Password: hana12345
 
-Username: hana123
-Password: hana12345
+#### User 2 Credentials:
+- Username: ana123
+- Password: ana12345
 
-User 2 Credentials:
+#### User 3 Credentials:
+- Username: proba
+- Password: proba12345
 
-Username: ana123
-Password: ana12345
-
-User 3 Credentials:
-
-Username: proba
-Password: proba12345
