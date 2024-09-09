@@ -31,4 +31,20 @@ class ProductProvider extends BaseProvider<Product> {
       throw Exception("Failed to load recommended products.");
     }
   }
+
+  // Method to fetch user-specific products including recommendations
+  Future<List<Product>> getUserSpecificProducts(int? userId) async {
+    var url = Uri.parse("$publicUrl/UserSpecificProducts/$userId");
+
+    Map<String, String> headers = createHeaders();
+
+    var response = await http!.get(url, headers: headers);
+    if (isValidResponseCode(response)) {
+      var data = jsonDecode(response.body) as List;
+      List<Product> products = data.map((item) => fromJson(item)).toList();
+      return products;
+    } else {
+      throw Exception("Failed to load user-specific products.");
+    }
+  }
 }

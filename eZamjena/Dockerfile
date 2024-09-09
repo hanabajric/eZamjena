@@ -6,7 +6,7 @@ EXPOSE 443
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 
-# Kopiramo .csproj fajlove i vršimo restore da bismo skinuli dependencije
+
 COPY ["eZamjena/eZamjena.csproj", "eZamjena/"]
 COPY ["eZamjena.Model/eZamjena.Model.csproj", "eZamjena.Model/"]
 COPY ["eZamjena.Services/eZamjena.Services.csproj", "eZamjena.Services/"]
@@ -15,7 +15,6 @@ COPY ["eZamjena.Services/eZamjena.Services.csproj", "eZamjena.Services/"]
 WORKDIR /src/eZamjena
 RUN dotnet restore "./eZamjena.csproj"
 
-# Kopiramo sve ostale fajlove i vršimo build
 COPY . .
 RUN dotnet build "eZamjena.csproj" -c Release -o /app/build_output
 

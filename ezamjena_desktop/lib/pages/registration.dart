@@ -133,22 +133,30 @@ class _RegistrationPageState extends State<RegistrationPage> {
           labelText: label,
           hintText: hintText,
           border: OutlineInputBorder(),
-          errorStyle:
-              TextStyle(color: Colors.redAccent), 
+          errorStyle: TextStyle(color: Colors.redAccent),
           contentPadding:
               EdgeInsets.all(12), // Adjust padding inside the text field
         ),
         obscureText: isPassword,
         keyboardType: keyboardType,
         validator: validator,
-        autovalidateMode:
-            AutovalidateMode.onUserInteraction, 
+        autovalidateMode: AutovalidateMode.onUserInteraction,
       ),
     );
   }
 
   List<Widget> buildTextFields() {
     return [
+      buildTextField(
+          controller: _korisnickoImeController,
+          label: 'Korisnicko ime',
+          hintText: 'Unesite korisnicko ime',
+          validator: (value) {
+            if (value == null || value.isEmpty)
+              return 'Korisnicko ime je obavezno';
+            return null;
+          }),
+      SizedBox(height: 10),
       buildTextField(
           controller: _imeController,
           label: 'Ime',

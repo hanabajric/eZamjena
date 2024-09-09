@@ -11,7 +11,7 @@ COPY .env /app/
 FROM build AS publish
 RUN dotnet publish "eZamjena/eZamjena.csproj" -c Release -o /app
 # Adjust the path to correctly locate the setup.sql file
-RUN mkdir -p /app/Script && cp /src/eZamjena/Script/setup.sql /app/Script/
+RUN mkdir -p /app/Script && cp /src/eZamjena/Script/script2.sql /app/Script/
 
 FROM base AS final
 WORKDIR /app

@@ -45,54 +45,30 @@ class _ProductListPagetState extends State<ProductListPage> {
     _loadCategories();
   }
 
-  
-
-  Future loadData() async {
+  Future<void> loadData() async {
     if (LoggedInUser.userId == null) {
       print("UserId is null. Ensure user is logged in.");
       return; // Stop further execution if user is not logged in.
     }
+
     setState(() {
-      _isLoading = true; // Pokazivač da se podaci učitavaju
+      _isLoading = true; // Indicate that data is being loaded
     });
 
     try {
-      // Dohvaćanje preporučenih proizvoda
-      var recommendedData =
-          await _productProvider?.getRecommendedProducts(LoggedInUser.userId);
-
-      // Dohvaćanje svih proizvoda koji zadovoljavaju uvjete
-      var allProducts = await _productProvider?.get(null);
-      var filteredProducts = allProducts
-          ?.where((product) =>
-              product.korisnikId != LoggedInUser.userId &&
-              product.statusProizvodaId == 1)
-          .toList();
-
-      // Izdvajanje ID-eva preporučenih proizvoda za provjeru dupliciranja
-      var recommendedIds =
-          recommendedData?.map((p) => p.id).toSet() ?? Set<int>();
-
-      // Filtriranje preostalih proizvoda da se uklone duplicirani
-      if (filteredProducts != null) {
-        filteredProducts = filteredProducts
-            .where((prod) => !recommendedIds.contains(prod.id))
-            .toList();
-      }
-
-      // Preporuceni proizvodi prvi
-      List<Product> finalProducts = [];
-      if (recommendedData != null) finalProducts.addAll(recommendedData);
-      if (filteredProducts != null) finalProducts.addAll(filteredProducts);
+      // Fetch user-specific products, including recommendations
+      var products =
+          await _productProvider?.getUserSpecificProducts(LoggedInUser.userId);
 
       if (mounted) {
         setState(() {
-          data = finalProducts;
-          _isLoading = false; // Podaci su učitani
+          data = products ?? [];
+          _isLoading = false; // Data has been loaded
         });
       }
-    } catch (e) {
+    } catch (e, stacktrace) {
       print('Error loading data: $e');
+      print('Stacktrace: $stacktrace'); // Provides more details about the error
       setState(() {
         _isLoading = false;
       });
@@ -126,9 +102,9 @@ class _ProductListPagetState extends State<ProductListPage> {
                     child: GridView.count(
                       shrinkWrap: true,
                       crossAxisCount: 2,
-                      childAspectRatio: 3 / 4,
+                      childAspectRatio: 3 / 4.5,
                       crossAxisSpacing: 20,
-                      mainAxisSpacing: 30,
+                      mainAxisSpacing: 35,
                       physics: NeverScrollableScrollPhysics(),
                       children: _buildProductCardList(),
                     ),

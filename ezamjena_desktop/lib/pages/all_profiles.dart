@@ -159,7 +159,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
               child: isLoading
                   ? CircularProgressIndicator()
                   : users.isEmpty
-                      ? Center(child: Text('Trenutno nemate aktivnih profila'))
+                      ? Center(
+                          child: Text('Trenutno nemate aktivnih korisnika'))
                       : SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: DataTable(
@@ -182,10 +183,51 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                 DataCell(Text(user.brojRazmjena.toString())),
                                 DataCell(Text(user.brojKupovina.toString())),
                                 DataCell(IconButton(
-                                    icon: Icon(Icons.edit), onPressed: () {})),
-                                DataCell(IconButton(
+                                  icon: Icon(Icons.edit),
+                                  onPressed: () async {
+                                    if (_userProvider != null) {
+                                      User? userDetails =
+                                          await _userProvider?.getById(user.id);
+                                      if (userDetails != null) {
+                                        _showEditDialog(userDetails);
+                                      } else {
+                                        // Handle null userDetails, maybe show a message or log it
+                                        print('User details not found');
+                                      }
+                                    } else {
+                                      // Handle the case when _userProvider is still null
+                                      print('User provider not initialized');
+                                    }
+                                  },
+                                )),
+                                DataCell(
+                                  IconButton(
                                     icon: Icon(Icons.delete),
-                                    onPressed: () {})),
+                                    onPressed: () async {
+                                      if (user.id == null) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(SnackBar(
+                                                content: Text(
+                                                    'User ID is missing, cannot delete the user.')));
+                                        return;
+                                      }
+                                      try {
+                                        await _userProvider?.delete(user.id!);
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(SnackBar(
+                                                content: Text(
+                                                    'User successfully deleted.')));
+                                        _loadUsers(); // Refresh the list after deletion
+                                      } catch (e) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(SnackBar(
+                                                content: Text(
+                                                    'Failed to delete user: $e')));
+                                        print('Error deleting user: $e');
+                                      }
+                                    },
+                                  ),
+                                ),
                               ]);
                             }).toList(),
                           ),

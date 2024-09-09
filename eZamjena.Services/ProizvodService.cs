@@ -230,6 +230,26 @@ namespace eZamjena.Services
 
             return results;
         }
+        public IEnumerable<Model.Proizvod> GetUserSpecificProducts(int userId)
+        {
+            // Fetch recommended products for this user
+            var recommendedProducts = RecommendProducts(userId).ToList();
+
+            // Fetch all products that are for sale and not owned by this user
+            var allSaleProducts = Context.Proizvods
+                .Where(p => p.StatusProizvodaId == 1 && p.KorisnikId != userId)
+                .ToList();
+
+            // Filter out recommended products from the all products list to avoid duplication
+            var nonRecommendedProducts = allSaleProducts
+                .Where(p => !recommendedProducts.Any(rp => rp.Id == p.Id))
+                .ToList();
+
+            // Combine the lists, with recommended products first
+            var combinedList = recommendedProducts.Concat(Mapper.Map<List<Model.Proizvod>>(nonRecommendedProducts));
+
+            return combinedList;
+        }
 
         public class RatingEntry
         {

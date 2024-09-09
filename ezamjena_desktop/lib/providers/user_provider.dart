@@ -88,4 +88,11 @@ class UserProvider extends BaseProvider<User> {
       return null;
     }
   }
+
+  void clearUserData() {
+    _passwordChanged = false;
+
+    // Notify all listeners of the change
+    notifyListeners();
+  }
 }

@@ -36,5 +36,19 @@ namespace eZamjena.Controllers
                 return StatusCode(500, "An error occurred while fetching recommended products. " + ex.Message);
             }
         }
+        [HttpGet("UserSpecificProducts/{userId}")]
+        public ActionResult<IEnumerable<Model.Proizvod>> GetUserSpecificProducts(int userId)
+        {
+            try
+            {
+                var products = _proizvodService.GetUserSpecificProducts(userId);
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 }

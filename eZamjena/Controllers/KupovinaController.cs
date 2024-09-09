@@ -15,17 +15,6 @@ namespace eZamjena.Controllers
             //_kupovinaService = kupovinaService;
         }
 
-        //[HttpGet]
-        //public IEnumerable<Kupovina> Get()
-        //{
-            
-        //    return _kupovinaService.Get();
-        //}
-        //[HttpGet("{id}")]
-        //public Kupovina GetById(int id)
-        //{
-
-        //    return _kupovinaService.GetById(id);
-        //}
+      
     }
 }

@@ -44,7 +44,10 @@ class _BuyHistoryPageState extends State<BuyHistoryPage> {
     if (mounted && tempData != null) {
       setState(() {
         print('Setirano stanje istorije kupovina.');
-        buys = tempData ?? [];
+        buys = tempData
+                .where((kupovina) => kupovina.korisnikId == LoggedInUser.userId)
+                .toList() ??
+            [];
         _isLoading = false;
       });
     }

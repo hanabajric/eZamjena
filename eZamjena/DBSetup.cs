@@ -8,9 +8,7 @@ namespace eZamjena
         public void Init(Ib190019Context context)
         {
                 context.Database.Migrate();
-                // Ovde dodajte kod za inicijalizaciju podataka, ako je potrebno
-         
-           
+               
         }
 
         public void InsertData(Ib190019Context context)
@@ -18,7 +16,8 @@ namespace eZamjena
             var currentDirectory = Directory.GetCurrentDirectory();
             Console.WriteLine("Current Directory: " + currentDirectory);
 
-            var path = Path.Combine(currentDirectory, "Script", "setup.sql");
+             var path = Path.Combine(currentDirectory, "Script", "script2.sql");
+            //var path = Path.Combine("/app", "Script", "script2.sql");
             Console.WriteLine("Full path to setup.sql: " + path);
 
             var query = File.ReadAllText(path);

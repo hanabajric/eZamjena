@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:ezamjena_mobile/key.dart';
 import 'package:ezamjena_mobile/pages/product_pages/my_product_details.dart';
 import 'package:ezamjena_mobile/pages/product_pages/product_details.dart';
@@ -31,8 +33,6 @@ class _MyProductListPage extends State<MyProductListPage> {
     _productProvider = context.read<ProductProvider>();
     loadData();
   }
-
-
 
   Future loadData() async {
     setState(() {
@@ -76,9 +76,9 @@ class _MyProductListPage extends State<MyProductListPage> {
       child: GridView.count(
         shrinkWrap: true,
         crossAxisCount: 2,
-        childAspectRatio: 2 / 3,
+        childAspectRatio: 2 / 3.5,
         crossAxisSpacing: 20,
-        mainAxisSpacing: 30,
+        mainAxisSpacing: 35,
         physics: NeverScrollableScrollPhysics(),
         children: _buildProductCardList(),
       ),
@@ -97,17 +97,14 @@ class _MyProductListPage extends State<MyProductListPage> {
   }
 
   List<Widget> _buildProductCardList() {
-    if (data?.length == 0) {
+    if (data.length == 0) {
       return [
         Center(
-          child: Text(
-            "Trenutno nemate proizvoda.",
-            style: TextStyle(fontSize: 20),
-          ),
-        ),
+            child: Text("Trenutno nemate proizvoda.",
+                style: TextStyle(fontSize: 20)))
       ];
     }
-    List<Widget> list = data
+    return data
         .map((x) => Padding(
               padding: EdgeInsets.all(8),
               child: Column(
@@ -120,13 +117,24 @@ class _MyProductListPage extends State<MyProductListPage> {
                             "${MyProductDetailsPage.routeName}/${x.id}");
                       },
                       child: Container(
-                        child: imageFromBase64String(x.slika),
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: MemoryImage(base64Decode(x.slika!)),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       ),
                     ),
                   ),
                   SizedBox(height: 8),
-                  Text(x.naziv ?? ""),
-                  // SizedBox(height: 5),
+                  Flexible(
+                    child: Text(
+                      x.naziv ?? "",
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
+                      style: TextStyle(fontSize: 14),
+                    ),
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -178,9 +186,6 @@ class _MyProductListPage extends State<MyProductListPage> {
                 ],
               ),
             ))
-        .cast<Widget>()
         .toList();
-
-    return list;
   }
 }

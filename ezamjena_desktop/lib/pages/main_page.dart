@@ -1,4 +1,9 @@
+import 'package:ezamjena_desktop/key.dart';
+import 'package:ezamjena_desktop/main.dart';
 import 'package:ezamjena_desktop/pages/top3_profiles.dart';
+import 'package:ezamjena_desktop/utils/custom_alert_dialog_YesNo.dart';
+import 'package:ezamjena_desktop/utils/logged_in_usser.dart';
+import 'package:ezamjena_desktop/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:ezamjena_desktop/pages/all_profiles.dart';
 import 'package:ezamjena_desktop/pages/product_overview.dart';
@@ -59,6 +64,27 @@ class _MainPageState extends State<MainPage>
     return Scaffold(
       appBar: AppBar(
         title: Text('eZamjena'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) => CustomAlertDialog2(
+                  title: "Odjava",
+                  message: "Da li ste sigurni da želite da se odjavite?",
+                  onConfirmPressed: () {
+                    logout(); // This will handle logging out and redirecting to the login page
+                  },
+                  onCancelPressed: () {
+                    Navigator.of(context).pop(); // Just close the dialog
+                  },
+                ),
+              );
+            },
+            tooltip: 'Odjava',
+          ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           onTap: (index) {
@@ -111,6 +137,19 @@ class _MainPageState extends State<MainPage>
           ),
         ),
       ],
+    );
+  }
+
+  void logout() {
+    // Clear user details immediately
+    Authorization.username = '';
+    Authorization.password = '';
+    LoggedInUser.userId = null;
+
+    // Use the navigator key to push the LoginPage without context
+    navigatorKey.currentState?.pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => LoginPage()),
+      (Route<dynamic> route) => false,
     );
   }
 }
