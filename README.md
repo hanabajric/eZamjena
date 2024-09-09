@@ -24,3 +24,22 @@ Password: admin12345
 - Username: proba
 - Password: proba12345
 
+
+## Pokretanje aplikacija
+
+#### Nakon kloniranja repozitorija sa lokacije: https://github.com//hanabajric/eZamjena.git navigirati kroz komandnu liniju do istog, te pokrenuti dokerizovani API i  DB upotrebom sljedeće naredbe
+
+docker-compose up --build
+
+#### Dohvaćanje dependencyija za mobilnu i desktop flutter aplikacijz:
+
+flutter pub get
+
+#### Pokretanje mobilne aplikacije:
+
+flutter run
+
+#### Preporuceno pokretanje desktop aplikacije : 
+
+flutter run -d windows
+
