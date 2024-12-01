@@ -1,21 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:ezamjena_mobile/widets/master_page.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../../model/product.dart';
 import '../../model/product_category.dart';
-import '../../model/trade.dart';
-import '../../providers/buy_provider.dart';
-import '../../providers/exchange_provider.dart';
 import '../../providers/product_category_provider.dart';
 import '../../providers/products_provider.dart';
 import '../../utils/logged_in_usser.dart';
-import '../../utils/utils.dart';
-import '../../widets/alert_dialog_widet.dart';
 
 class NewProductPage extends StatefulWidget {
   static const String routeName = "/new_product";
@@ -27,19 +21,19 @@ class NewProductPage extends StatefulWidget {
 }
 
 class _NewProductPageState extends State<NewProductPage> {
-  ProductProvider? _productProvider = null;
+  ProductProvider? _productProvider;
   Product? data;
-  List<Product> list = [];
-  Product? selectedProduct;
   List<ProductCategory> categories = [];
   ProductCategory? selectedCategory;
-  ProductCategoryProvider? _productCategoryProvider = null;
+  ProductCategoryProvider? _productCategoryProvider;
   bool isNew = false;
+
   final TextEditingController _nazivController = TextEditingController();
   final TextEditingController _procijenjenaCijenaController =
       TextEditingController();
   final TextEditingController _opisController = TextEditingController();
 
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final ImagePicker _imagePicker = ImagePicker();
 
   @override
@@ -47,13 +41,11 @@ class _NewProductPageState extends State<NewProductPage> {
     super.initState();
     _productCategoryProvider = context.read<ProductCategoryProvider>();
     _productProvider = context.read<ProductProvider>();
-    //id = widget.id;
     loadData();
   }
 
   Future loadData() async {
     var tmpData = await _productCategoryProvider?.get(null);
-    print('ovo je dodavanje proizvoda');
 
     setState(() {
       if (tmpData != null) {
@@ -74,16 +66,12 @@ class _NewProductPageState extends State<NewProductPage> {
         data = (data ?? Product())..slika = base64String;
       });
     } else {
-      // Optionally handle the case when the user cancels the image picker.
       print("No image selected.");
     }
   }
 
   Future<void> addProduct() async {
-    if (_nazivController.text.isEmpty || selectedCategory == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please fill all required fields!')),
-      );
+    if (!_formKey.currentState!.validate()) {
       return;
     }
 
@@ -92,9 +80,9 @@ class _NewProductPageState extends State<NewProductPage> {
       "cijena": double.parse(_procijenjenaCijenaController.text),
       "opis": _opisController.text,
       "stanjeNovo": isNew,
-      "slika": data?.slika, // Ensure this is base64 encoded if it's not null
+      "slika": data?.slika,
       "korisnikId": LoggedInUser.userId,
-      "statusProizvodaId": 3, //na čekanju, čeka da admin odobri
+      "statusProizvodaId": 3, // na čekanju
       "kategorijaProizvodaId": selectedCategory!.id,
     };
 
@@ -102,62 +90,62 @@ class _NewProductPageState extends State<NewProductPage> {
       var result = await _productProvider!.insert(newProductData);
       if (result != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  'Vaš proizvod ${_nazivController.text} je uspješno dodan. Molimo sačekajte da bude odobren od strane admina za prodaju.')),
+          SnackBar(content: Text('Proizvod je uspješno dodan.')),
         );
-        // Reset the form after successful addition
         _nazivController.clear();
         _procijenjenaCijenaController.clear();
         _opisController.clear();
         setState(() {
-          data = null; // Reset the image
-          selectedCategory = null; // Reset the selected category
-          isNew = false; // Reset the checkbox
+          data = null;
+          selectedCategory = null;
+          isNew = false;
         });
       } else {
         throw Exception('Failed to add the product');
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error adding product: ${e.toString()}')),
+        SnackBar(
+            content: Text('Greška pri dodavanju proizvoda: ${e.toString()}')),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return MasterPageWidget(
-      child: SingleChildScrollView(
+    return Scaffold(
+      appBar: AppBar(title: Text("Dodavanje novog proizvoda")),
+      body: SingleChildScrollView(
         padding: EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            productInfoWidget(),
-            SizedBox(height: 20),
-            Row(
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    // Ovdje postavite logiku za klik na prvo dugme
-                  },
-                  child: Text('Odustani'),
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(
-                      Color.fromARGB(255, 213, 71, 60),
+        child: Form(
+          key: _formKey, // Use the GlobalKey here
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              productInfoWidget(),
+              SizedBox(height: 20),
+              Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context); // cancel logic
+                    },
+                    child: Text('Odustani'),
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all<Color>(
+                        Color.fromARGB(255, 213, 71, 60),
+                      ),
                     ),
                   ),
-                ),
-                Spacer(),
-                ElevatedButton(
-                  onPressed: () {
-                    addProduct();
-                  },
-                  child: Text('Dodaj'),
-                ),
-              ],
-            ),
-          ],
+                  Spacer(),
+                  ElevatedButton(
+                    onPressed: addProduct,
+                    child: Text('Dodaj'),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -168,14 +156,15 @@ class _NewProductPageState extends State<NewProductPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Dodavanje novog proizvoda ',
+          'Dodavanje novog proizvoda',
           style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 20),
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             GestureDetector(
-              onTap: _addPicture, // Use method reference directly
+              onTap: _addPicture,
               child: Container(
                 width: 200,
                 height: 230,
@@ -194,7 +183,7 @@ class _NewProductPageState extends State<NewProductPage> {
               ),
             ),
             SizedBox(width: 10),
-            Expanded(
+            Flexible(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -203,78 +192,97 @@ class _NewProductPageState extends State<NewProductPage> {
                     children: [
                       Text('Naziv:', style: TextStyle(fontSize: 15)),
                       SizedBox(height: 5),
-                      Container(
-                        width: 150, // Prilagodite veličinu prema potrebi
-                        height: 35, // Postavite željenu visinu
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(5),
+                      TextFormField(
+                        controller: _nazivController,
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 10,
+                          ),
+                          hintText: 'Unesite naziv',
+                          border: OutlineInputBorder(),
                         ),
-                        child: TextField(
-                          controller: _nazivController,
-                          // Add appropriate text field properties
-                        ),
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Ovo polje je obavezno';
+                          }
+                          return null;
+                        },
                       ),
                     ],
                   ),
-                  SizedBox(height: 10),
+                  SizedBox(height: 5),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Kategorija:', style: TextStyle(fontSize: 15)),
                       SizedBox(height: 5),
-                      Container(
-                        width: 150,
-                        height: 35, // Postavite željenu visinu
-                        padding: EdgeInsets.symmetric(horizontal: 5),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(5),
+                      DropdownButtonFormField<ProductCategory>(
+                        value: selectedCategory,
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 10,
+                          ),
+                          border: OutlineInputBorder(),
                         ),
-                        child: DropdownButton<ProductCategory>(
-                          value: selectedCategory,
-                          onChanged: (category) {
-                            setState(() {
-                              selectedCategory = category;
-                            });
-                          },
-                          items: categories.map((category) {
-                            return DropdownMenuItem<ProductCategory>(
-                              value: category,
-                              child: Text(category.naziv ?? ""),
-                            );
-                          }).toList(),
-                        ),
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        onChanged: (category) {
+                          setState(() {
+                            selectedCategory = category;
+                          });
+                        },
+                        items: categories.map((category) {
+                          return DropdownMenuItem<ProductCategory>(
+                            value: category,
+                            child: Text(category.naziv ?? ""),
+                          );
+                        }).toList(),
+                        validator: (value) {
+                          if (value == null) {
+                            return 'Ovo polje je obavezno';
+                          }
+                          return null;
+                        },
                       ),
                     ],
                   ),
-                  SizedBox(height: 10),
+                  SizedBox(height: 5),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Procjenjena cijena:',
+                      Text('Procijenjena cijena:',
                           style: TextStyle(fontSize: 15)),
                       SizedBox(height: 5),
-                      Container(
-                        width: 80,
-                        height: 35, // Postavite željenu visinu
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(5),
+                      TextFormField(
+                        controller: _procijenjenaCijenaController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 10,
+                          ),
+                          hintText: 'Unesite cijenu',
+                          border: OutlineInputBorder(),
                         ),
-                        child: TextField(
-                          keyboardType: TextInputType.number,
-                          controller: _procijenjenaCijenaController,
-                          // Add appropriate text field properties
-                        ),
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Ovo polje je obavezno';
+                          }
+                          if (double.tryParse(value) == null) {
+                            return 'Unesite ispravnu cijenu';
+                          }
+                          return null;
+                        },
                       ),
                     ],
                   ),
-                  //SizedBox(height: 5),
+                  SizedBox(height: 5),
                   Row(
                     children: [
                       Text('Stanje:', style: TextStyle(fontSize: 15)),
-                      SizedBox(width: 10),
                       Checkbox(
                         value: isNew,
                         onChanged: (value) {
@@ -291,12 +299,9 @@ class _NewProductPageState extends State<NewProductPage> {
             ),
           ],
         ),
-        SizedBox(height: 10),
-        Text(
-          'Opis proizvoda:',
-          style: TextStyle(fontSize: 20),
-        ),
-        SizedBox(height: 10),
+        SizedBox(height: 5),
+        Text('Opis proizvoda:', style: TextStyle(fontSize: 20)),
+        SizedBox(height: 5),
         Container(
           height: 150,
           padding: EdgeInsets.symmetric(horizontal: 10),

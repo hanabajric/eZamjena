@@ -63,7 +63,7 @@ namespace eZamjena.Services
             var set = Context.Set<Database.Proizvod>();
             var entity = set.Include(p => p.StatusProizvoda).FirstOrDefault(p => p.Id == id);
 
-            if (entity == null) return null; 
+            if (entity == null) return null;
 
             int? oldStatusId = entity.StatusProizvodaId;
             Mapper.Map(update, entity);
@@ -90,6 +90,7 @@ namespace eZamjena.Services
 
             return Mapper.Map<Model.Proizvod>(entity);
         }
+
 
         public override Model.Proizvod GetById(int id)
         {

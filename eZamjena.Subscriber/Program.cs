@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using eZamjena.Configurations;
 using RabbitMQ.Client;
+using Newtonsoft.Json;
+using System.Text;
 
 public partial class Program
 {
@@ -48,6 +50,65 @@ public partial class Program
         Console.WriteLine($"BREVO_SMTP_PORT: {Environment.GetEnvironmentVariable("BREVO_SMTP_PORT")}");
 
         var bus = RabbitHutch.CreateBus("host=rabbitmq");
+
+        
+        //// Kreiraj ili koristi postojeći queue
+        //var advancedBus = RabbitHutch.CreateBus("host=rabbitmq").Advanced;
+
+        //// Kreiraj ili koristi postojeći queue
+        //var queue = advancedBus.QueueDeclare("product_queue");
+
+        //// Kreiraj ili koristi exchange (Topic tip)
+        //var exchange = advancedBus.ExchangeDeclare("eZamjena.Model.Messages.ProizvodInserted", ExchangeType.Topic);
+
+        //// Poveži exchange i queue
+        //advancedBus.Bind(exchange, queue, "#");
+
+        //// Pretplati se na poruke iz queue-a
+        //advancedBus.Consume(queue, (body, properties, info) =>
+        //{
+        //    // Pokreni asinkronu obradu
+        //    Task.Run(async () =>
+        //    {
+        //        try
+        //        {
+        //            // Konvertiraj ReadOnlyMemory<byte> u byte[] prije dekodiranja
+        //            var bodyBytes = body.ToArray();
+        //            var messageBody = Encoding.UTF8.GetString(bodyBytes);
+        //            var proizvodInserted = JsonConvert.DeserializeObject<ProizvodInserted>(messageBody);
+
+        //            // Pronađi korisnike vezane uz proizvod
+        //            var otherUsers = korisnikService.GetOtherUsers(proizvodInserted.Proizvod.KorisnikId);
+        //            Console.WriteLine($"Found {otherUsers.Count()} other users.");
+
+        //            // Slanje emailova korisnicima
+        //            foreach (var user in otherUsers)
+        //            {
+        //                Console.WriteLine($"Sending email to: {user.Email}");
+        //                await SendEmailAsync(user.Email, user.Ime, proizvodInserted.Proizvod.Naziv, "http://linkToProduct.com", emailUsername, brevoApiKey, smtpHost, smtpPort);
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Console.WriteLine($"[Error]: Failed to process message - {ex.Message}");
+        //        }
+        //    });
+
+        //    // Označi poruku kao uspješno obrađenu
+        //    return Task.CompletedTask;
+        //});
+
+
+
+        //Console.WriteLine("Listening for messages, press <return> key to close");
+
+
+        //bus.PubSub.SubscribeAsync<ProizvodInserted>("console_printer_queue", msg =>
+        //{
+        //    Console.WriteLine($"[Log]: Received message in console_printer_queue for product: {msg.Proizvod.Naziv}");
+        //});
+        
+
         bus.PubSub.SubscribeAsync<ProizvodInserted>("console_printer_queue", msg =>
         {
             Console.WriteLine($"Product activated: {msg.Proizvod.Naziv}");

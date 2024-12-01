@@ -31,6 +31,8 @@ class _RequestOverviewPageState extends State<RequestOverviewPage> {
   bool _isNovo = true; // Example state for 'new' toggle
   bool? isNew; // Initial state set in dialog setup
   String _searchQuery = ""; // State to hold the search text
+  bool isProcessing = false;
+
   final ImagePicker _imagePicker = ImagePicker();
   @override
   void initState() {
@@ -230,50 +232,88 @@ class _RequestOverviewPageState extends State<RequestOverviewPage> {
   }
 
   void _acceptProduct(Product product) async {
-    var productProvider = Provider.of<ProductProvider>(context, listen: false);
-    // Create a new map with the updated status
-    var updateData = {
-      ...product.toJson(), // Assuming Product class has toJson method
-      'statusProizvodaId': 1 // Update status to '1' which means in sale
-    };
-    // Calling update method
-    await productProvider.update(product.id, updateData);
-    _loadProducts(); // Refresh the list to reflect changes
-    productProvider.refreshProducts();
-    await _updateUserActiveProducts(product.korisnikId!);
-    _showDialog(
-        'Proizvod ${product.naziv} je prihvaćen i u prodaji je.'); // Show confirmation dialog
-  }
+    if (isProcessing) return;
+    setState(() {
+      isProcessing = true;
+    });
 
-  void _rejectProduct(Product product) async {
-    var productProvider = Provider.of<ProductProvider>(context, listen: false);
-    await productProvider.delete(product.id!);
-    _loadProducts(); // Refresh the list to reflect changes
-    _showDialog(
-        'Proizvod ${product.naziv} je odbijen za prodaju'); // Show rejection dialog
-  }
-
-  void _acceptAll() async {
-    var productProvider = Provider.of<ProductProvider>(context, listen: false);
-    for (var product in products) {
+    try {
+      var productProvider =
+          Provider.of<ProductProvider>(context, listen: false);
       var updateData = {...product.toJson(), 'statusProizvodaId': 1};
       await productProvider.update(product.id, updateData);
       await _updateUserActiveProducts(product.korisnikId!);
+      _loadProducts();
+      _showDialog('Proizvod ${product.naziv} je prihvaćen i u prodaji je.');
+    } finally {
+      setState(() {
+        isProcessing = false;
+      });
     }
-    _loadProducts();
+  }
 
-    productProvider.refreshProducts();
-    _showDialog('Svi proizvodi su prihvaceni i u prodaji su');
+  void _rejectProduct(Product product) async {
+    if (isProcessing) return;
+    setState(() {
+      isProcessing = true;
+    });
+
+    try {
+      var productProvider =
+          Provider.of<ProductProvider>(context, listen: false);
+      await productProvider.delete(product.id!);
+      _loadProducts();
+      _showDialog('Proizvod ${product.naziv} je odbijen za prodaju.');
+    } finally {
+      setState(() {
+        isProcessing = false;
+      });
+    }
+  }
+
+  void _acceptAll() async {
+    if (isProcessing) return;
+    setState(() {
+      isProcessing = true;
+    });
+
+    try {
+      var productProvider =
+          Provider.of<ProductProvider>(context, listen: false);
+      for (var product in products) {
+        var updateData = {...product.toJson(), 'statusProizvodaId': 1};
+        await productProvider.update(product.id, updateData);
+        await _updateUserActiveProducts(product.korisnikId!);
+      }
+      _loadProducts();
+      productProvider.refreshProducts();
+      _showDialog('Svi proizvodi su prihvaceni i u prodaji su');
+    } finally {
+      setState(() {
+        isProcessing = false;
+      });
+    }
   }
 
   void _rejectAll() async {
-    var productProvider = Provider.of<ProductProvider>(context, listen: false);
-    for (var product in products) {
-      await productProvider.delete(product.id!);
-    }
-    _loadProducts();
+    if (isProcessing) return;
+    setState(() {
+      isProcessing = true;
+    });
 
-    _showDialog('Svi proizvodi su odbijeni za prodaju');
+    try {
+      var productProvider =
+          Provider.of<ProductProvider>(context, listen: false);
+      for (var product in products) {
+        await productProvider.delete(product.id!);
+      }
+      _loadProducts();
+      _showDialog('Svi proizvodi su odbijeni za prodaju');
+    } finally {
+      setState(() {
+        isProcessing = false;
+      });
+    }
   }
 
   // Method to update the number of active products for a user
