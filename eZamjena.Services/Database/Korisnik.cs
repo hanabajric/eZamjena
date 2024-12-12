@@ -33,5 +33,7 @@ namespace eZamjena.Services.Database
         public virtual ICollection<Kupovina> Kupovinas { get; set; }
         public virtual ICollection<Ocjena> Ocjenas { get; set; }
         public virtual ICollection<Proizvod> Proizvods { get; set; }
+        public virtual ICollection<NotifikacijaProizvod> NotifikacijeProizvods { get; set; } = new HashSet<NotifikacijaProizvod>();
     }
 }
+

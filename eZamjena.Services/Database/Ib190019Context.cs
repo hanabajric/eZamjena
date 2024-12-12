@@ -31,6 +31,10 @@ namespace eZamjena.Services.Database
         public virtual DbSet<StatusProizvodum> StatusProizvoda { get; set; } = null!;
         public virtual DbSet<StatusRazmjene> StatusRazmjenes { get; set; } = null!;
         public virtual DbSet<Uloga> Ulogas { get; set; } = null!;
+        public virtual DbSet<ListaZelja> ListaZeljas { get; set; } = null!;
+        public virtual DbSet<ListaZeljaProizvod> ListaZeljaProizvods { get; set; } = null!;
+        public virtual DbSet<NotifikacijaProizvod> NotifikacijaProizvods { get; set; } = null!;
+
 
         //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         //{
@@ -40,14 +44,14 @@ namespace eZamjena.Services.Database
         //        optionsBuilder.UseSqlServer(connectionString);
         //    }
         //}
-//        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//        {
-//            if (!optionsBuilder.IsConfigured)
-//            {
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-//                optionsBuilder.UseSqlServer("Data Source=(local)\\mssqlserver_olap;Initial Catalog=IB190019;Integrated Security=True;");
-//            }
-//        }
+        //        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //        {
+        //            if (!optionsBuilder.IsConfigured)
+        //            {
+        //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+        //                optionsBuilder.UseSqlServer("Data Source=(local)\\mssqlserver_olap;Initial Catalog=IB190019;Integrated Security=True;");
+        //            }
+        //        }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Grad>(entity =>
@@ -210,10 +214,40 @@ namespace eZamjena.Services.Database
 
             modelBuilder.Entity<Uloga>(entity =>
             {
+
                 entity.ToTable("Uloga");
 
                 entity.Property(e => e.Id)
                     .HasColumnName("ID");
+            });
+            modelBuilder.Entity<ListaZelja>(entity =>
+            {
+                entity.ToTable("ListaZelja");
+                entity.HasKey(e => e.Id);
+                entity.HasMany(e => e.ListaZeljaProizvods)
+                      .WithOne(p => p.ListaZelja)
+                      .HasForeignKey(p => p.ListaZeljaId);
+            });
+
+            modelBuilder.Entity<ListaZeljaProizvod>(entity =>
+            {
+                entity.ToTable("ListaZeljaProizvod");
+                entity.HasKey(e => e.Id);
+                entity.HasOne(p => p.Proizvod)
+                      .WithMany(b => b.ListaZeljaProizvods)
+                      .HasForeignKey(p => p.ProizvodId);
+            });
+
+            modelBuilder.Entity<NotifikacijaProizvod>(entity =>
+            {
+                entity.ToTable("NotifikacijaProizvod");
+                entity.HasKey(e => e.Id);
+                entity.HasOne(p => p.Korisnik)
+                      .WithMany(b => b.NotifikacijeProizvods)
+                      .HasForeignKey(p => p.KorisnikId);
+                entity.HasOne(p => p.Proizvod)
+                      .WithMany(b => b.NotifikacijeProizvods)
+                      .HasForeignKey(p => p.ProizvodId);
             });
 
             OnModelCreatingPartial(modelBuilder);

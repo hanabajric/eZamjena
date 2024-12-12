@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using eZamjena.Services.Database;
 
@@ -11,9 +12,11 @@ using eZamjena.Services.Database;
 namespace eZamjena.Services.Migrations
 {
     [DbContext(typeof(Ib190019Context))]
-    partial class Ib190019ContextModelSnapshot : ModelSnapshot
+    [Migration("20241209000307_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -151,83 +154,6 @@ namespace eZamjena.Services.Migrations
                     b.HasIndex("ProizvodId");
 
                     b.ToTable("Kupovina", (string)null);
-                });
-
-            modelBuilder.Entity("eZamjena.Services.Database.ListaZelja", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("KorisnikId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("KorisnikId");
-
-                    b.ToTable("ListaZelja", (string)null);
-                });
-
-            modelBuilder.Entity("eZamjena.Services.Database.ListaZeljaProizvod", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ListaZeljaId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProizvodId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("VrijemeDodavanja")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ListaZeljaId");
-
-                    b.HasIndex("ProizvodId");
-
-                    b.ToTable("ListaZeljaProizvod", (string)null);
-                });
-
-            modelBuilder.Entity("eZamjena.Services.Database.NotifikacijaProizvod", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("KorisnikId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Poruka")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("ProizvodId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("VrijemeKreiranja")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("KorisnikId");
-
-                    b.HasIndex("ProizvodId");
-
-                    b.ToTable("NotifikacijaProizvod", (string)null);
                 });
 
             modelBuilder.Entity("eZamjena.Services.Database.Ocjena", b =>
@@ -431,55 +357,6 @@ namespace eZamjena.Services.Migrations
                     b.Navigation("Proizvod");
                 });
 
-            modelBuilder.Entity("eZamjena.Services.Database.ListaZelja", b =>
-                {
-                    b.HasOne("eZamjena.Services.Database.Korisnik", "Korisnik")
-                        .WithMany()
-                        .HasForeignKey("KorisnikId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Korisnik");
-                });
-
-            modelBuilder.Entity("eZamjena.Services.Database.ListaZeljaProizvod", b =>
-                {
-                    b.HasOne("eZamjena.Services.Database.ListaZelja", "ListaZelja")
-                        .WithMany("ListaZeljaProizvods")
-                        .HasForeignKey("ListaZeljaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("eZamjena.Services.Database.Proizvod", "Proizvod")
-                        .WithMany("ListaZeljaProizvods")
-                        .HasForeignKey("ProizvodId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ListaZelja");
-
-                    b.Navigation("Proizvod");
-                });
-
-            modelBuilder.Entity("eZamjena.Services.Database.NotifikacijaProizvod", b =>
-                {
-                    b.HasOne("eZamjena.Services.Database.Korisnik", "Korisnik")
-                        .WithMany("NotifikacijeProizvods")
-                        .HasForeignKey("KorisnikId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("eZamjena.Services.Database.Proizvod", "Proizvod")
-                        .WithMany("NotifikacijeProizvods")
-                        .HasForeignKey("ProizvodId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Korisnik");
-
-                    b.Navigation("Proizvod");
-                });
-
             modelBuilder.Entity("eZamjena.Services.Database.Ocjena", b =>
                 {
                     b.HasOne("eZamjena.Services.Database.Korisnik", "Korisnik")
@@ -560,25 +437,14 @@ namespace eZamjena.Services.Migrations
                 {
                     b.Navigation("Kupovinas");
 
-                    b.Navigation("NotifikacijeProizvods");
-
                     b.Navigation("Ocjenas");
 
                     b.Navigation("Proizvods");
                 });
 
-            modelBuilder.Entity("eZamjena.Services.Database.ListaZelja", b =>
-                {
-                    b.Navigation("ListaZeljaProizvods");
-                });
-
             modelBuilder.Entity("eZamjena.Services.Database.Proizvod", b =>
                 {
                     b.Navigation("Kupovinas");
-
-                    b.Navigation("ListaZeljaProizvods");
-
-                    b.Navigation("NotifikacijeProizvods");
 
                     b.Navigation("Ocjenas");
 

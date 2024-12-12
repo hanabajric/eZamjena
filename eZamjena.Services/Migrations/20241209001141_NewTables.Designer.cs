@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using eZamjena.Services.Database;
 
@@ -11,9 +12,11 @@ using eZamjena.Services.Database;
 namespace eZamjena.Services.Migrations
 {
     [DbContext(typeof(Ib190019Context))]
-    partial class Ib190019ContextModelSnapshot : ModelSnapshot
+    [Migration("20241209001141_NewTables")]
+    partial class NewTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -171,7 +174,7 @@ namespace eZamjena.Services.Migrations
 
                     b.HasIndex("KorisnikId");
 
-                    b.ToTable("ListaZelja", (string)null);
+                    b.ToTable("ListaZeljas");
                 });
 
             modelBuilder.Entity("eZamjena.Services.Database.ListaZeljaProizvod", b =>
@@ -197,7 +200,7 @@ namespace eZamjena.Services.Migrations
 
                     b.HasIndex("ProizvodId");
 
-                    b.ToTable("ListaZeljaProizvod", (string)null);
+                    b.ToTable("ListaZeljaProizvods");
                 });
 
             modelBuilder.Entity("eZamjena.Services.Database.NotifikacijaProizvod", b =>
@@ -227,7 +230,7 @@ namespace eZamjena.Services.Migrations
 
                     b.HasIndex("ProizvodId");
 
-                    b.ToTable("NotifikacijaProizvod", (string)null);
+                    b.ToTable("NotifikacijaProizvods");
                 });
 
             modelBuilder.Entity("eZamjena.Services.Database.Ocjena", b =>
