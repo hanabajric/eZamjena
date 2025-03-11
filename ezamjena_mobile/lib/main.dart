@@ -3,6 +3,7 @@ import 'package:ezamjena_mobile/pages/exchange_pages/exchanege_requests.dart';
 import 'package:ezamjena_mobile/pages/payment/payment_page.dart';
 import 'package:ezamjena_mobile/pages/product_pages/my_product_details.dart';
 import 'package:ezamjena_mobile/pages/product_pages/new_product.dart';
+import 'package:ezamjena_mobile/pages/product_pages/wishlist_overview.dart';
 import 'package:ezamjena_mobile/pages/user_pages/my_profile_page.dart';
 import 'package:ezamjena_mobile/pages/exchange_pages/exchange_history.dart';
 import 'package:ezamjena_mobile/pages/product_pages/my_product_overview.dart';
@@ -16,6 +17,8 @@ import 'package:ezamjena_mobile/providers/product_category_provider.dart';
 import 'package:ezamjena_mobile/providers/products_provider.dart';
 import 'package:ezamjena_mobile/providers/rating_provider.dart';
 import 'package:ezamjena_mobile/providers/user_provider.dart';
+import 'package:ezamjena_mobile/providers/wishlist_provider.dart';
+import 'package:ezamjena_mobile/providers/wishlistproduct_provider.dart';
 import 'package:ezamjena_mobile/utils/logged_in_usser.dart';
 import 'package:ezamjena_mobile/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +29,7 @@ import 'key.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Osigurava inicijalizaciju
   Stripe.publishableKey =
-      'pk_test_51PGQHG011Z43wOZRRgtya8rxE9Vu9myupCJh2NTCIh5Hu15jPQ44QawwkAKoh094qX18iUoEMLpw3sDYa0I2dExx00atU67guj'; // Zamijenite sa vašim stvarnim ključem
+      'pk_test_51PGQHG011Z43wOZRRgtya8rxE9Vu9myupCJh2NTCIh5Hu15jPQ44QawwkAKoh094qX18iUoEMLpw3sDYa0I2dExx00atU67guj';
   await Stripe.instance.applySettings();
   runApp(MultiProvider(
       providers: [
@@ -37,6 +40,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ProductCategoryProvider()),
         ChangeNotifierProvider(create: (_) => CityProvider()),
         ChangeNotifierProvider(create: (_) => RatingProvider()),
+        ChangeNotifierProvider(create: (context) => WishlistProvider()),
+        ChangeNotifierProvider(create: (_) => WishlistProductProvider()),
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey,
@@ -92,6 +97,10 @@ void main() async {
           if (settings.name == NewProductPage.routeName) {
             return MaterialPageRoute(
                 builder: ((context) => const NewProductPage()));
+          }
+          if (settings.name == WishlistScreen.routeName) {
+            return MaterialPageRoute(
+                builder: ((context) => const WishlistScreen()));
           }
 
           var uri = Uri.parse(settings.name!);

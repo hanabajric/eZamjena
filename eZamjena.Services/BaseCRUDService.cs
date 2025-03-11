@@ -35,7 +35,7 @@ namespace eZamjena.Services
         {
             ValidateInsert(insert);
             var set = Context.Set<TDb>();
-            TDb entity= Mapper.Map<TDb>(insert); // mapiramo insert objekat u bazu
+            TDb entity= Mapper.Map<TDb>(insert); 
 
             set.Add(entity);
             BeforeInsert(insert, entity);

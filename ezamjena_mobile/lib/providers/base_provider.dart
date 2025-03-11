@@ -67,6 +67,9 @@ abstract class BaseProvider<T> with ChangeNotifier {
     print("done $response");
     if (isValidResponseCode(response)) {
       var data = jsonDecode(response.body);
+      if (data == null) {
+        return <T>[];
+      }
       return data.map((x) => fromJson(x)).cast<T>().toList();
     } else {
       throw Exception("Exception... handle this gracefully");

@@ -50,6 +50,16 @@ namespace eZamjena.Services
             CreateMap<Database.Grad, Model.Grad>();
             CreateMap<GradUpsertRequest, Database.Grad>();
 
+            CreateMap<Database.ListaZelja, Model.ListaZelja>();
+            CreateMap<ListaZeljaUpsertRequest, Database.ListaZelja>();
+ 
+
+            CreateMap<Database.ListaZeljaProizvod, Model.ListaZeljaProizvod>();
+            CreateMap<ListaZeljaProizvodUpsertRequest, Database.ListaZeljaProizvod>();
+
+            CreateMap<Database.NotifikacijaProizvod, Model.NotifikacijaProizvod>();
+            CreateMap<NotifikacijaProizvodUpsertRequest, Database.NotifikacijaProizvod>();
+
 
         }
     }
