@@ -313,6 +313,10 @@ class _UserProfilePageState extends State<UserProfilePage> {
   }
 
   void _showEditDialog(User user) {
+    // 1) Form key za validaciju
+    final _formKey = GlobalKey<FormState>();
+
+    // Kontroleri
     TextEditingController usernameController =
         TextEditingController(text: user.korisnickoIme);
     TextEditingController nameController =
@@ -325,6 +329,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
         TextEditingController(text: user.telefon);
     TextEditingController addressController =
         TextEditingController(text: user.adresa);
+
     TextEditingController exchangeCountController =
         TextEditingController(text: user.brojRazmjena.toString());
     TextEditingController purchaseCountController =
@@ -332,11 +337,11 @@ class _UserProfilePageState extends State<UserProfilePage> {
     TextEditingController activeArticleCountController =
         TextEditingController(text: user.brojAktivnihArtikala.toString());
 
+    String? selectedCityName = user.nazivGrada;
+
     File? _imageFile;
 
-    // Set initial selected city ID
-    String? selectedCityId = user?.nazivGrada;
-
+    // Funkcija za biranje slike
     Future<void> _pickImage(StateSetter setState) async {
       final ImagePicker _picker = ImagePicker();
       final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
@@ -345,148 +350,256 @@ class _UserProfilePageState extends State<UserProfilePage> {
       }
     }
 
-    Future<List<City>> fetchCities() async {
-      var cityProvider = Provider.of<CityProvider>(context, listen: false);
-      return await cityProvider.get();
-    }
-
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-              'Pregled/uređivanje podataka o korisniku - ${user.korisnickoIme}'),
-          content: StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
-              return SingleChildScrollView(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    InkWell(
-                      onTap: () async {
-                        await _pickImage(setState);
-                      },
-                      child: Container(
-                        width: 200,
-                        height: 230,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          image: _imageFile != null
-                              ? DecorationImage(
-                                  image: FileImage(_imageFile!),
-                                  fit: BoxFit.cover)
-                              : user.slika != null
-                                  ? DecorationImage(
-                                      image: MemoryImage(
-                                          base64Decode(user.slika!)),
-                                      fit: BoxFit.cover)
-                                  : null,
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              title: Text(
+                'Pregled/uređivanje podataka o korisniku - ${user.korisnickoIme}',
+              ),
+              content: SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      InkWell(
+                        onTap: () async {
+                          await _pickImage(setState);
+                        },
+                        child: Container(
+                          width: 200,
+                          height: 230,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            image: _imageFile != null
+                                ? DecorationImage(
+                                    image: FileImage(_imageFile!),
+                                    fit: BoxFit.cover,
+                                  )
+                                : user.slika != null
+                                    ? DecorationImage(
+                                        image: MemoryImage(
+                                          base64Decode(user.slika!),
+                                        ),
+                                        fit: BoxFit.cover,
+                                      )
+                                    : null,
+                          ),
+                          child: _imageFile == null && user.slika == null
+                              ? const Icon(Icons.camera_alt,
+                                  color: Colors.white70)
+                              : null,
                         ),
-                        child: _imageFile == null && user.slika == null
-                            ? Icon(Icons.camera_alt, color: Colors.white70)
-                            : null,
                       ),
-                    ),
-                    SizedBox(width: 20),
-                    Expanded(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          TextFormField(
+                      const SizedBox(width: 20),
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextFormField(
                               controller: usernameController,
-                              decoration: InputDecoration(
-                                  labelText: 'Korisničko ime:')),
-                          TextFormField(
+                              decoration: const InputDecoration(
+                                  labelText: 'Korisničko ime'),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Korisničko ime je obavezno';
+                                }
+                                return null;
+                              },
+                            ),
+                            TextFormField(
                               controller: nameController,
                               decoration:
-                                  InputDecoration(labelText: 'Ime i Prezime:')),
-                          TextFormField(
-                              controller: emailController,
-                              decoration: InputDecoration(labelText: 'Email:')),
-                          TextFormField(
-                              controller: phoneController,
+                                  const InputDecoration(labelText: 'Ime'),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Ime je obavezno';
+                                }
+                                return null;
+                              },
+                            ),
+                            TextFormField(
+                              controller: surnameController,
                               decoration:
-                                  InputDecoration(labelText: 'Broj telefona:')),
-                          TextFormField(
+                                  const InputDecoration(labelText: 'Prezime'),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Prezime je obavezno';
+                                }
+                                return null;
+                              },
+                            ),
+                            TextFormField(
+                              controller: emailController,
+                              decoration:
+                                  const InputDecoration(labelText: 'Email'),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Email je obavezan';
+                                }
+
+                                Pattern emailPattern =
+                                    r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$';
+                                RegExp emailRegex =
+                                    RegExp(emailPattern as String);
+                                if (!emailRegex.hasMatch(value.trim())) {
+                                  return 'Unesite ispravnu email adresu';
+                                }
+                                return null;
+                              },
+                            ),
+                            TextFormField(
+                              controller: phoneController,
+                              decoration: const InputDecoration(
+                                  labelText: 'Broj telefona'),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Broj telefona je obavezan';
+                                }
+
+                                Pattern phonePattern = r'^\+?[0-9]{7,15}$';
+                                RegExp phoneRegex =
+                                    RegExp(phonePattern as String);
+                                if (!phoneRegex.hasMatch(value.trim())) {
+                                  return 'Unesite ispravan broj telefona';
+                                }
+                                return null;
+                              },
+                            ),
+                            TextFormField(
                               controller: addressController,
                               decoration:
-                                  InputDecoration(labelText: 'Adresa:')),
-                          DropdownButton<String>(
-                            isExpanded: true,
-                            value: selectedCityId,
-                            onChanged: (String? newValue) {
-                              setState(() => selectedCityId = newValue);
-                            },
-                            items: cities
-                                .map<DropdownMenuItem<String>>((City city) {
-                              return DropdownMenuItem<String>(
-                                value: city.naziv,
-                                child: Text(city.naziv!),
-                              );
-                            }).toList(),
-                          ),
-                          TextFormField(
+                                  const InputDecoration(labelText: 'Adresa'),
+                            ),
+                            FormField<String>(
+                              validator: (value) {
+                                if (selectedCityName == null ||
+                                    selectedCityName!.isEmpty) {
+                                  return 'Grad je obavezan';
+                                }
+                                return null;
+                              },
+                              builder: (FormFieldState<String> fieldState) {
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    DropdownButton<String>(
+                                      isExpanded: true,
+                                      value: selectedCityName,
+                                      hint: const Text("Odaberite grad"),
+                                      onChanged: (String? newValue) {
+                                        setState(() {
+                                          selectedCityName = newValue;
+                                        });
+                                        fieldState.didChange(newValue);
+                                      },
+                                      items: cities
+                                          .map<DropdownMenuItem<String>>(
+                                              (City city) {
+                                        return DropdownMenuItem<String>(
+                                          value: city.naziv,
+                                          child: Text(city.naziv!),
+                                        );
+                                      }).toList(),
+                                    ),
+                                    if (fieldState.hasError)
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 5),
+                                        child: Text(
+                                          fieldState.errorText!,
+                                          style: const TextStyle(
+                                            color: Colors.red,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                );
+                              },
+                            ),
+                            TextFormField(
                               controller: exchangeCountController,
-                              decoration:
-                                  InputDecoration(labelText: 'Broj razmjena:')),
-                          TextFormField(
+                              decoration: const InputDecoration(
+                                  labelText: 'Broj razmjena'),
+                            ),
+                            TextFormField(
                               controller: purchaseCountController,
-                              decoration:
-                                  InputDecoration(labelText: 'Broj kupovina:')),
-                          TextFormField(
+                              decoration: const InputDecoration(
+                                  labelText: 'Broj kupovina'),
+                            ),
+                            TextFormField(
                               controller: activeArticleCountController,
-                              decoration: InputDecoration(
-                                  labelText: 'Broj aktivnih artikala:')),
-                        ],
+                              decoration: const InputDecoration(
+                                labelText: 'Broj aktivnih artikala',
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    )
-                  ],
+                    ],
+                  ),
                 ),
-              );
-            },
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text('Odustani'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: Text('Spremi'),
-              onPressed: () async {
-                Map<String, dynamic> updateData = {
-                  'ime': nameController.text,
-                  'prezime': surnameController.text,
-                  'email': emailController.text,
-                  'telefon': phoneController.text,
-                  'adresa': addressController.text,
-                  'gradId': cities
-                      .firstWhereOrNull((c) => c.naziv == selectedCityId)
-                      ?.id,
-                  'brojRazmjena': int.tryParse(exchangeCountController.text),
-                  'brojKupovina': int.tryParse(purchaseCountController.text),
-                  'brojAktivnihArtikala':
-                      int.tryParse(activeArticleCountController.text),
-                  'slika': _imageFile != null
-                      ? base64String(await _imageFile!.readAsBytes())
-                      : user.slika
-                };
+              ),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('Odustani'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                TextButton(
+                  child: const Text('Spremi'),
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      Map<String, dynamic> updateData = {
+                        'ime': nameController.text.trim(),
+                        'prezime': surnameController.text.trim(),
+                        'email': emailController.text.trim(),
+                        'telefon': phoneController.text.trim(),
+                        'adresa': addressController.text.trim(),
+                        'gradId': cities
+                            .firstWhereOrNull(
+                              (c) => c.naziv == selectedCityName,
+                            )
+                            ?.id,
+                        'brojRazmjena':
+                            int.tryParse(exchangeCountController.text.trim()),
+                        'brojKupovina':
+                            int.tryParse(purchaseCountController.text.trim()),
+                        'brojAktivnihArtikala': int.tryParse(
+                            activeArticleCountController.text.trim()),
+                        'slika': _imageFile != null
+                            ? base64String(await _imageFile!.readAsBytes())
+                            : user.slika
+                      };
 
-                if (_userProvider != null) {
-                  await _userProvider!.adminUpdate(user.id, updateData);
+                      if (_userProvider != null) {
+                        await _userProvider!.adminUpdate(user.id, updateData);
 
-                  Navigator.of(context).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Podaci uspješno ažurirani!')));
-                  _loadUsers();
-                } else {
-                  print('User provider not initialized');
-                }
-              },
-            )
-          ],
+                        Navigator.of(context).pop();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Podaci uspješno ažurirani!'),
+                          ),
+                        );
+                        _loadUsers();
+                      } else {
+                        print('User provider not initialized');
+                      }
+                    } else {
+                      print(
+                          "Forma nije validna - popunite sva obavezna polja.");
+                    }
+                  },
+                )
+              ],
+            );
+          },
         );
       },
     );

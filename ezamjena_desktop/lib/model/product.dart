@@ -21,17 +21,24 @@ class Product {
   @JsonKey(fromJson: _categoryFromJson, toJson: _categoryToJson)
   ProductCategory? kategorijaProizvoda;
 
+  @JsonKey(fromJson: _userFromJson, toJson: _userToJson)
   User? korisnik;
 
-  Product() {}
+  Product();
 
   factory Product.fromJson(Map<String, dynamic> json) =>
       _$ProductFromJson(json);
+
   Map<String, dynamic> toJson() => _$ProductToJson(this);
 
-  static ProductCategory? _categoryFromJson(Map<String, dynamic> json) =>
-      ProductCategory.fromJson(json);
+  static ProductCategory? _categoryFromJson(Map<String, dynamic>? json) =>
+      json == null ? null : ProductCategory.fromJson(json);
 
   static Map<String, dynamic>? _categoryToJson(ProductCategory? category) =>
       category?.toJson();
+
+  static User? _userFromJson(Map<String, dynamic>? json) =>
+      json == null ? null : User.fromJson(json);
+
+  static Map<String, dynamic>? _userToJson(User? user) => user?.toJson();
 }

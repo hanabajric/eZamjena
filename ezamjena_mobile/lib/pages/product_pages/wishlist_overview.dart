@@ -43,7 +43,7 @@ class WishlistScreenState extends State<WishlistScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Moja Wishlist")),
+      appBar: AppBar(title: Text("Moja Wishlista")),
       body: Consumer2<WishlistProvider, WishlistProductProvider>(
         builder: (context, wishlistProvider, wishlistProductProvider, child) {
           if (wishlistProductProvider.isLoading) {

@@ -90,7 +90,9 @@ class _NewProductPageState extends State<NewProductPage> {
       var result = await _productProvider!.insert(newProductData);
       if (result != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Proizvod je uspješno dodan.')),
+          SnackBar(
+              content: Text(
+                  'Proizvod je uspješno dodan.Molimo pričekajte da ga administrator odobri.')),
         );
         _nazivController.clear();
         _procijenjenaCijenaController.clear();

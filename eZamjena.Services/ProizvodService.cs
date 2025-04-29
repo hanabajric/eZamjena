@@ -254,7 +254,7 @@ namespace eZamjena.Services
 
         public class RatingEntry
         {
-            [KeyType(count: 10000)] // Primer: pretpostavimo da imate manje od 10,000 različitih korisnika
+            [KeyType(count: 10000)] // Primjer: pretpostavimo da imate manje od 10,000 različitih korisnika
             public uint UserId { get; set; }
 
             [KeyType(count: 10000)] // Primer: pretpostavimo da imate manje od 10,000 različitih proizvoda

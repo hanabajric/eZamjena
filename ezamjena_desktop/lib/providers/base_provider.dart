@@ -30,6 +30,9 @@ abstract class BaseProvider<T> with ChangeNotifier {
     http = IOClient(client);
     publicUrl = "$_baseUrl$_endpoint";
   }
+  void _notify() {
+    notifyListeners();
+  }
 
   Future<T?> getById(int? id, [dynamic additionalData]) async {
     print('Getting data for ID: $id');
@@ -43,7 +46,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
     print('Response body: ${response.body}');
 
     if (response.statusCode == 204) {
-      return null; // ili druga indikacija da nema dostupnih podataka
+      return null;
     } else if (isValidResponseCode(response)) {
       var data = jsonDecode(response.body);
       return fromJson(data);
@@ -85,6 +88,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
 
     if (isValidResponseCode(response)) {
       var data = jsonDecode(response.body);
+      _notify();
       return fromJson(data) as T;
     } else {
       return null;
@@ -103,15 +107,14 @@ abstract class BaseProvider<T> with ChangeNotifier {
 
       if (isValidResponseCode(response)) {
         var data = jsonDecode(response.body);
-        // Log raw response data to see what is being returned
         print("Response data: $data");
         if (data != null && data is Map<String, dynamic>) {
+          _notify();
           return fromJson(data) as T;
         } else {
           throw Exception('Invalid JSON data');
         }
       } else {
-        // Optionally, handle or log error responses
         print("Invalid response: ${response.statusCode}");
         return null;
       }
@@ -130,7 +133,8 @@ abstract class BaseProvider<T> with ChangeNotifier {
 
     if (isValidResponseCode(response)) {
       var data = jsonDecode(response.body);
-      return response.body.toString(); // Signalizirajte da je brisanje uspješno
+      _notify();
+      return response.body.toString();
     } else {
       throw Exception("An error occurred while deleting the product.");
     }

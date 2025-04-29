@@ -153,7 +153,7 @@ class _HomePageState extends State<HomePage> {
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/login2.jpg'),
+                image: AssetImage('assets/images/login.png'),
                 fit: BoxFit.cover,
                 colorFilter: ColorFilter.mode(
                   Colors.black.withOpacity(0.3), // Slight dark overlay
@@ -271,8 +271,8 @@ class _HomePageState extends State<HomePage> {
                         borderRadius: BorderRadius.circular(10),
                         gradient: LinearGradient(
                           colors: [
-                            Color.fromRGBO(71, 103, 148, 1),
-                            Color.fromRGBO(255, 255, 255, 0.753),
+                            Colors.deepPurple,
+                            Color.fromRGBO(131, 58, 149, 0.753),
                           ],
                         ),
                       ),
@@ -337,7 +337,7 @@ class _HomePageState extends State<HomePage> {
                               child: Text(
                             "Login",
                             style: TextStyle(
-                              color: Colors.black,
+                              color: Colors.white,
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),

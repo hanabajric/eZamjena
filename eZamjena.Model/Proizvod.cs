@@ -17,12 +17,14 @@ namespace eZamjena.Model
         public int? StatusProizvodaId { get; set; }
         public int KategorijaProizvodaId { get; set; }
 
-        public virtual KategorijaProizvodum KategorijaProizvoda { get; set; }
-        public string NazivKategorijeProizvoda => KategorijaProizvoda?.Naziv;
-        public virtual Korisnik Korisnik { get; set; }
-        public string NazivKorisnika => Korisnik?.KorisnickoIme;
+        //public virtual KategorijaProizvodum KategorijaProizvoda { get; set; }
+        //public virtual Korisnik Korisnik { get; set; }
 
-      
+        public string NazivKategorijeProizvoda { get; set; }
+        public string NazivKorisnika { get; set; }
+
+
+
         //public virtual StatusProizvodum StatusProizvoda { get; set; }
         //public string NazivStatusaProizvoda => StatusProizvoda?.Naziv;
         //public virtual ICollection<Kupovina> Kupovinas { get; set; }

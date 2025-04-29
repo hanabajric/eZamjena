@@ -291,8 +291,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
                 keyboardType: TextInputType.phone,
                 validator: (value) {
                   if (value != null &&
-                      !RegExp(r'^[0-9]{3}\/[0-9]{3}-[0-9]{3}$')
-                          .hasMatch(value)) {
+                      !RegExp(r'^\+?[0-9]{7,15}$').hasMatch(value)) {
                     return 'Neispravan format broja telefona';
                   }
                   return null;

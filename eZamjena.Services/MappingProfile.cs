@@ -19,9 +19,10 @@ namespace eZamjena.Services
 
             CreateMap<Database.Uloga, Model.Uloga>();
 
-            CreateMap<Database.Proizvod, Model.Proizvod>();
-            CreateMap<Database.Kupovina, Model.Kupovina>();
-          
+            CreateMap<Database.Proizvod, Model.Proizvod>()
+          .ForMember(dest => dest.NazivKategorijeProizvoda, opt => opt.MapFrom(src => src.KategorijaProizvoda != null ? src.KategorijaProizvoda.Naziv : "Nepoznato"))
+          .ForMember(dest => dest.NazivKorisnika, opt => opt.MapFrom(src => src.Korisnik != null ? src.Korisnik.KorisnickoIme : "Nepoznato"))
+        ;
 
 
             CreateMap<ProizvodUpsertRequest, Database.Proizvod>();
@@ -40,6 +41,9 @@ namespace eZamjena.Services
 
             CreateMap<Database.Razmjena, Model.Razmjena>();
             CreateMap<RazmjenaUpsertRequest, Database.Razmjena>();
+
+            CreateMap<Database.Kupovina, Model.Kupovina>();
+            CreateMap<KupovinaUpsertRequest, Database.Kupovina>();
 
             CreateMap<Database.StatusRazmjene, Model.StatusRazmjene>();
             CreateMap<StatusRazmjeneUpsertRequest, Database.StatusRazmjene>();
