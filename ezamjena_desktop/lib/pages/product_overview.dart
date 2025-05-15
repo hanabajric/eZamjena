@@ -5,6 +5,7 @@ import 'package:ezamjena_desktop/model/product.dart';
 import 'package:ezamjena_desktop/model/product_category.dart';
 import 'package:ezamjena_desktop/providers/product_category_provider.dart';
 import 'package:ezamjena_desktop/providers/products_provider.dart';
+import 'package:ezamjena_desktop/utils/ez_search_field.dart';
 import 'package:ezamjena_desktop/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
@@ -146,219 +147,220 @@ class _ProductOverviewPageState extends State<ProductOverviewPage>
     String? selectedCategory = product.nazivKategorijeProizvoda;
     bool? isNew = product.stanjeNovo;
 
-    return showDialog<void>(
+    await showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return AlertDialog(
-              title: Text(
-                'Pregled/uređivanje podataka o artiklu - ${product.naziv}',
-              ),
-              content: SingleChildScrollView(
-                child: Form(
-                  key: _formKey,
-                  // Automatsko validiranje na temelju korisničke interakcije
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+      builder: (ctx) {
+        return Dialog(
+          insetPadding:
+              const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: StatefulBuilder(
+              builder: (ctx, setState) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // ───────── Header ─────────
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 20),
+                      child: Row(
                         children: [
-                          InkWell(
-                            onTap: () async {
-                              await _addPicture(product);
-                              setState(() {});
-                            },
-                            child: Container(
-                              width: 200,
-                              height: 230,
-                              decoration: BoxDecoration(
-                                color: Colors.grey,
-                                image: product.slika != null
-                                    ? DecorationImage(
-                                        image: MemoryImage(
-                                            base64Decode(product.slika!)),
-                                        fit: BoxFit.cover,
-                                      )
-                                    : null,
-                              ),
-                              child: product.slika == null
-                                  ? Icon(Icons.camera_alt,
-                                      color: Colors.white70)
-                                  : imageFromBase64String(product.slika),
+                          Expanded(
+                            child: Text(
+                              'Uredi artikal – ${product.naziv}',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium!
+                                  .copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 22),
                             ),
                           ),
-                          SizedBox(width: 20),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Naziv - obavezno polje
-                                TextFormField(
-                                  controller: nameController,
-                                  decoration:
-                                      InputDecoration(labelText: 'Naziv:'),
-                                  validator: (value) {
-                                    if (value == null || value.trim().isEmpty) {
-                                      return 'Naziv je obavezan';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                SizedBox(height: 20),
-                                // Kategorija - obavezno polje
-                                Text('Kategorija:'),
-                                FormField<String>(
-                                  autovalidateMode:
-                                      AutovalidateMode.onUserInteraction,
-                                  validator: (value) {
-                                    if (selectedCategory == null ||
-                                        selectedCategory!.isEmpty) {
-                                      return 'Kategorija je obavezna';
-                                    }
-                                    return null;
-                                  },
-                                  builder: (FormFieldState<String> fieldState) {
-                                    return Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        DropdownButton<String>(
-                                          isExpanded: true,
-                                          value: selectedCategory,
-                                          onChanged: (String? newValue) {
-                                            setState(() {
-                                              selectedCategory = newValue;
-                                            });
-                                            fieldState.didChange(newValue);
-                                          },
-                                          items: categories
-                                              .map<DropdownMenuItem<String>>(
-                                                  (ProductCategory category) {
-                                            return DropdownMenuItem<String>(
-                                              value: category.naziv,
-                                              child: Text(category.naziv!),
-                                            );
-                                          }).toList(),
-                                        ),
-                                        if (fieldState.hasError)
-                                          Padding(
-                                            padding:
-                                                const EdgeInsets.only(top: 5),
-                                            child: Text(
-                                              fieldState.errorText!,
-                                              style: TextStyle(
-                                                color: Colors.red,
-                                                fontSize: 12,
+                          IconButton(
+                            icon: const Icon(Icons.close),
+                            splashRadius: 18,
+                            onPressed: () => Navigator.pop(ctx),
+                          )
+                        ],
+                      ),
+                    ),
+                    const Divider(height: 1),
+                    // ───────── Body ─────────
+                    Flexible(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+                        child: Form(
+                          key: _formKey,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          child: Column(
+                            children: [
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Slika
+                                  InkWell(
+                                    onTap: () async {
+                                      await _addPicture(product);
+                                      setState(() {});
+                                    },
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Container(
+                                        width: 180,
+                                        height: 220,
+                                        color: Colors.grey.shade300,
+                                        child: product.slika == null
+                                            ? const Icon(Icons.add_a_photo,
+                                                size: 36, color: Colors.white70)
+                                            : imageFromBase64String(
+                                                product.slika,
                                               ),
-                                            ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 32),
+                                  // Polja
+                                  Expanded(
+                                    child: Column(
+                                      children: [
+                                        _textField('Naziv *', nameController,
+                                            validator: _required),
+                                        const SizedBox(height: 16),
+                                        _dropdown(
+                                            context,
+                                            'Kategorija *',
+                                            selectedCategory,
+                                            categories
+                                                .map((c) => c.naziv!)
+                                                .toList(),
+                                            (v) => setState(
+                                                () => selectedCategory = v)),
+                                        const SizedBox(height: 16),
+                                        _textField('Procijenjena cijena *',
+                                            priceController,
+                                            keyboard: TextInputType.number,
+                                            validator: _priceValidator),
+                                        const SizedBox(height: 16),
+                                        _textField('Korisnik *', userController,
+                                            validator: _required),
+                                        const SizedBox(height: 16),
+                                        CheckboxListTile(
+                                          title: const Text(
+                                            'Novo',
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w400),
                                           ),
+                                          value: isNew,
+                                          dense: true,
+                                          contentPadding: EdgeInsets.zero,
+                                          onChanged: (v) =>
+                                              setState(() => isNew = v),
+                                        ),
+                                        const SizedBox(height: 20),
+                                        _textField('Opis proizvoda',
+                                            descriptionController,
+                                            maxLines: 3),
                                       ],
-                                    );
-                                  },
-                                ),
-                                SizedBox(height: 20),
-                                // Cijena - obavezno polje
-                                TextFormField(
-                                  controller: priceController,
-                                  keyboardType: TextInputType.number,
-                                  decoration: InputDecoration(
-                                      labelText: 'Procenjena cena:'),
-                                  validator: (value) {
-                                    if (value == null || value.trim().isEmpty) {
-                                      return 'Cijena je obavezna';
-                                    }
-                                    if (double.tryParse(value) == null) {
-                                      return 'Unesite ispravnu numeričku vrijednost';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                SizedBox(height: 20),
-                                // Korisnik - obavezno polje
-                                TextFormField(
-                                  controller: userController,
-                                  keyboardType: TextInputType.text,
-                                  decoration:
-                                      InputDecoration(labelText: 'Korisnik:'),
-                                  validator: (value) {
-                                    if (value == null || value.trim().isEmpty) {
-                                      return 'Korisnik je obavezan';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                // Checkbox za stanje "Novo"
-                                CheckboxListTile(
-                                  title: Text('Novo'),
-                                  value: isNew,
-                                  onChanged: (bool? value) {
-                                    setState(() {
-                                      isNew = value;
-                                    });
-                                  },
-                                ),
-                              ],
-                            ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    // ───────── Footer ─────────
+                    const Divider(height: 1),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 12, 24, 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx),
+                            child: const Text('Odustani'),
+                          ),
+                          const SizedBox(width: 12),
+                          ElevatedButton(
+                            onPressed: () async {
+                              if (!_formKey.currentState!.validate()) return;
+
+                              final updateData = {
+                                'naziv': nameController.text.trim(),
+                                'cijena': double.tryParse(
+                                        priceController.text.trim()) ??
+                                    0.0,
+                                'opis': descriptionController.text.trim(),
+                                'slika': product.slika,
+                                'korisnikId': product.korisnikId,
+                                'kategorijaProizvodaId': categories
+                                    .firstWhereOrNull(
+                                        (c) => c.naziv == selectedCategory)
+                                    ?.id,
+                                'stanjeNovo': isNew,
+                                'statusProizvodaId': 1,
+                              };
+
+                              await _productProvider.update(
+                                  product.id, updateData);
+
+                              Navigator.pop(ctx);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content: Text(
+                                        'Proizvod "${product.naziv}" je uspješno ažuriran!')),
+                              );
+                              _loadProducts();
+                            },
+                            child: const Text('Spremi'),
                           ),
                         ],
                       ),
-                      // Opis proizvoda (nije obavezno)
-                      Padding(
-                        padding: EdgeInsets.only(top: 20),
-                        child: TextFormField(
-                          controller: descriptionController,
-                          decoration:
-                              InputDecoration(labelText: 'Opis proizvoda:'),
-                          maxLines: 3,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              actions: <Widget>[
-                TextButton(
-                  child: Text('Odustani'),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-                TextButton(
-                  child: Text('Spremi'),
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                      var updateData = {
-                        "naziv": nameController.text.trim(),
-                        "cijena":
-                            double.tryParse(priceController.text.trim()) ?? 0.0,
-                        "opis": descriptionController.text.trim(),
-                        "slika": product.slika,
-                        "korisnikId": product.korisnikId,
-                        "kategorijaProizvodaId": categories
-                            .firstWhereOrNull(
-                                (c) => c.naziv == selectedCategory)
-                            ?.id,
-                        "stanjeNovo": isNew,
-                        "statusProizvodaId": 1
-                      };
-
-                      await _productProvider!.update(product.id, updateData);
-                      Navigator.of(context).pop();
-                      _showSuccessDialog(product.naziv!);
-                      //_loadProducts(); // Osvježi listu proizvoda
-                    } else {
-                      print(
-                          "Forma nije validna - popunite sva obavezna polja.");
-                    }
-                  },
-                ),
-              ],
-            );
-          },
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
         );
       },
+    );
+  }
+
+  String? _required(String? v) =>
+      (v == null || v.trim().isEmpty) ? 'Obavezno polje' : null;
+
+  String? _priceValidator(String? v) {
+    if (v == null || v.trim().isEmpty) return 'Obavezno polje';
+    return double.tryParse(v) == null ? 'Unesite broj' : null;
+  }
+
+  Widget _textField(String label, TextEditingController c,
+      {String? Function(String?)? validator,
+      TextInputType keyboard = TextInputType.text,
+      int maxLines = 1}) {
+    return TextFormField(
+      controller: c,
+      maxLines: maxLines,
+      keyboardType: keyboard,
+      decoration: InputDecoration(labelText: label),
+      validator: validator,
+    );
+  }
+
+  Widget _dropdown(BuildContext ctx, String label, String? value,
+      List<String> items, ValueChanged<String?> onChanged) {
+    return DropdownButtonFormField<String>(
+      decoration: InputDecoration(labelText: label),
+      value: value,
+      items:
+          items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+      onChanged: onChanged,
+      validator: (v) => v == null ? 'Obavezno polje' : null,
     );
   }
 
@@ -420,9 +422,12 @@ class _ProductOverviewPageState extends State<ProductOverviewPage>
   }
 
   Future<void> _deleteProduct(Product product) async {
-    await _productProvider!
-        .delete(product.id!); // Pretpostavljamo da postoji metoda delete
-    _showSuccessDialog("Proizvod '${product.naziv}' je uspješno obrisan");
+    await _productProvider!.delete(product.id!);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Proizvod "${product.naziv}" je uspješno obrisan!'),
+      ),
+    );
     _loadProducts(); // Osvježava listu proizvoda nakon brisanja
   }
 
@@ -431,13 +436,11 @@ class _ProductOverviewPageState extends State<ProductOverviewPage>
     return Scaffold(
       body: Column(
         children: <Widget>[
-          TextField(
-            onChanged: (value) => updateFilters(searchQuery: value),
-            decoration: InputDecoration(
-              labelText: 'Pretraži po nazivu',
-              suffixIcon: Icon(Icons.search),
-            ),
+          const SizedBox(height: 12),
+          EzSearchField(
+            onChanged: (v) => updateFilters(searchQuery: v),
           ),
+          const SizedBox(height: 12),
           Wrap(
             children: List<Widget>.generate(categories.length, (int index) {
               return ChoiceChip(
@@ -452,6 +455,7 @@ class _ProductOverviewPageState extends State<ProductOverviewPage>
               );
             }),
           ),
+          const SizedBox(height: 8),
           ToggleButtons(
             children: <Widget>[
               Padding(
@@ -468,6 +472,7 @@ class _ProductOverviewPageState extends State<ProductOverviewPage>
               updateFilters(isNovo: index == 0);
             },
           ),
+          const SizedBox(height: 10),
           Expanded(
             child: products.isEmpty
                 ? Center(child: Text('Trenutno nema aktivnih artikala'))

@@ -7,6 +7,7 @@ import 'package:ezamjena_desktop/model/user.dart';
 import 'package:ezamjena_desktop/providers/product_category_provider.dart';
 import 'package:ezamjena_desktop/providers/products_provider.dart';
 import 'package:ezamjena_desktop/providers/user_provider.dart';
+import 'package:ezamjena_desktop/utils/ez_search_field.dart';
 import 'package:ezamjena_desktop/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
@@ -122,13 +123,11 @@ class _RequestOverviewPageState extends State<RequestOverviewPage> {
     return Scaffold(
       body: Column(
         children: <Widget>[
-          TextField(
-            onChanged: (value) => updateFilters(searchQuery: value),
-            decoration: InputDecoration(
-              labelText: 'Pretraži po nazivu',
-              suffixIcon: Icon(Icons.search),
-            ),
+          const SizedBox(height: 8),
+          EzSearchField(
+            onChanged: (v) => updateFilters(searchQuery: v),
           ),
+          const SizedBox(height: 12),
           Wrap(
             children: List<Widget>.generate(categories.length, (int index) {
               return ChoiceChip(
@@ -143,6 +142,7 @@ class _RequestOverviewPageState extends State<RequestOverviewPage> {
               );
             }),
           ),
+          const SizedBox(height: 8),
           ToggleButtons(
             children: <Widget>[
               Padding(
@@ -167,6 +167,7 @@ class _RequestOverviewPageState extends State<RequestOverviewPage> {
               onPressed: refreshPage,
             ),
           ),
+          const SizedBox(height: 10),
           Expanded(
             child: products.isEmpty
                 ? Center(child: Text('Trenutno nemate zahtjeva'))

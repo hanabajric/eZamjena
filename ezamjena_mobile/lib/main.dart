@@ -135,10 +135,61 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   late UserProvider _userProvider;
   bool _isObscured = true;
+  bool _canSubmit = false;
+
+  void _updateCanSubmit() {
+    final valid = _formKey.currentState?.validate() ?? false;
+    if (valid != _canSubmit) {
+      setState(() => _canSubmit = valid);
+    }
+  }
+
+  Future<void> _handleLogin() async {
+    try {
+      Authorization.username = _usernameController.text.trim();
+      Authorization.password = _passwordController.text.trim();
+
+      final logged = await _userProvider
+          .getLoggedInUserId(); // baca Exception ako auth padne
+      if (logged != null &&
+          logged.containsKey('userId') &&
+          logged.containsKey('userRole')) {
+        LoggedInUser.userId = logged['userId'];
+
+        if (logged['userRole'] == 'Klijent') {
+          await _userProvider.get(); // učitaj cache
+          _userProvider.setPasswordChanged(false);
+          Navigator.pushNamed(context, ProductListPage.routeName);
+        } else {
+          _showAlert('Pristup odbijen',
+              "Samo korisnici sa ulogom 'Klijent' mogu pristupiti aplikaciji.");
+        }
+      }
+    } catch (e) {
+      _showAlert('Greška', 'Došlo je do greške prilikom prijave: $e');
+    }
+  }
+
+  void _showAlert(String title, String msg) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(title),
+        content: Text(msg),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Ok'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -209,57 +260,62 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     Opacity(
                       opacity: 0.9,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.6),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Column(
-                          children: [
-                            Container(
-                              padding: EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                    bottom: BorderSide(
-                                        color:
-                                            Color.fromARGB(181, 24, 24, 24))),
-                              ),
-                              child: TextField(
-                                controller: _usernameController,
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  hintText: "Username",
-                                  hintStyle: TextStyle(
-                                      color: Color.fromARGB(150, 27, 25, 25)),
-                                ),
-                              ),
-                            ),
-                            Container(
-                              padding: EdgeInsets.all(8),
-                              child: TextField(
-                                controller: _passwordController,
-                                obscureText: _isObscured,
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  hintText: "Password",
-                                  hintStyle: TextStyle(
-                                      color: Color.fromARGB(150, 27, 25, 25)),
-                                  suffixIcon: IconButton(
-                                    icon: Icon(
-                                      _isObscured
-                                          ? Icons.visibility
-                                          : Icons.visibility_off,
-                                    ),
-                                    onPressed: () {
-                                      setState(() {
-                                        _isObscured = !_isObscured;
-                                      });
-                                    },
+                      child: Form(
+                        // <- ①
+                        key: _formKey,
+                        onChanged: _updateCanSubmit, // <- ②
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.6),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Column(
+                            children: [
+                              // —— USERNAME ———————————————————
+                              Padding(
+                                padding: const EdgeInsets.all(8),
+                                child: TextFormField(
+                                  controller: _usernameController,
+                                  decoration: const InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: "Username",
                                   ),
+                                  validator: (value) =>
+                                      (value == null || value.trim().isEmpty)
+                                          ? 'Korisničko ime je obavezno'
+                                          : null,
                                 ),
                               ),
-                            ),
-                          ],
+                              const Divider(height: 1),
+                              // —— PASSWORD ———————————————————
+                              Padding(
+                                padding: const EdgeInsets.all(8),
+                                child: TextFormField(
+                                  controller: _passwordController,
+                                  obscureText: _isObscured,
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: "Password",
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                        _isObscured
+                                            ? Icons.visibility
+                                            : Icons.visibility_off,
+                                      ),
+                                      onPressed: () => setState(() {
+                                        _isObscured = !_isObscured;
+                                      }),
+                                    ),
+                                  ),
+                                  validator: (value) =>
+                                      (value == null || value.trim().isEmpty)
+                                          ? 'Lozinka je obavezna'
+                                          : null,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -270,78 +326,27 @@ class _HomePageState extends State<HomePage> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
                         gradient: LinearGradient(
-                          colors: [
-                            Colors.deepPurple,
-                            Color.fromRGBO(131, 58, 149, 0.753),
-                          ],
+                          colors: _canSubmit
+                              ? [
+                                  Colors.deepPurple,
+                                  const Color.fromRGBO(131, 58, 149, 0.753)
+                                ]
+                              : [Colors.grey, Colors.grey.shade400],
                         ),
                       ),
                       child: InkWell(
-                          onTap: () async {
-                            try {
-                              Authorization.username = _usernameController.text;
-                              Authorization.password = _passwordController.text;
-
-                              var loggedInUserId =
-                                  await _userProvider?.getLoggedInUserId();
-                              if (loggedInUserId != null &&
-                                  loggedInUserId.containsKey('userId') &&
-                                  loggedInUserId.containsKey('userRole')) {
-                                LoggedInUser.userId = loggedInUserId['userId'];
-                                print(
-                                    "ovo je id logovanog usera ${LoggedInUser.userId}");
-                                if (loggedInUserId['userRole'] == "Klijent") {
-                                  await _userProvider.get();
-                                  _userProvider.setPasswordChanged(false);
-                                  Navigator.pushNamed(
-                                      context, ProductListPage.routeName);
-                                } else {
-                                  // Korisnik nema odgovarajuću ulogu
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) =>
-                                        AlertDialog(
-                                      title: Text("Pristup odbijen"),
-                                      content: Text(
-                                          "Samo korisnici sa ulogom 'Klijent' mogu pristupiti aplikaciji."),
-                                      actions: [
-                                        TextButton(
-                                          child: Text("Ok"),
-                                          onPressed: () =>
-                                              Navigator.pop(context),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }
-                              }
-                            } catch (e) {
-                              showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) =>
-                                      AlertDialog(
-                                        title: Text("Greška"),
-                                        content: Text(
-                                            "Došlo je do greške prilikom prijave: $e.ToString()"),
-                                        actions: [
-                                          TextButton(
-                                            child: Text("Ok"),
-                                            onPressed: () =>
-                                                Navigator.pop(context),
-                                          )
-                                        ],
-                                      ));
-                            }
-                          },
-                          child: Center(
-                              child: Text(
-                            "Login",
+                        onTap: _canSubmit ? _handleLogin : null, //  ✔️
+                        child: const Center(
+                          child: Text(
+                            'Login',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),
-                          ))),
+                          ),
+                        ),
+                      ),
                     ),
                     SizedBox(height: 20),
                     InkWell(

@@ -1,3 +1,4 @@
+import 'package:ezamjena_desktop/providers/city_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ezamjena_desktop/model/user.dart';
@@ -25,29 +26,37 @@ class _TopThreeProfilesPageState extends State<TopThreeProfilesPage> {
   }
 
   Future<void> _loadTopUsers() async {
-    setState(() {
-      isLoading = true;
-    });
+    setState(() => isLoading = true);
 
     try {
-      var userProvider = Provider.of<UserProvider>(context, listen: false);
-      var allUsers = await userProvider.get(); // Fetching all users
+      // ───────────────── providers ─────────────────
+      final userProv = context.read<UserProvider>();
+      final cityProv = context.read<CityProvider>();
 
-      // Sorting and filtering logic for top users
-      var sortedUsers = allUsers
-          .where(
-              (user) => user.brojKupovina != null && user.brojRazmjena != null)
+      // 1) mapa gradId → naziv
+      final gradovi = await cityProv.get();
+      final gradNazivMap = {for (var g in gradovi) g.id: g.naziv};
+
+      // 2) svi korisnici
+      final sviKorisnici = await userProv.get();
+
+      // 3) popuni nazivGrada (ako ga API ne vraća)
+      for (var k in sviKorisnici) {
+        k.nazivGrada ??= gradNazivMap[k.gradId] ?? 'N/A';
+      }
+
+      // 4) sortiraj po (kupovine + razmjene) i uzmi top‑3
+      final sortirani = sviKorisnici
+          .where((k) => k.brojKupovina != null && k.brojRazmjena != null)
           .toList()
         ..sort((a, b) => (b.brojKupovina! + b.brojRazmjena!)
             .compareTo(a.brojKupovina! + a.brojRazmjena!));
 
-      topUsers = sortedUsers.take(3).toList();
+      setState(() => topUsers = sortirani.take(3).toList());
     } catch (e) {
-      print('Error loading top users: $e');
+      debugPrint('Greška pri učitavanju top korisnika: $e');
     } finally {
-      setState(() {
-        isLoading = false;
-      });
+      setState(() => isLoading = false);
     }
   }
 

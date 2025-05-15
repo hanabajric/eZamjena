@@ -202,6 +202,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                 )),
                                 DataCell(
                                   IconButton(
+                                    padding: EdgeInsets.zero,
+                                    constraints: BoxConstraints(),
                                     icon: Icon(Icons.delete),
                                     onPressed: () async {
                                       if (user.id == null) {
@@ -312,296 +314,240 @@ class _UserProfilePageState extends State<UserProfilePage> {
         bytes: await pdf.save(), filename: 'user_report.pdf');
   }
 
+  // ▼ ubaci negdje u klasi (npr. ispod _priceValidator)  ──────────────────────
+  String? _req(String? v) =>
+      (v == null || v.trim().isEmpty) ? 'Obavezno polje' : null;
+
+  String? _emailV(String? v) =>
+      _req(v) ??
+      (!RegExp(r'^[\w\-\.]+@([\w\-]+\.)+[\w\-]{2,4}$').hasMatch(v!.trim())
+          ? 'Neispravan e‑mail'
+          : null);
+
+  String? _phoneV(String? v) =>
+      _req(v) ??
+      (!RegExp(r'^\+?[0-9]{7,15}$').hasMatch(v!) ? 'Neispravan broj' : null);
+
+  Widget _tf(
+    String label,
+    TextEditingController c, {
+    String? Function(String?)? validator,
+    TextInputType keyboard = TextInputType.text,
+    int maxLines = 1,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: TextFormField(
+        controller: c,
+        maxLines: maxLines,
+        keyboardType: keyboard,
+        decoration: InputDecoration(labelText: label),
+        validator: validator,
+      ),
+    );
+  }
+
+  Widget _dd(
+    String label,
+    String? value,
+    List<String> items,
+    ValueChanged<String?> onChanged,
+    String? Function(String?) validator,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: DropdownButtonFormField<String>(
+        decoration: InputDecoration(labelText: label),
+        value: value,
+        items: items
+            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+            .toList(),
+        onChanged: onChanged,
+        validator: validator,
+      ),
+    );
+  }
+
+// ────────────────────────────────────────────────────────────────────────────
   void _showEditDialog(User user) {
-    // 1) Form key za validaciju
     final _formKey = GlobalKey<FormState>();
 
-    // Kontroleri
-    TextEditingController usernameController =
-        TextEditingController(text: user.korisnickoIme);
-    TextEditingController nameController =
-        TextEditingController(text: user.ime);
-    TextEditingController surnameController =
-        TextEditingController(text: user.prezime);
-    TextEditingController emailController =
-        TextEditingController(text: user.email);
-    TextEditingController phoneController =
-        TextEditingController(text: user.telefon);
-    TextEditingController addressController =
-        TextEditingController(text: user.adresa);
-
-    TextEditingController exchangeCountController =
-        TextEditingController(text: user.brojRazmjena.toString());
-    TextEditingController purchaseCountController =
-        TextEditingController(text: user.brojKupovina.toString());
-    TextEditingController activeArticleCountController =
+    // ───── Kontroleri ─────
+    final usernameC = TextEditingController(text: user.korisnickoIme);
+    final nameC = TextEditingController(text: user.ime);
+    final surnameC = TextEditingController(text: user.prezime);
+    final emailC = TextEditingController(text: user.email);
+    final phoneC = TextEditingController(text: user.telefon);
+    final addressC = TextEditingController(text: user.adresa);
+    final exchC = TextEditingController(text: user.brojRazmjena.toString());
+    final buyC = TextEditingController(text: user.brojKupovina.toString());
+    final activeC =
         TextEditingController(text: user.brojAktivnihArtikala.toString());
 
-    String? selectedCityName = user.nazivGrada;
+    String? selectedCity = user.nazivGrada;
+    File? pickedImage;
 
-    File? _imageFile;
-
-    // Funkcija za biranje slike
-    Future<void> _pickImage(StateSetter setState) async {
-      final ImagePicker _picker = ImagePicker();
-      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-      if (image != null) {
-        setState(() => _imageFile = File(image.path));
-      }
+    Future<void> _pickImage(StateSetter ss) async {
+      final XFile? img = await _picker.pickImage(source: ImageSource.gallery);
+      if (img != null) ss(() => pickedImage = File(img.path));
     }
 
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return AlertDialog(
-              title: Text(
-                'Pregled/uređivanje podataka o korisniku - ${user.korisnickoIme}',
-              ),
-              content: SingleChildScrollView(
-                child: Form(
-                  key: _formKey,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      InkWell(
-                        onTap: () async {
-                          await _pickImage(setState);
-                        },
-                        child: Container(
-                          width: 200,
-                          height: 230,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[300],
-                            image: _imageFile != null
-                                ? DecorationImage(
-                                    image: FileImage(_imageFile!),
-                                    fit: BoxFit.cover,
-                                  )
-                                : user.slika != null
-                                    ? DecorationImage(
-                                        image: MemoryImage(
-                                          base64Decode(user.slika!),
-                                        ),
-                                        fit: BoxFit.cover,
-                                      )
-                                    : null,
+      builder: (_) => StatefulBuilder(
+        builder: (ctx, ss) {
+          return Dialog(
+            insetPadding:
+                const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 640),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // ─── Header ───
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 20, 8, 0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Uredi profil – ${user.korisnickoIme}',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium!
+                                .copyWith(fontWeight: FontWeight.w600),
                           ),
-                          child: _imageFile == null && user.slika == null
-                              ? const Icon(Icons.camera_alt,
-                                  color: Colors.white70)
-                              : null,
                         ),
-                      ),
-                      const SizedBox(width: 20),
-                      Expanded(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
+                        IconButton(
+                          splashRadius: 18,
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pop(ctx),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Divider(height: 1),
+                  // ─── Body ───
+                  Flexible(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+                      child: Form(
+                        key: _formKey,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            TextFormField(
-                              controller: usernameController,
-                              decoration: const InputDecoration(
-                                  labelText: 'Korisničko ime'),
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return 'Korisničko ime je obavezno';
-                                }
-                                return null;
-                              },
+                            // Slika
+                            InkWell(
+                              onTap: () => _pickImage(ss),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Container(
+                                  width: 200,
+                                  height: 230,
+                                  color: Colors.grey.shade300,
+                                  child: pickedImage != null
+                                      ? Image.file(pickedImage!,
+                                          fit: BoxFit.cover)
+                                      : user.slika != null
+                                          ? imageFromBase64String(user.slika!)
+                                          : const Icon(Icons.add_a_photo,
+                                              size: 36, color: Colors.white70),
+                                ),
+                              ),
                             ),
-                            TextFormField(
-                              controller: nameController,
-                              decoration:
-                                  const InputDecoration(labelText: 'Ime'),
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return 'Ime je obavezno';
-                                }
-                                return null;
-                              },
-                            ),
-                            TextFormField(
-                              controller: surnameController,
-                              decoration:
-                                  const InputDecoration(labelText: 'Prezime'),
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return 'Prezime je obavezno';
-                                }
-                                return null;
-                              },
-                            ),
-                            TextFormField(
-                              controller: emailController,
-                              decoration:
-                                  const InputDecoration(labelText: 'Email'),
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return 'Email je obavezan';
-                                }
-
-                                Pattern emailPattern =
-                                    r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$';
-                                RegExp emailRegex =
-                                    RegExp(emailPattern as String);
-                                if (!emailRegex.hasMatch(value.trim())) {
-                                  return 'Unesite ispravnu email adresu';
-                                }
-                                return null;
-                              },
-                            ),
-                            TextFormField(
-                              controller: phoneController,
-                              decoration: const InputDecoration(
-                                  labelText: 'Broj telefona'),
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return 'Broj telefona je obavezan';
-                                }
-
-                                Pattern phonePattern = r'^\+?[0-9]{7,15}$';
-                                RegExp phoneRegex =
-                                    RegExp(phonePattern as String);
-                                if (!phoneRegex.hasMatch(value.trim())) {
-                                  return 'Unesite ispravan broj telefona';
-                                }
-                                return null;
-                              },
-                            ),
-                            TextFormField(
-                              controller: addressController,
-                              decoration:
-                                  const InputDecoration(labelText: 'Adresa'),
-                            ),
-                            FormField<String>(
-                              validator: (value) {
-                                if (selectedCityName == null ||
-                                    selectedCityName!.isEmpty) {
-                                  return 'Grad je obavezan';
-                                }
-                                return null;
-                              },
-                              builder: (FormFieldState<String> fieldState) {
-                                return Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    DropdownButton<String>(
-                                      isExpanded: true,
-                                      value: selectedCityName,
-                                      hint: const Text("Odaberite grad"),
-                                      onChanged: (String? newValue) {
-                                        setState(() {
-                                          selectedCityName = newValue;
-                                        });
-                                        fieldState.didChange(newValue);
-                                      },
-                                      items: cities
-                                          .map<DropdownMenuItem<String>>(
-                                              (City city) {
-                                        return DropdownMenuItem<String>(
-                                          value: city.naziv,
-                                          child: Text(city.naziv!),
-                                        );
-                                      }).toList(),
-                                    ),
-                                    if (fieldState.hasError)
-                                      Padding(
-                                        padding: const EdgeInsets.only(top: 5),
-                                        child: Text(
-                                          fieldState.errorText!,
-                                          style: const TextStyle(
-                                            color: Colors.red,
-                                            fontSize: 12,
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                );
-                              },
-                            ),
-                            TextFormField(
-                              controller: exchangeCountController,
-                              decoration: const InputDecoration(
-                                  labelText: 'Broj razmjena'),
-                            ),
-                            TextFormField(
-                              controller: purchaseCountController,
-                              decoration: const InputDecoration(
-                                  labelText: 'Broj kupovina'),
-                            ),
-                            TextFormField(
-                              controller: activeArticleCountController,
-                              decoration: const InputDecoration(
-                                labelText: 'Broj aktivnih artikala',
+                            const SizedBox(width: 32),
+                            Expanded(
+                              child: Column(
+                                children: [
+                                  _tf('Korisničko ime *', usernameC,
+                                      validator: _req),
+                                  _tf('Ime *', nameC, validator: _req),
+                                  _tf('Prezime *', surnameC, validator: _req),
+                                  _tf('Email *', emailC,
+                                      validator: _emailV,
+                                      keyboard: TextInputType.emailAddress),
+                                  _tf('Broj telefona *', phoneC,
+                                      validator: _phoneV,
+                                      keyboard: TextInputType.phone),
+                                  _tf('Adresa', addressC),
+                                  _dd(
+                                    'Grad *',
+                                    selectedCity,
+                                    cities.map((c) => c.naziv!).toList(),
+                                    (v) => ss(() => selectedCity = v),
+                                    _req,
+                                  ),
+                                  _tf('Broj razmjena', exchC,
+                                      keyboard: TextInputType.number),
+                                  _tf('Broj kupovina', buyC,
+                                      keyboard: TextInputType.number),
+                                  _tf('Broj aktivnih artikala', activeC,
+                                      keyboard: TextInputType.number),
+                                ],
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                  // ─── Footer ───
+                  const Divider(height: 1),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 12, 24, 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx),
+                          child: const Text('Odustani'),
+                        ),
+                        const SizedBox(width: 12),
+                        ElevatedButton(
+                          onPressed: () async {
+                            if (!_formKey.currentState!.validate()) return;
+
+                            final payload = {
+                              'ime': nameC.text.trim(),
+                              'prezime': surnameC.text.trim(),
+                              'email': emailC.text.trim(),
+                              'telefon': phoneC.text.trim(),
+                              'adresa': addressC.text.trim(),
+                              'gradId': cities
+                                  .firstWhereOrNull(
+                                      (c) => c.naziv == selectedCity)
+                                  ?.id,
+                              'brojRazmjena': int.tryParse(exchC.text.trim()),
+                              'brojKupovina': int.tryParse(buyC.text.trim()),
+                              'brojAktivnihArtikala':
+                                  int.tryParse(activeC.text.trim()),
+                              'slika': pickedImage != null
+                                  ? base64String(
+                                      await pickedImage!.readAsBytes())
+                                  : user.slika,
+                            };
+
+                            await _userProvider!.adminUpdate(user.id, payload);
+                            Navigator.pop(ctx);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text('Podaci uspješno ažurirani!')),
+                            );
+                            _loadUsers();
+                          },
+                          child: const Text('Spremi'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              actions: <Widget>[
-                TextButton(
-                  child: const Text('Odustani'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-                TextButton(
-                  child: const Text('Spremi'),
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                      Map<String, dynamic> updateData = {
-                        'ime': nameController.text.trim(),
-                        'prezime': surnameController.text.trim(),
-                        'email': emailController.text.trim(),
-                        'telefon': phoneController.text.trim(),
-                        'adresa': addressController.text.trim(),
-                        'gradId': cities
-                            .firstWhereOrNull(
-                              (c) => c.naziv == selectedCityName,
-                            )
-                            ?.id,
-                        'brojRazmjena':
-                            int.tryParse(exchangeCountController.text.trim()),
-                        'brojKupovina':
-                            int.tryParse(purchaseCountController.text.trim()),
-                        'brojAktivnihArtikala': int.tryParse(
-                            activeArticleCountController.text.trim()),
-                        'slika': _imageFile != null
-                            ? base64String(await _imageFile!.readAsBytes())
-                            : user.slika
-                      };
-
-                      if (_userProvider != null) {
-                        await _userProvider!.adminUpdate(user.id, updateData);
-
-                        Navigator.of(context).pop();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Podaci uspješno ažurirani!'),
-                          ),
-                        );
-                        _loadUsers();
-                      } else {
-                        print('User provider not initialized');
-                      }
-                    } else {
-                      print(
-                          "Forma nije validna - popunite sva obavezna polja.");
-                    }
-                  },
-                )
-              ],
-            );
-          },
-        );
-      },
+            ),
+          );
+        },
+      ),
     );
   }
 }

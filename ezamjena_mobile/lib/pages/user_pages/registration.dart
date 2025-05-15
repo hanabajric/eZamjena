@@ -56,6 +56,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
   String? _passwordConfirmationErrorText;
   String? _brojTelefonaError;
   String? _emailErrorText;
+  String? _korImeErr, _imeErr, _prezimeErr, _gradErr;
+  String? _passwordErr, _passwordConfErr, _phoneErr, _emailErr;
+  final _phoneRe = RegExp(r'^\+\d{8,15}$');
 
   @override
   void initState() {
@@ -108,18 +111,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   Future<void> _handleSave(BuildContext context) async {
-    //try {
-    if (_imeController.text.isEmpty ||
-        _prezimeController.text.isEmpty ||
-        _adresaController.text.isEmpty ||
-        _brojTelefonaController.text.isEmpty ||
-        _emailController.text.isEmpty ||
-        _selectedGrad == null) {
-      print(_imeController.text);
-      print(_prezimeController.text);
-      _showMissingFieldsDialog(context);
+    if (!_validateForm()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Provjerite označena polja.')),
+      );
       return;
     }
+
     if (_passwordController.text.isNotEmpty &&
         _passwordController.text != _passwordPotvrdaController.text) {
       // Lozinka i potvrda lozinke nisu iste, prikažite obavijest
@@ -180,7 +178,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         title: "Nedostajući podaci",
         message: "Molimo popunite sva obavezna polja.",
         onOkPressed: () {
-          Navigator.pop(context); // Zatvaranje dijaloga
+          Navigator.pop(context);
         },
       ),
     );
@@ -212,6 +210,132 @@ class _RegistrationPageState extends State<RegistrationPage> {
     );
   }
 
+  void _setErr(void Function() body) => setState(body);
+
+  void _clearErrorsFor(String field) => _setErr(() {
+        switch (field) {
+          case 'korime':
+            _korImeErr = null;
+            break;
+          case 'ime':
+            _imeErr = null;
+            break;
+          case 'prezime':
+            _prezimeErr = null;
+            break;
+          case 'email':
+            _emailErr = null;
+            break;
+          case 'phone':
+            _phoneErr = null;
+            break;
+          case 'pass':
+            _passwordErr = null;
+            _passwordConfErr = null;
+            break;
+        }
+      });
+
+  bool _validateForm() {
+    _setErr(() {
+      _korImeErr = _imeErr = _prezimeErr = _gradErr =
+          _passwordErr = _passwordConfErr = _phoneErr = _emailErr = null;
+    });
+
+    bool ok = true;
+
+    // obavezna polja
+    if (_korisnickoImeController.text.trim().isEmpty) {
+      _korImeErr = 'Obavezno polje';
+      ok = false;
+    }
+    if (_imeController.text.trim().isEmpty) {
+      _imeErr = 'Obavezno polje';
+      ok = false;
+    }
+    if (_prezimeController.text.trim().isEmpty) {
+      _prezimeErr = 'Obavezno polje';
+      ok = false;
+    }
+    if (_emailController.text.trim().isEmpty) {
+      _emailErr = 'Obavezno polje';
+      ok = false;
+    }
+    if (_selectedGrad == null || _selectedGrad == 'Izaberite Grad :') {
+      _gradErr = 'Obavezno polje';
+      ok = false;
+    }
+
+    // e-mail
+    if (_emailErr == null &&
+        !EmailValidator.validate(_emailController.text.trim())) {
+      _emailErr = 'Neispravan format e-maila';
+      ok = false;
+    }
+
+    if (_brojTelefonaController.text.trim().isNotEmpty &&
+        !_phoneRe.hasMatch(_brojTelefonaController.text.trim())) {
+      _phoneErr = 'Predviđeni format: +38712345678';
+      ok = false;
+    }
+    if (_passwordController.text.isEmpty) {
+      _passwordErr = 'Obavezno polje';
+      ok = false;
+    } else if (_passwordController.text.length < 8) {
+      _passwordErr = 'Lozinka mora imati mininalno 8 znakova';
+      ok = false;
+    }
+
+    return ok;
+  }
+
+  void _validateEmail(String v) => _setErr(() {
+        if (v.trim().isEmpty)
+          _emailErr = 'Obavezno polje';
+        else if (!EmailValidator.validate(v.trim()))
+          _emailErr = 'Neispravan format e-maila';
+        else
+          _emailErr = null;
+      });
+
+  void _validatePhone(String v) => _setErr(() {
+        if (v.trim().isEmpty)
+          _phoneErr = null; // nije obavezno
+        else if (!_phoneRe.hasMatch(v))
+          _phoneErr = 'Format: +38712345678';
+        else
+          _phoneErr = null;
+      });
+
+  void _validatePass(String v) => _setErr(() {
+        if (v.isEmpty)
+          _passwordErr = 'Obavezno polje';
+        else if (v.length < 8)
+          _passwordErr = '≥ 8 znakova';
+        else
+          _passwordErr = null;
+
+        // potvrda ažuriramo paralelno
+        _passwordConfErr = (_passwordPotvrdaController.text != v)
+            ? 'Lozinke se ne podudaraju'
+            : null;
+      });
+
+  void _validateRequired(String v, String fieldKey) => _setErr(() {
+        final err = v.trim().isEmpty ? 'Obavezno polje' : null;
+        switch (fieldKey) {
+          case 'korime':
+            _korImeErr = err;
+            break;
+          case 'ime':
+            _imeErr = err;
+            break;
+          case 'prezime':
+            _prezimeErr = err;
+            break;
+        }
+      });
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -234,19 +358,25 @@ class _RegistrationPageState extends State<RegistrationPage> {
               ),
             ),
             TextFieldWithTitle(
-              title: "Korisničko ime:",
+              title: 'Korisničko ime:',
               controller: _korisnickoImeController,
+              errorText: _korImeErr,
+              onChanged: (v) => _validateRequired(v, 'korime'),
             ),
             TextFieldWithTitle(
-              title: "Ime:",
+              title: 'Ime:',
               controller: _imeController,
+              errorText: _imeErr,
+              onChanged: (v) => _validateRequired(v, 'ime'),
             ),
             TextFieldWithTitle(
-              title: "Prezime:",
+              title: 'Prezime:',
               controller: _prezimeController,
+              errorText: _prezimeErr,
+              onChanged: (v) => _validateRequired(v, 'prezime'),
             ),
             TextFieldWithTitle(
-              title: "Adresa:",
+              title: 'Adresa:',
               controller: _adresaController,
             ),
             SizedBox(
@@ -254,135 +384,99 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Row(
-                    children: [
-                      Text("Grad:",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 15)),
-                      SizedBox(
-                        width: 94,
+                    children: const [
+                      Text(
+                        'Grad:',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 15),
                       ),
+                      SizedBox(width: 94),
                     ],
                   ),
                   Expanded(
-                    child: DropdownButton<String>(
-                      value: _selectedGrad,
-                      onChanged: (newValue) async {
-                        setState(() {
-                          _selectedGrad = newValue!;
-                          print("Selected Grad: $_selectedGrad");
-                          // var selectedCity = gradovi
-                          //     .firstWhere((city) => city.naziv == newValue);
-                          // user.gradId = selectedCity.id;
-                        });
-                      },
-                      items: [
-                        DropdownMenuItem<String>(
-                          value: "Izaberite Grad :",
-                          child: Text("Izaberite Grad :"),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        DropdownButton<String>(
+                          value: _selectedGrad,
+                          isExpanded: true,
+                          icon: const Icon(Icons.arrow_drop_down),
+                          onChanged: (v) => setState(() {
+                            _selectedGrad = v;
+                            _gradErr = (_selectedGrad == null ||
+                                    _selectedGrad == 'Izaberite Grad :')
+                                ? 'Obavezno polje'
+                                : null;
+                          }),
+                          items: [
+                            const DropdownMenuItem(
+                              value: 'Izaberite Grad :',
+                              child: Text('Izaberite Grad :'),
+                            ),
+                            ...gradovi.map((g) => DropdownMenuItem(
+                                  value: g.naziv,
+                                  child: Text(g.naziv!),
+                                )),
+                          ],
                         ),
-                        ...gradovi.map((City grad) {
-                          return DropdownMenuItem<String>(
-                            value: grad.naziv,
-                            child: Text(grad.naziv!),
-                          );
-                        }).toList(),
+                        if (_gradErr != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
+                              _gradErr!,
+                              style: const TextStyle(
+                                  color: Colors.red, fontSize: 12),
+                            ),
+                          ),
                       ],
-                      icon: Icon(Icons.arrow_drop_down),
-                      isExpanded: true,
                     ),
                   ),
                 ],
               ),
             ),
             TextFieldWithTitle(
-              title: "Email:",
+              title: 'Email:',
               controller: _emailController,
-              onChanged: (value) {
-                if (!EmailValidator.validate(value)) {
-                  setState(() {
-                    _emailErrorText = "Neispravan format email-a!";
-                  });
-                } else {
-                  setState(() {
-                    _emailErrorText = null;
-                    //user?.email = value;
-                  });
-                }
-              },
-              errorText: _emailErrorText,
+              errorText: _emailErr,
+              onChanged: _validateEmail,
             ),
             TextFieldWithTitle(
-              title: "Broj telefona:",
+              title: 'Broj telefona:',
               controller: _brojTelefonaController,
-              onChanged: (value) {
-                if (!value
-                    .startsWith(RegExp(r'^[0-9]{3}\/[0-9]{3}-[0-9]{3}$'))) {
-                  setState(() {
-                    _brojTelefonaError = "Neispravan format broja telefona!";
-                  });
-                } else {
-                  setState(() {
-                    _brojTelefonaError = null;
-                    //user?.telefon = value;
-                  });
-                }
-              },
-              errorText: _brojTelefonaError,
+              errorText: _phoneErr,
+              onChanged: _validatePhone,
             ),
             TextFieldWithTitle(
-              title: "Lozinka:",
+              title: 'Lozinka:',
               controller: _passwordController,
-              onChanged: (value) {
-                if (value.length < 8) {
-                  setState(() {
-                    _passwordErrorText =
-                        "Minimalna dužina lozinke je 8 karaktera!";
-                  });
-                } else {
-                  setState(() {
-                    _passwordErrorText = null;
-                    user.password = value;
-                  });
-                }
-              },
-              errorText: _passwordErrorText,
               passwordField: true,
+              errorText: _passwordErr,
+              onChanged: _validatePass,
             ),
             TextFieldWithTitle(
-              title: "Potvrda lozinke:",
+              title: 'Potvrda lozinke:',
               controller: _passwordPotvrdaController,
-              onChanged: (value) {
-                if (_passwordPotvrdaController.text !=
-                    _passwordController.text) {
-                  setState(() {
-                    _passwordConfirmationErrorText =
-                        "Lozinka i potvrda lozinke se ne podudaraju!";
-                  });
-                } else {
-                  setState(() {
-                    _passwordConfirmationErrorText = null;
-                    user.password = value;
-                  });
-                }
-              },
-              errorText: _passwordConfirmationErrorText,
               passwordField: true,
+              errorText: _passwordConfErr,
+              onChanged: (v) => _setErr(() => _passwordConfErr =
+                  (v != _passwordController.text)
+                      ? 'Lozinke se ne podudaraju'
+                      : null),
             ),
             SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: (_passwordController.text ==
-                          _passwordPotvrdaController.text) &&
-                      _passwordController.text.length >= 8 &&
-                      _passwordPotvrdaController.text ==
-                          _passwordController.text
-                  // _selectedGrad != "Izaberite Grad :"
-                  ? () async {
-                      print("Button Pressed");
-                      _handleSave(context);
-                    }
-                  : null,
-              child: Text("Registriraj se"),
-            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                ),
+                onPressed: () async {
+                  await _handleSave(context);
+                },
+                child: const Text('Registruj se'),
+              ),
+            )
           ],
         ),
       ),
