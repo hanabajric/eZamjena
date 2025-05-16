@@ -2,6 +2,8 @@ import 'package:ezamjena_mobile/main.dart';
 import 'package:ezamjena_mobile/pages/exchange_pages/exchanege_requests.dart';
 import 'package:ezamjena_mobile/pages/product_pages/wishlist_overview.dart';
 import 'package:ezamjena_mobile/providers/user_provider.dart';
+import 'package:ezamjena_mobile/providers/wishlist_provider.dart';
+import 'package:ezamjena_mobile/providers/wishlistproduct_provider.dart';
 import 'package:ezamjena_mobile/utils/logged_in_usser.dart';
 import 'package:ezamjena_mobile/utils/utils.dart';
 import 'package:ezamjena_mobile/widets/custom_alert_dialog.dart';

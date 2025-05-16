@@ -88,27 +88,21 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context)
-        .size
-        .width; // Screen width for dynamic adjustment
+    double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       body: Padding(
-        padding: EdgeInsets.symmetric(
-            horizontal: screenWidth * 0.05), // Horizontal padding
+        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
         child: Column(
           children: <Widget>[
-            SizedBox(height: 20), // Adding some space at the top
+            SizedBox(height: 20),
             Padding(
-              padding: EdgeInsets.symmetric(
-                  horizontal: 20), // Local padding for the row
+              padding: EdgeInsets.symmetric(horizontal: 20),
               child: Row(
-                mainAxisAlignment:
-                    MainAxisAlignment.center, // Centering row content
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  // Dropdown for cities
                   Expanded(
-                    flex: 3, // Smaller part for the dropdown
+                    flex: 3,
                     child: DropdownButton<String>(
                       isExpanded: true,
                       value: selectedCityId,
@@ -127,22 +121,18 @@ class _UserProfilePageState extends State<UserProfilePage> {
                       }).toList(),
                     ),
                   ),
-                  SizedBox(width: 30), // Space between elements
-                  // Search field
+                  SizedBox(width: 30),
                   Expanded(
-                    flex: 5, // Larger part for the search field
+                    flex: 5,
                     child: TextField(
                       decoration: InputDecoration(
                         labelText: 'Pretraži po korisničkom imenu',
                         suffixIcon: Icon(Icons.search),
                         border: OutlineInputBorder(
-                          borderRadius:
-                              BorderRadius.circular(30), // Rounded corners
+                          borderRadius: BorderRadius.circular(30),
                         ),
-                        contentPadding: EdgeInsets.symmetric(
-                            vertical: 10,
-                            horizontal:
-                                20), // Reduced height and added horizontal padding
+                        contentPadding:
+                            EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                       ),
                       onChanged: (value) {
                         setState(() {
@@ -191,11 +181,9 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                       if (userDetails != null) {
                                         _showEditDialog(userDetails);
                                       } else {
-                                        // Handle null userDetails, maybe show a message or log it
                                         print('User details not found');
                                       }
                                     } else {
-                                      // Handle the case when _userProvider is still null
                                       print('User provider not initialized');
                                     }
                                   },
@@ -210,7 +198,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(SnackBar(
                                                 content: Text(
-                                                    'User ID is missing, cannot delete the user.')));
+                                                    'Korisnik nedostaje, nemoguće obrisati korisnika.')));
                                         return;
                                       }
                                       try {
@@ -218,7 +206,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(SnackBar(
                                                 content: Text(
-                                                    'User successfully deleted.')));
+                                                    'Korisnik uspješno obrisan.')));
                                         _loadUsers(); // Refresh the list after deletion
                                       } catch (e) {
                                         ScaffoldMessenger.of(context)
@@ -235,7 +223,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
                           ),
                         ),
             ),
-
             Align(
               alignment: Alignment.bottomRight,
               child: Padding(
@@ -309,12 +296,10 @@ class _UserProfilePageState extends State<UserProfilePage> {
       ),
     );
 
-    // Trigger the file download or sharing process
     await Printing.sharePdf(
         bytes: await pdf.save(), filename: 'user_report.pdf');
   }
 
-  // ▼ ubaci negdje u klasi (npr. ispod _priceValidator)  ──────────────────────
   String? _req(String? v) =>
       (v == null || v.trim().isEmpty) ? 'Obavezno polje' : null;
 
@@ -327,6 +312,13 @@ class _UserProfilePageState extends State<UserProfilePage> {
   String? _phoneV(String? v) =>
       _req(v) ??
       (!RegExp(r'^\+?[0-9]{7,15}$').hasMatch(v!) ? 'Neispravan broj' : null);
+
+  String? _gradValidator(String? v) {
+    if (v == null || v.trim().isEmpty || v == 'Svi gradovi') {
+      return 'Odaberite grad';
+    }
+    return null;
+  }
 
   Widget _tf(
     String label,
@@ -368,11 +360,9 @@ class _UserProfilePageState extends State<UserProfilePage> {
     );
   }
 
-// ────────────────────────────────────────────────────────────────────────────
   void _showEditDialog(User user) {
     final _formKey = GlobalKey<FormState>();
 
-    // ───── Kontroleri ─────
     final usernameC = TextEditingController(text: user.korisnickoIme);
     final nameC = TextEditingController(text: user.ime);
     final surnameC = TextEditingController(text: user.prezime);
@@ -477,7 +467,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                     selectedCity,
                                     cities.map((c) => c.naziv!).toList(),
                                     (v) => ss(() => selectedCity = v),
-                                    _req,
+                                    _gradValidator,
                                   ),
                                   _tf('Broj razmjena', exchC,
                                       keyboard: TextInputType.number),
