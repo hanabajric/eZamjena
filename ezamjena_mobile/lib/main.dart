@@ -164,6 +164,7 @@ class _HomePageState extends State<HomePage> {
         if (logged['userRole'] == 'Klijent') {
           await _userProvider.get(); // učitaj cache
           _userProvider.setPasswordChanged(false);
+
           Navigator.pushNamed(context, ProductListPage.routeName);
         } else {
           _showAlert('Pristup odbijen',
@@ -207,7 +208,7 @@ class _HomePageState extends State<HomePage> {
                 image: AssetImage('assets/images/login.png'),
                 fit: BoxFit.cover,
                 colorFilter: ColorFilter.mode(
-                  Colors.black.withOpacity(0.3), // Slight dark overlay
+                  Colors.black.withOpacity(0.3),
                   BlendMode.darken,
                 ),
               ),
@@ -261,9 +262,8 @@ class _HomePageState extends State<HomePage> {
                     Opacity(
                       opacity: 0.9,
                       child: Form(
-                        // <- ①
                         key: _formKey,
-                        onChanged: _updateCanSubmit, // <- ②
+                        onChanged: _updateCanSubmit,
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                         child: Container(
                           decoration: BoxDecoration(
@@ -272,7 +272,6 @@ class _HomePageState extends State<HomePage> {
                           ),
                           child: Column(
                             children: [
-                              // —— USERNAME ———————————————————
                               Padding(
                                 padding: const EdgeInsets.all(8),
                                 child: TextFormField(
@@ -288,7 +287,6 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               ),
                               const Divider(height: 1),
-                              // —— PASSWORD ———————————————————
                               Padding(
                                 padding: const EdgeInsets.all(8),
                                 child: TextFormField(
@@ -335,7 +333,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       child: InkWell(
-                        onTap: _canSubmit ? _handleLogin : null, //  ✔️
+                        onTap: _canSubmit ? _handleLogin : null,
                         child: const Center(
                           child: Text(
                             'Login',

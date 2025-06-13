@@ -90,7 +90,7 @@ builder.Services.AddAuthorization(options =>
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<Ib190019Context>(options =>
     options.UseSqlServer(connectionString));
-//builder.Services.AddDbContext<Ib190019Context>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 
 
 // RabbitMQ configuration
@@ -134,7 +134,7 @@ using (var scope = app.Services.CreateScope())
 {
     var database = scope.ServiceProvider.GetService<Ib190019Context>();
     new DBSetup().Init(database);
-    new DBSetup().InsertData(database);
+   new DBSetup().InsertData(database);
 }
 
 app.Run();

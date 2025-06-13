@@ -36,8 +36,8 @@ class _ProductListPagetState extends State<ProductListPage> {
   String _selectedCategory = "Sve kategorije";
   String _selectedCondition = "Svi proizvodi";
   bool _isLoading = true;
-  List<int> favoriteProductIds = [];
-  int? hoveredProductId;
+  // List<int> favoriteProductIds = [];
+  //int? hoveredProductId;
 
   TextEditingController _searchController = TextEditingController();
   @override
@@ -46,11 +46,16 @@ class _ProductListPagetState extends State<ProductListPage> {
     _productProvider = context.read<ProductProvider>();
     _productCategoryProvider = context.read<ProductCategoryProvider>();
     _ratingProvider = context.read<RatingProvider>();
-    _wishlistProvider = context.read<WishlistProvider>();
+    // _wishlistProvider = context.read<WishlistProvider>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context
+          .read<WishlistProductProvider>()
+          .ensureWishlistExists(context); // <── NOVO
+    });
 
     loadData();
     _loadCategories();
-    _loadWishlistProducts();
+    //_loadWishlistProducts();
   }
 
   Future<void> loadData() async {
@@ -82,88 +87,13 @@ class _ProductListPagetState extends State<ProductListPage> {
     }
   }
 
-  void toggleFavorite(Product product) async {
-    final userId = LoggedInUser.userId;
+  void toggleFavorite(Product p) async {
+    final wlp = context.read<WishlistProductProvider>();
 
-    if (userId == null) {
-      print("[ERROR] Korisnik nije prijavljen!");
-      return;
-    }
-
-    final wishlistProductProvider =
-        Provider.of<WishlistProductProvider>(context, listen: false);
-
-    print("[INFO] Ovo je proizvod ${product.id} .");
-
-    try {
-      // ✅ **Prvo provjeri da li korisnik već ima listu želja**
-      final existingWishlists =
-          await _wishlistProvider?.get({'korisnikId': userId});
-
-      Wishlist? wishlist;
-
-      if (existingWishlists != null && existingWishlists.isNotEmpty) {
-        wishlist = existingWishlists.first;
-        print("[INFO] Postojeća lista želja ID: ${wishlist.id}");
-      } else {
-        wishlist = await _wishlistProvider?.insert({
-          'korisnikId': userId,
-          'createdAt': DateTime.now().toIso8601String(),
-        });
-
-        if (wishlist == null) {
-          print("[ERROR] Neuspješno umetanje liste želja.");
-          return;
-        }
-        print("[INFO] Kreirana nova lista želja ID: ${wishlist.id}");
-      }
-
-      if (wishlist == null) {
-        print("[ERROR] Lista želja je null nakon provjere.");
-        return;
-      }
-
-      if (favoriteProductIds.contains(product.id)) {
-        setState(() {
-          favoriteProductIds.remove(product.id);
-        });
-
-        print("[DEBUG] Šaljem zahtjev za uklanjanje proizvoda:");
-        print("Proizvod ID: ${product.id}");
-        // Pronađi WishlistItem koji sadrži product.id
-        final wishlistItem = wishlistProductProvider.wishlistProducts
-            .firstWhere((item) => item.proizvodId == product.id);
-
-        if (wishlistItem != null) {
-          print(
-              "[INFO] Brišem proizvod iz wishlist-e sa ID: ${wishlistItem.id}");
-          await wishlistProductProvider.delete(wishlistItem.id);
-        }
-      } else {
-        setState(() {
-          favoriteProductIds.add(product.id!);
-        });
-
-        print("[INFO] Dodajem proizvod ID: ${product.id} u listu želja.");
-
-        final response = await wishlistProductProvider.insert({
-          'listaZeljaId': wishlist.id,
-          'proizvodId': product.id!,
-          'vrijemeDodavanja': DateTime.now().toIso8601String(),
-          'korisnikId': userId
-        });
-
-        print("[DEBUG] Odgovor API-ja: $response");
-
-        if (response == null) {
-          print(
-              "[ERROR] API je vratio null! Proizvod nije dodat u listu želja.");
-          return;
-        }
-      }
-    } catch (e, stacktrace) {
-      print("[ERROR] Greška prilikom umetanja liste želja: $e");
-      print("[STACKTRACE] $stacktrace");
+    if (wlp.containsProduct(p.id!)) {
+      await wlp.removeFromWishlistByProductId(p.id!);
+    } else {
+      await wlp.addToWishlist(context, p.id!);
     }
   }
 
@@ -288,19 +218,25 @@ class _ProductListPagetState extends State<ProductListPage> {
   }
 
   Future<void> _applyFilters() async {
-    var searchRequest = {
-      'naziv': _searchController.text,
-      'nazivKategorije':
-          _selectedCategory == "Sve kategorije" ? null : _selectedCategory,
-      'novo': _selectedCondition == "Svi proizvodi"
-          ? null
-          : _selectedCondition == "Novo",
+    final Map<String, dynamic> params = {
+      'statusProizvodaId': 1,
     };
-    var tmpData = await _productProvider?.get(searchRequest);
+
+    final naziv = _searchController.text.trim();
+    if (naziv.isNotEmpty) params['naziv'] = naziv;
+
+    if (_selectedCategory != 'Sve kategorije') {
+      params['nazivKategorije'] = _selectedCategory;
+    }
+
+    if (_selectedCondition != 'Svi proizvodi') {
+      params['novo'] = _selectedCondition == 'Novo';
+    }
+
+    final tmp = await _productProvider?.get(params);
+
     setState(() {
-      data = tmpData!
-          .where((product) => product.korisnikId != LoggedInUser.userId)
-          .toList();
+      data = tmp!.where((p) => p.korisnikId != LoggedInUser.userId).toList();
     });
   }
 
@@ -331,50 +267,24 @@ class _ProductListPagetState extends State<ProductListPage> {
     }).toList();
   }
 
-  Future<void> _loadWishlistProducts() async {
-    final userId = LoggedInUser.userId;
-    if (userId == null) return;
-
-    try {
-      final wishlistProvider =
-          Provider.of<WishlistProvider>(context, listen: false);
-      final wishlistProductProvider =
-          Provider.of<WishlistProductProvider>(context, listen: false);
-
-      final wishlist = await wishlistProvider.getOrCreateWishlist(userId);
-      if (wishlist != null && wishlist.id != null) {
-        await wishlistProductProvider.fetchWishlistProducts(wishlist.id);
-
-        setState(() {
-          favoriteProductIds = wishlistProductProvider.wishlistProducts
-              .map((item) => item.proizvodId)
-              .toList();
-        });
-      }
-    } catch (e) {
-      print("[ERROR] Greška pri učitavanju wishlist proizvoda: $e");
-    }
-  }
-
   List<Widget> _buildProductCardList() {
+    final wlp = context.watch<WishlistProductProvider>();
+
     if (data.isEmpty) {
       return [
-        Text(
-          "Trenutno nema proizvoda.",
-          style: TextStyle(fontSize: 20),
-        )
+        const Text('Trenutno nema proizvoda.', style: TextStyle(fontSize: 20))
       ];
     }
 
     return data.map((product) {
       final imageWidget = product.slika != null
           ? imageFromBase64String(product.slika!)
-          : Container();
+          : const SizedBox.shrink();
 
-      final isFavorite = favoriteProductIds.contains(product.id);
+      final isFav = wlp.containsProduct(product.id!);
 
       return Padding(
-        padding: EdgeInsets.all(8),
+        padding: const EdgeInsets.all(8),
         child: Column(
           children: [
             Stack(
@@ -382,58 +292,29 @@ class _ProductListPagetState extends State<ProductListPage> {
                 AspectRatio(
                   aspectRatio: 1,
                   child: InkWell(
-                    onTap: () {
-                      Navigator.pushNamed(context,
-                          "${ProductDetailsPage.routeName}/${product.id}");
-                    },
-                    child: Container(
-                      child: imageWidget,
-                    ),
+                    onTap: () => Navigator.pushNamed(context,
+                        "${ProductDetailsPage.routeName}/${product.id}"),
+                    child: imageWidget,
                   ),
                 ),
                 Positioned(
                   top: 8,
                   right: 8,
-                  child: MouseRegion(
-                    onEnter: (_) => setState(() {
-                      hoveredProductId = product.id;
-                    }),
-                    onExit: (_) => setState(() {
-                      hoveredProductId = null;
-                    }),
-                    child: GestureDetector(
-                      onTap: () {
-                        toggleFavorite(product);
-                      },
-                      child: Container(
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Icon(
-                              Icons.favorite_border,
-                              color: Colors.black,
-                              size: 28,
-                            ),
-                            Icon(
-                              Icons.favorite,
-                              color: favoriteProductIds.contains(product.id)
-                                  ? Colors.red
-                                  : (hoveredProductId == product.id
-                                      ? Colors.red
-                                      : Colors.white),
-                              size: 24,
-                            ),
-                          ],
-                        ),
-                      ),
+                  child: GestureDetector(
+                    onTap: () => toggleFavorite(product),
+                    child: Icon(
+                      isFav ? Icons.favorite : Icons.favorite_border,
+                      color: isFav ? Colors.red : Colors.grey.shade700,
+                      size: 28,
                     ),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 8),
-            Text(product.naziv ?? ""),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
+            Text(product.naziv ?? ''),
+            const SizedBox(height: 8),
+            /*──────────────  ocjenjivanje  ─────────────*/
             RatingBar.builder(
               initialRating: 0,
               minRating: 1,
@@ -441,13 +322,9 @@ class _ProductListPagetState extends State<ProductListPage> {
               allowHalfRating: false,
               itemCount: 5,
               itemSize: 20,
-              itemBuilder: (context, _) => Icon(
-                Icons.star,
-                color: Colors.yellow,
-              ),
-              onRatingUpdate: (rating) async {
-                await submitRating(rating, product.id!);
-              },
+              itemBuilder: (_, __) =>
+                  const Icon(Icons.star, color: Colors.yellow),
+              onRatingUpdate: (r) => submitRating(r, product.id!),
             ),
           ],
         ),

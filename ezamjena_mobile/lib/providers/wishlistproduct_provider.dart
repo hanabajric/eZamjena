@@ -1,89 +1,102 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart'; //  ←  READ / WATCH
+import 'package:collection/collection.dart'; //  ←  firstWhereOrNull
 import 'package:ezamjena_mobile/model/wishlist_item.dart';
-import 'wishlist_provider.dart';
+import 'package:ezamjena_mobile/providers/wishlist_provider.dart';
+import 'package:ezamjena_mobile/utils/logged_in_usser.dart';
 import 'base_provider.dart';
 
 class WishlistProductProvider extends BaseProvider<WishlistItem> {
-  WishlistProductProvider() : super("ListaZeljaProizvod");
+  WishlistProductProvider() : super('ListaZeljaProizvod');
 
   @override
-  WishlistItem fromJson(data) {
-    return WishlistItem.fromJson(data);
-  }
+  WishlistItem fromJson(data) => WishlistItem.fromJson(data);
 
-  List<WishlistItem> _wishlistProducts = [];
-  bool _isLoading = false;
+/*────────────────────  STATE  ────────────────────*/
+  final List<WishlistItem> _items = [];
+  int? _wlId;
+  bool _loading = false;
 
-  List<WishlistItem> get wishlistProducts => _wishlistProducts;
-  bool get isLoading => _isLoading;
+  bool get isLoading => _loading;
+  List<WishlistItem> get wishlistProducts => List.unmodifiable(_items);
+  bool containsProduct(int id) => _items.any((e) => e.proizvodId == id);
 
-  // Dodavanje proizvoda na wishlist
-  Future<void> addToWishlist(int userId, int productId) async {
-    try {
-      // Prvo dohvatiti ili kreirati listu želja
-      var wishlistProvider = WishlistProvider();
-      var wishlist = await wishlistProvider.getOrCreateWishlist(userId);
-
-      if (wishlist != null) {
-        var wishlistItem = {
-          'listaZeljaId': wishlist.id,
-          'proizvodId': productId,
-          'vrijemeDodavanja': DateTime.now().toIso8601String(),
-        };
-
-        var newItem =
-            await insert(wishlistItem); // Koristi insert iz BaseProvider
-        if (newItem != null) {
-          _wishlistProducts.add(newItem);
-          notifyListeners();
-        }
-      }
-    } catch (e) {
-      print("Greška pri dodavanju proizvoda u wishlist: $e");
-    }
-  }
-
-  Future<void> fetchWishlistProducts(int wishlistId) async {
-    _isLoading = true;
+  void clear() {
+    // ←  JEDINA “reset” metoda
+    _items.clear();
+    _wlId = null;
+    _loading = false;
     notifyListeners();
+  }
+
+/*──────────────  INIT  &  FETCH  ──────────────*/
+  Future<void> ensureWishlistExists(BuildContext ctx) async {
+    final uid = LoggedInUser.userId;
+    if (uid == null) return;
+
+    final wlProv = ctx.read<WishlistProvider>();
+    final wl = await wlProv.getOrCreateWishlist(uid);
+    if (wl == null) return;
+
+    _wlId = wl.id;
+    await fetchWishlistProducts(_wlId!);
+  }
+
+  Future<void> fetchWishlistProducts(int listaZeljaId) async {
+    _loading = true;
+    notifyListeners();
+    debugPrint('[WLP] → GET   ?ListaZeljaId=$listaZeljaId');
+    try {
+      final data = await get({
+        // parametar mora biti ISTOG imena
+        'ListaZeljaId': listaZeljaId // kao u swagger-u
+      });
+      debugPrint('[WLP] ← dobio ${data.length} item(a)');
+
+      _items
+        ..clear()
+        ..addAll(data.map((e) => e is WishlistItem
+            ? e
+            : WishlistItem.fromJson(e as Map<String, dynamic>)));
+    } finally {
+      _loading = false;
+      notifyListeners();
+    }
+  }
+
+/*──────────────  ADD  /  REMOVE  ──────────────*/
+  Future<void> addToWishlist(BuildContext ctx, int productId) async {
+    if (_wlId == null) await ensureWishlistExists(ctx);
+    if (_wlId == null || containsProduct(productId)) return;
+
+    final body = {
+      'listaZeljaId': _wlId,
+      'proizvodId': productId,
+      'vrijemeDodavanja': DateTime.now().toIso8601String(),
+      'korisnikId': LoggedInUser.userId,
+    };
 
     try {
-      var data = await get({"listaZeljaId": wishlistId});
-
-      print("[DEBUG] API Response Type: ${data.runtimeType}");
-      print("[DEBUG] API Response Data: $data");
-
-      if (data is List) {
-        if (data.isNotEmpty && data.first is WishlistItem) {
-          print("[DEBUG] API je vratio listu WishlistItem objekata.");
-          _wishlistProducts =
-              data.cast<WishlistItem>(); // Samo ih dodaj u listu
-        } else {
-          print("[DEBUG] API je vratio JSON listu, parsiram...");
-          _wishlistProducts = data
-              .map(
-                  (item) => WishlistItem.fromJson(item as Map<String, dynamic>))
-              .toList();
-        }
-      } else {
-        print("[ERROR] API nije vratio listu! Tip: ${data.runtimeType}");
-      }
-    } catch (e, stacktrace) {
-      print("[ERROR] Greška pri dohvaćanju proizvoda iz wishlist: $e");
-      print("[STACKTRACE] $stacktrace");
+      final wi = await insert(body); //  BaseProvider vraća WishlistItem
+      _items.add(wi as WishlistItem); //  ←  više nema cast-a na Map
+      notifyListeners();
+    } catch (e) {
+      debugPrint('[Wishlist] insert failed → $e'); // npr. duplikat
     }
+  }
 
-    _isLoading = false;
+  Future<void> removeFromWishlistByProductId(int id) async {
+    final w = _items.firstWhereOrNull((e) => e.proizvodId == id);
+    if (w == null) return;
+
+    await delete(w.id);
+    _items.remove(w);
     notifyListeners();
   }
 
   Future<void> removeFromWishlist(int wishlistItemId) async {
-    try {
-      await delete(wishlistItemId);
-      _wishlistProducts.removeWhere((item) => item.id == wishlistItemId);
-      notifyListeners();
-    } catch (e) {
-      print("Greška pri uklanjanju proizvoda iz wishlist: $e");
-    }
+    await delete(wishlistItemId);
+    _items.removeWhere((e) => e.id == wishlistItemId);
+    notifyListeners();
   }
 }

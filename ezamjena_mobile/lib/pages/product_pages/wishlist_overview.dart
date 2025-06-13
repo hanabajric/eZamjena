@@ -24,19 +24,17 @@ class WishlistScreenState extends State<WishlistScreen> {
   }
 
   Future<void> _fetchWishlist() async {
-    final wishlistProvider =
-        Provider.of<WishlistProvider>(context, listen: false);
-    final wishlistProductProvider =
-        Provider.of<WishlistProductProvider>(context, listen: false);
-    final userId = LoggedInUser.userId;
+    final wlp = context.read<WishlistProductProvider>();
+    final wlProv = context.read<WishlistProvider>();
 
-    if (userId != null) {
-      final wishlist = await wishlistProvider.getOrCreateWishlist(userId);
-      if (wishlist != null && wishlist.id != null) {
-        await wishlistProductProvider.fetchWishlistProducts(wishlist.id);
-      }
-    } else {
-      print("Korisnik nije prijavljen!");
+    wlp.clear();
+
+    final uid = LoggedInUser.userId;
+    if (uid == null) return;
+
+    final wl = await wlProv.getOrCreateWishlist(uid);
+    if (wl != null && wl.id != null) {
+      await wlp.fetchWishlistProducts(wl.id!);
     }
   }
 

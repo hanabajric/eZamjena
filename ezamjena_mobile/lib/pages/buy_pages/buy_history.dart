@@ -28,6 +28,7 @@ class _BuyHistoryPageState extends State<BuyHistoryPage> {
   List<Buy> buys = [];
   BuyProvider? _buyProvider = null;
   bool _isLoading = true;
+  DateTime? _selectedDate;
 
   @override
   void initState() {
@@ -115,6 +116,7 @@ class _BuyHistoryPageState extends State<BuyHistoryPage> {
               );
 
               if (selectedDate != null) {
+                _selectedDate = selectedDate;
                 var dateFormatter = DateFormat('yyyy-MM-dd');
                 var formattedDate = dateFormatter.format(selectedDate);
                 var tmpData = await _buyProvider?.get({'datum': formattedDate});
@@ -128,6 +130,19 @@ class _BuyHistoryPageState extends State<BuyHistoryPage> {
             },
             child: Text("Odaberi datum"),
           ),
+
+          const SizedBox(width: 10),
+
+          /// ───────────  OČISTI  ───────────
+          if (_selectedDate != null)
+            OutlinedButton.icon(
+              icon: const Icon(Icons.clear),
+              label: const Text("Prikaži sve"),
+              onPressed: () async {
+                _selectedDate = null; // reset
+                await loadData(); // ponovno učitaj sve
+              },
+            ),
         ],
       ),
     );
@@ -143,7 +158,7 @@ class _BuyHistoryPageState extends State<BuyHistoryPage> {
           borderRadius: BorderRadius.circular(10),
         ),
         child: Text(
-          "Trenutno nemate nijednu kupovinu u istoriji kupovina",
+          "Trenutno nemate nijednu kupovinu u historiji kupovina",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
       );

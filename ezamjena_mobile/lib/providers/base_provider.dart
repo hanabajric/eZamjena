@@ -51,7 +51,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
     }
   }
 
-  Future<List<T>> get([dynamic search]) async {
+  /* Future<List<T>> get([dynamic search]) async {
     var url = "$_baseUrl$_endpoint";
     print('Endpoint za ovu strannicu je: $_endpoint');
     if (search != null) {
@@ -74,6 +74,29 @@ abstract class BaseProvider<T> with ChangeNotifier {
     } else {
       throw Exception("Exception... handle this gracefully");
     }
+  }
+*/
+  Future<List<T>> get([Map<String, dynamic>? search]) async {
+    // 1) osnovni uri
+    var uri = Uri.parse('$_baseUrl$_endpoint');
+
+    // 2) dodaj upitne parametre (ako ih ima)
+    if (search != null && search.isNotEmpty) {
+      // .map() da sve bude String → String
+      final qp = search.map((k, v) => MapEntry(k, v.toString()));
+      uri = uri.replace(queryParameters: qp);
+    }
+
+    debugPrint('[GET] $uri'); //  ←  vidiš točan URL
+
+    final response = await http!.get(uri, headers: createHeaders());
+
+    if (!isValidResponseCode(response)) {
+      throw Exception('GET $_endpoint : ${response.statusCode}');
+    }
+
+    final data = jsonDecode(response.body);
+    return (data ?? []).map<T>((e) => fromJson(e)).toList();
   }
 
   Future<T?> insert(dynamic request) async {

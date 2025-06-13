@@ -10,30 +10,25 @@ class WishlistProvider extends BaseProvider<Wishlist> {
   }
 
   Future<Wishlist?> getOrCreateWishlist(int userId) async {
-    try {
-      var response = await get({"korisnikId": userId});
+    debugPrint('[WL] → GET   ?korisnikId=$userId');
+    // ①  ispravno ime parametra →   "KorisnikId"
+    final list = await get({'KorisnikId': userId}); // ključ KAO u Swagger-u
+    if (list.isNotEmpty) return list.first;
 
-      if (response != null && response.isNotEmpty) {
-        return response
-            .first; // ✅ Response je već Wishlist, ne treba ponovni fromJson
-      } else {
-        // Ako lista ne postoji, kreiraj novu
-        var newWishlist = {
-          "korisnikId": userId,
-          "createdAt": DateTime.now().toIso8601String(),
-        };
+    debugPrint('[WL] ← ${list.length} item(s) za user=$userId');
 
-        try {
-          var createdWishlist = await insert(newWishlist);
-          return Wishlist.fromJson(createdWishlist as Map<String, dynamic>);
-        } catch (e) {
-          print("Greška pri kreiranju liste želja: $e");
-          return null;
-        }
-      }
-    } catch (e) {
-      print("Greška pri dohvaćanju liste želja: $e");
-      return null;
-    }
+    if (list != null && list.isNotEmpty) return list.first;
+
+    // ②  nije postojalo → kreiramo
+    final body = {
+      "korisnikId": userId, // payload ostaje camelCase
+      "createdAt": DateTime.now().toIso8601String(),
+    };
+
+    debugPrint('[WL] → POST  $body');
+    final json = await insert(body);
+    debugPrint('[WL] ← kreirana WL  $json');
+
+    return Wishlist.fromJson(json as Map<String, dynamic>);
   }
 }

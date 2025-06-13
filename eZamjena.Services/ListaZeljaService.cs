@@ -18,20 +18,15 @@ namespace eZamjena.Services
 
         public override IQueryable<Database.ListaZelja> AddFilter(IQueryable<Database.ListaZelja> query, ListaZeljaSearchObject search = null)
         {
-            var filteredQuery = base.AddFilter(query, search);
+            query = base.AddFilter(query, search);
 
-            if (search?.KorisnikId != null && search.KorisnikId > 0)
-            {
-                filteredQuery = filteredQuery.Where(x => x.KorisnikId == search.KorisnikId);
-            }
+            if (search?.KorisnikId.HasValue == true && search.KorisnikId > 0)
+                query = query.Where(x => x.KorisnikId == search.KorisnikId);
 
-            if (search?.CreatedAt != null)
-            {
-                filteredQuery = filteredQuery.Where(x => x.CreatedAt.Date == search.CreatedAt.Date);
-            }
+            if (search?.CreatedAt.HasValue == true)
+                query = query.Where(x => x.CreatedAt.Date == search.CreatedAt.Value.Date);
 
-
-            return filteredQuery;
+            return query;
         }
         public override IEnumerable<Model.ListaZelja> Get(ListaZeljaSearchObject search = null)
         {
@@ -39,7 +34,7 @@ namespace eZamjena.Services
                         //.Include(x => x.ListaZeljaProizvods)
                         .AsQueryable();
 
-            //query = AddFilter(query, search);
+            query = AddFilter(query, search);
 
             var list = query.ToList();
             System.Diagnostics.Debug.WriteLine($"Pronađeno lista želja: {list.Count}");

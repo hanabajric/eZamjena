@@ -26,6 +26,7 @@ class _ExchangeHistoryPageState extends State<ExchangeHistoryPage> {
   List<Trade> trades = [];
   ExchangeProvider? _exchangeProvider = null;
   bool _isLoading = true;
+  DateTime? _selectedDate;
 
   @override
   void initState() {
@@ -34,12 +35,6 @@ class _ExchangeHistoryPageState extends State<ExchangeHistoryPage> {
     loadData();
   }
 
-//   @override
-// void didChangeDependencies() {
-//   super.didChangeDependencies();
-//   _exchangeProvider = context.read<ExchangeProvider>();
-//   loadData();
-// }
   Future loadData() async {
     setState(() {
       _isLoading = true;
@@ -72,8 +67,6 @@ class _ExchangeHistoryPageState extends State<ExchangeHistoryPage> {
               _isLoading
                   ? CircularProgressIndicator()
                   : buildExchangeList(trades),
-
-              // Add other widgets here
             ],
           ),
         ),
@@ -118,6 +111,7 @@ class _ExchangeHistoryPageState extends State<ExchangeHistoryPage> {
               );
 
               if (selectedDate != null) {
+                _selectedDate = selectedDate;
                 var dateFormatter = DateFormat('yyyy-MM-dd');
                 var formattedDate = dateFormatter.format(selectedDate);
                 print("ovo je formatirani datum : " + formattedDate);
@@ -127,14 +121,25 @@ class _ExchangeHistoryPageState extends State<ExchangeHistoryPage> {
                 setState(() {
                   trades = tmpData
                       .where((trade) =>
-                          trade.korisnik1Id == LoggedInUser.userId ||
-                          trade.korisnik2Id == LoggedInUser.userId)
+                          (trade.korisnik1Id == LoggedInUser.userId ||
+                              trade.korisnik2Id == LoggedInUser.userId) &&
+                          trade.statusRazmjeneId == 2)
                       .toList();
                 });
               }
             },
             child: Text("Odaberi datum"),
           ),
+          const SizedBox(width: 10),
+          if (_selectedDate != null)
+            OutlinedButton.icon(
+              icon: const Icon(Icons.clear),
+              label: const Text("Prikaži sve"),
+              onPressed: () async {
+                _selectedDate = null;
+                await loadData();
+              },
+            ),
         ],
       ),
     );

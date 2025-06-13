@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
@@ -35,6 +36,11 @@ class _NewProductPageState extends State<NewProductPage> {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final ImagePicker _imagePicker = ImagePicker();
+  bool _formValid = false;
+  bool _pickingImage = false;
+  AutovalidateMode _autoMode = AutovalidateMode.disabled;
+  void _enableAutoValidate() =>
+      setState(() => _autoMode = AutovalidateMode.onUserInteraction);
 
   @override
   void initState() {
@@ -55,18 +61,27 @@ class _NewProductPageState extends State<NewProductPage> {
   }
 
   Future<void> _addPicture() async {
-    final pickedFile =
-        await _imagePicker.pickImage(source: ImageSource.gallery);
+    if (_pickingImage) return;
 
-    if (pickedFile != null) {
-      final fileBytes = await File(pickedFile.path).readAsBytes();
-      final String base64String = base64Encode(fileBytes);
+    try {
+      _pickingImage = true;
+      final picked = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+      );
 
+      if (picked == null) return;
+
+      final bytes = await File(picked.path).readAsBytes();
       setState(() {
-        data = (data ?? Product())..slika = base64String;
+        data = (data ?? Product())..slika = base64Encode(bytes);
       });
-    } else {
-      print("No image selected.");
+    } on PlatformException catch (e) {
+      debugPrint('⚠️ ImagePicker error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Nije moguće otvoriti galeriju.')),
+      );
+    } finally {
+      _pickingImage = false;
     }
   }
 
@@ -97,10 +112,12 @@ class _NewProductPageState extends State<NewProductPage> {
         _nazivController.clear();
         _procijenjenaCijenaController.clear();
         _opisController.clear();
+
         setState(() {
           data = null;
           selectedCategory = null;
           isNew = false;
+          _autoMode = AutovalidateMode.disabled;
         });
       } else {
         throw Exception('Failed to add the product');
@@ -113,6 +130,11 @@ class _NewProductPageState extends State<NewProductPage> {
     }
   }
 
+  void _updateFormState() {
+    final valid = _formKey.currentState?.validate() ?? false;
+    setState(() => _formValid = valid);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -120,7 +142,9 @@ class _NewProductPageState extends State<NewProductPage> {
       body: SingleChildScrollView(
         padding: EdgeInsets.all(10),
         child: Form(
-          key: _formKey, // Use the GlobalKey here
+          key: _formKey,
+          autovalidateMode: _autoMode,
+          onChanged: _updateFormState,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -132,18 +156,29 @@ class _NewProductPageState extends State<NewProductPage> {
                     onPressed: () {
                       Navigator.pop(context); // cancel logic
                     },
-                    child: Text('Odustani'),
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(
-                        Color.fromARGB(255, 213, 71, 60),
-                      ),
+                    child: const Text('Odustani'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFD5473C), // crvena
+                      foregroundColor: Colors.white, // bijeli tekst
+                      // ako si još na Material 2:
+                      // primary: Color(0xFFD5473C),
+                      // onPrimary: Colors.white,
                     ),
                   ),
                   Spacer(),
                   ElevatedButton(
-                    onPressed: addProduct,
-                    child: Text('Dodaj'),
-                  ),
+                    // ①  gasi dugme kad _formValid == false
+                    onPressed: _formValid ? addProduct : null,
+
+                    // ②  (opcionalno) prilagodi boje za enabled/disabled stanja
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          _formValid ? Colors.deepPurple : Colors.grey.shade300,
+                      foregroundColor:
+                          _formValid ? Colors.white : Colors.grey.shade600,
+                    ),
+                    child: const Text('Dodaj'),
+                  )
                 ],
               ),
             ],
