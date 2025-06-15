@@ -119,11 +119,15 @@ class _ExchangeRequestsPageState extends State<ExchangeRequestsPage> {
           Text(trade.proizvod2?.naziv ?? 'Nepoznat proizvod',
               style: TextStyle(fontWeight: FontWeight.bold)),
           Text(
-              'Kategorija:${trade.proizvod2?.kategorijaProizvoda?.naziv}'), // Ovdje trebaš mapirati ID na naziv kategorije trade.proizvod2?.nazivKategorijeProizvoda
+            'za ${trade.proizvod1?.naziv ?? ''}',
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Text('Kategorija:${trade.proizvod2?.nazivKategorijeProizvoda}'),
+          Text('Procjenjena cijena:${trade.proizvod2?.cijena} '),
           Text(
-              'Procjenjena cijena:${trade.proizvod2?.cijena} '), //trade.proizvod2?.cijena
-          Text(
-              'Stanje:${trade.proizvod2?.stanjeNovo ?? false ? 'Novo' : 'Polovno'}'), //   ${} trade.proizvod2?.stanjeNovo ?? false ? 'Novo' : 'Polovno'
+              'Stanje:${trade.proizvod2?.stanjeNovo ?? false ? 'Novo' : 'Polovno'}'),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [

@@ -178,37 +178,42 @@ class _RequestHistoryPageState extends State<RequestHistoryPage> {
 
     // Add a page to the PDF
     pdf.addPage(
-      pw.Page(
-        build: (pw.Context context) => pw.Column(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+        margin: const pw.EdgeInsets.all(24),
+        header: (pw.Context ctx) => pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
-            pw.Text(title, style: pw.TextStyle(font: ttf, fontSize: 24)),
+            pw.Text(title, style: pw.TextStyle(font: ttf, fontSize: 18)),
+            pw.SizedBox(height: 8),
             pw.Divider(),
-            pw.ListView.builder(
-              itemCount: trades.length,
-              itemBuilder: (context, index) {
-                final trade = trades[index];
-                return pw.Column(
-                  children: [
-                    pw.Text("User 1: ${trade.korisnik1Id ?? 'Unknown'}",
-                        style: pw.TextStyle(font: ttf)),
-                    pw.Text(
-                        "Product 1: ${trade.proizvod1Naziv ?? 'No product'}",
-                        style: pw.TextStyle(font: ttf)),
-                    pw.Text("User 2: ${trade.korisnik2Id ?? 'Unknown'}",
-                        style: pw.TextStyle(font: ttf)),
-                    pw.Text(
-                        "Product 2: ${trade.proizvod2Naziv ?? 'No product'}",
-                        style: pw.TextStyle(font: ttf)),
-                    pw.Text(
-                        "Date: ${trade.datum != null ? DateFormat('yyyy-MM-dd').format(trade.datum!) : 'No date'}",
-                        style: pw.TextStyle(font: ttf)),
-                    pw.Divider(),
-                  ],
-                );
-              },
-            ),
           ],
         ),
+        build: (pw.Context ctx) => [
+          pw.Table.fromTextArray(
+            headerStyle:
+                pw.TextStyle(font: ttf, fontWeight: pw.FontWeight.bold),
+            cellStyle: pw.TextStyle(font: ttf),
+            headers: const [
+              'Korisnik 1',
+              'Proizvod 1',
+              'Korisnik 2',
+              'Proizvod 2',
+              'Datum'
+            ],
+            data: trades
+                .map((t) => [
+                      t.korisnik1 ?? '',
+                      t.proizvod1Naziv ?? '',
+                      t.korisnik2 ?? '',
+                      t.proizvod2Naziv ?? '',
+                      t.datum != null
+                          ? DateFormat('yyyy-MM-dd').format(t.datum!)
+                          : '',
+                    ])
+                .toList(),
+          ),
+        ],
       ),
     );
 

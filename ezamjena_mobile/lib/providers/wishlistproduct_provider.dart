@@ -12,7 +12,6 @@ class WishlistProductProvider extends BaseProvider<WishlistItem> {
   @override
   WishlistItem fromJson(data) => WishlistItem.fromJson(data);
 
-/*────────────────────  STATE  ────────────────────*/
   final List<WishlistItem> _items = [];
   int? _wlId;
   bool _loading = false;
@@ -22,14 +21,12 @@ class WishlistProductProvider extends BaseProvider<WishlistItem> {
   bool containsProduct(int id) => _items.any((e) => e.proizvodId == id);
 
   void clear() {
-    // ←  JEDINA “reset” metoda
     _items.clear();
     _wlId = null;
     _loading = false;
     notifyListeners();
   }
 
-/*──────────────  INIT  &  FETCH  ──────────────*/
   Future<void> ensureWishlistExists(BuildContext ctx) async {
     final uid = LoggedInUser.userId;
     if (uid == null) return;
@@ -45,13 +42,8 @@ class WishlistProductProvider extends BaseProvider<WishlistItem> {
   Future<void> fetchWishlistProducts(int listaZeljaId) async {
     _loading = true;
     notifyListeners();
-    debugPrint('[WLP] → GET   ?ListaZeljaId=$listaZeljaId');
     try {
-      final data = await get({
-        // parametar mora biti ISTOG imena
-        'ListaZeljaId': listaZeljaId // kao u swagger-u
-      });
-      debugPrint('[WLP] ← dobio ${data.length} item(a)');
+      final data = await get({'ListaZeljaId': listaZeljaId});
 
       _items
         ..clear()
@@ -64,7 +56,6 @@ class WishlistProductProvider extends BaseProvider<WishlistItem> {
     }
   }
 
-/*──────────────  ADD  /  REMOVE  ──────────────*/
   Future<void> addToWishlist(BuildContext ctx, int productId) async {
     if (_wlId == null) await ensureWishlistExists(ctx);
     if (_wlId == null || containsProduct(productId)) return;
@@ -77,11 +68,11 @@ class WishlistProductProvider extends BaseProvider<WishlistItem> {
     };
 
     try {
-      final wi = await insert(body); //  BaseProvider vraća WishlistItem
-      _items.add(wi as WishlistItem); //  ←  više nema cast-a na Map
+      final wi = await insert(body);
+      _items.add(wi as WishlistItem);
       notifyListeners();
     } catch (e) {
-      debugPrint('[Wishlist] insert failed → $e'); // npr. duplikat
+      debugPrint('[Wishlist] insert failed → $e');
     }
   }
 

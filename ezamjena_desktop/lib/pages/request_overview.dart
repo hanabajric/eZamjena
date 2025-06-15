@@ -187,8 +187,8 @@ class _RequestOverviewPageState extends State<RequestOverviewPage> {
                           return DataRow(
                             cells: <DataCell>[
                               DataCell(Text(product.naziv ?? '')),
-                              DataCell(Text(
-                                  product.kategorijaProizvoda?.naziv ?? '')),
+                              DataCell(
+                                  Text(product.nazivKategorijeProizvoda ?? '')),
                               DataCell(Text(product.opis ?? '')),
                               DataCell(Text(product.cijena?.toString() ?? '')),
                               DataCell(product.slika != null

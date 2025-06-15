@@ -108,10 +108,13 @@ namespace eZamjena.Services
           
             entity = AddFilter(entity, search);
 
-            if (search?.Page.HasValue == true && search?.PageSize.HasValue == true)
+            if (search?.Page is int page && search?.PageSize is int size)
             {
-                entity = entity.Take(search.Page.Value).Skip(search.PageSize.Value * search.Page.Value);
+                entity = entity
+                    .Skip((page - 1) * size)  
+                    .Take(size);               
             }
+
 
             var list = entity.ToList();
             

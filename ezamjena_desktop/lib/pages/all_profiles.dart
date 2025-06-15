@@ -193,29 +193,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                     padding: EdgeInsets.zero,
                                     constraints: BoxConstraints(),
                                     icon: Icon(Icons.delete),
-                                    onPressed: () async {
-                                      if (user.id == null) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(SnackBar(
-                                                content: Text(
-                                                    'Korisnik nedostaje, nemoguće obrisati korisnika.')));
-                                        return;
-                                      }
-                                      try {
-                                        await _userProvider?.delete(user.id!);
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(SnackBar(
-                                                content: Text(
-                                                    'Korisnik uspješno obrisan.')));
-                                        _loadUsers(); // Refresh the list after deletion
-                                      } catch (e) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(SnackBar(
-                                                content: Text(
-                                                    'Failed to delete user: $e')));
-                                        print('Error deleting user: $e');
-                                      }
-                                    },
+                                    onPressed: () =>
+                                        _showDeleteUserDialog(user),
                                   ),
                                 ),
                               ]);
@@ -239,6 +218,52 @@ class _UserProfilePageState extends State<UserProfilePage> {
         ),
       ),
     );
+  }
+
+  // ✱ NEW ­– potvrda brisanja korisnika
+  Future<void> _showDeleteUserDialog(User u) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Potvrda brisanja'),
+        content: Text(
+          'Jeste li sigurni da želite obrisati korisnika "${u.korisnickoIme}"?',
+        ),
+        actions: [
+          TextButton(
+            child: const Text('Ne'),
+            onPressed: () => Navigator.pop(ctx),
+          ),
+          TextButton(
+            child: const Text('Da'),
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await _deleteUser(u);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _deleteUser(User u) async {
+    try {
+      await _userProvider!.delete(u.id!);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Korisnik uspješno obrisan.')),
+      );
+      _loadUsers();
+    } catch (e) {
+      final String err = e.toString().toLowerCase();
+
+      final String msg = (err.contains('500') || err.contains('internal'))
+          ? 'Korisnik se ne može obrisati jer je povezan s razmjenama, kupovinama ili artiklima.'
+          : 'Greška pri brisanju korisnika: $e';
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    }
   }
 
   Future<void> generateReport() async {
