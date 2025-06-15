@@ -43,3 +43,10 @@ flutter run
 
 flutter run -d windows
 
+
+
+
+## Build artefakti  
+- fit-build-2025-06-15.zip.001  
+  • split arhiva (≤ 90 MB) – izdvojiti 7-Zip-om, šifra “fit”
+
