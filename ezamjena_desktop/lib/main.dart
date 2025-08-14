@@ -1,3 +1,5 @@
+import 'package:ezamjena_desktop/pages/reports_page.dart';
+import 'package:ezamjena_desktop/providers/report_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -29,6 +31,7 @@ void main() {
       ChangeNotifierProvider(create: (_) => ExchangeProvider()),
       ChangeNotifierProvider(create: (_) => BuyProvider()),
       ChangeNotifierProvider(create: (_) => CityProvider()),
+      ChangeNotifierProvider(create: (_) => ReportProvider()),
     ],
     child: MaterialApp(
       navigatorKey: navigatorKey,
@@ -65,6 +68,11 @@ void main() {
         if (settings.name == RequestHistoryPage.routeName) {
           return MaterialPageRoute(
             builder: ((context) => const RequestHistoryPage()),
+          );
+        }
+        if (settings.name == ReportsPage.routeName) {
+          return MaterialPageRoute(
+            builder: ((context) => const ReportsPage()),
           );
         }
         if (settings.name == MainPage.routeName) {

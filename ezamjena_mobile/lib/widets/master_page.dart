@@ -24,11 +24,9 @@ class _MasterPageWidgetState extends State<MasterPageWidget> {
     });
     if (currentIndex == 0) {
       Navigator.pushNamed(context, ProductListPage.routeName);
-    } 
-     else if (currentIndex == 1) {
+    } else if (currentIndex == 1) {
       Navigator.pushNamed(context, NewProductPage.routeName);
-    }
-     else if (currentIndex == 2) {
+    } else if (currentIndex == 2) {
       Navigator.pushNamed(context, MyProfilePage.routeName);
     }
   }
@@ -56,7 +54,7 @@ class _MasterPageWidgetState extends State<MasterPageWidget> {
             label: 'Moj profil',
           ),
         ],
-        selectedItemColor: const Color.fromARGB(255, 0, 145, 255),
+        selectedItemColor: Theme.of(context).primaryColor,
         currentIndex: currentIndex,
         onTap: _onItemTapped,
       ),

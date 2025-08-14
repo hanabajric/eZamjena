@@ -10,6 +10,7 @@ namespace eZamjena.Services.Database
             Kupovinas = new HashSet<Kupovina>();
             Ocjenas = new HashSet<Ocjena>();
             Proizvods = new HashSet<Proizvod>();
+            Prijavas = new HashSet<Prijava>();
         }
 
         public int Id { get; set; }
@@ -34,6 +35,7 @@ namespace eZamjena.Services.Database
         public virtual ICollection<Ocjena> Ocjenas { get; set; }
         public virtual ICollection<Proizvod> Proizvods { get; set; }
         public virtual ICollection<NotifikacijaProizvod> NotifikacijeProizvods { get; set; } = new HashSet<NotifikacijaProizvod>();
+        public virtual ICollection<Prijava> Prijavas { get; set; }
     }
 }
 

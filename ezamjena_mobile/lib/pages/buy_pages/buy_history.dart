@@ -1,3 +1,4 @@
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/single_child_widget.dart';
 
@@ -16,184 +17,207 @@ import '../../utils/utils.dart';
 import '../../widets/alert_dialog_widet.dart';
 
 class BuyHistoryPage extends StatefulWidget {
-  static const String routeName = "/buy_history";
-
-  const BuyHistoryPage({super.key});
+  static const String routeName = '/buy_history';
+  const BuyHistoryPage({Key? key}) : super(key: key);
 
   @override
   State<BuyHistoryPage> createState() => _BuyHistoryPageState();
 }
 
 class _BuyHistoryPageState extends State<BuyHistoryPage> {
-  List<Buy> buys = [];
-  BuyProvider? _buyProvider = null;
-  bool _isLoading = true;
+  final List<Buy> _buys = [];
+  BuyProvider? _buyProvider;
+  bool _loading = true;
   DateTime? _selectedDate;
 
   @override
   void initState() {
     super.initState();
     _buyProvider = context.read<BuyProvider>();
-    loadData();
+    _loadData();
   }
 
-  Future loadData() async {
-    setState(() {
-      _isLoading = true;
-    });
-    var tempData = await _buyProvider?.get(null);
-    if (mounted && tempData != null) {
-      setState(() {
-        print('Setirano stanje istorije kupovina.');
-        buys = tempData
-                .where((kupovina) => kupovina.korisnikId == LoggedInUser.userId)
-                .toList() ??
-            [];
-        _isLoading = false;
-      });
+  Future<void> _loadData({String? dateFilter}) async {
+    setState(() => _loading = true);
+
+    final tmp = await _buyProvider?.get(
+      dateFilter == null ? null : {'datum': dateFilter},
+    );
+
+    if (mounted && tmp != null) {
+      _buys
+        ..clear()
+        ..addAll(tmp.where((b) => b.korisnikId == LoggedInUser.userId));
+
+      setState(() => _loading = false);
     }
-    print('Data loaded successfully.');
   }
 
   @override
   Widget build(BuildContext context) {
+    final purple = Theme.of(context).primaryColor;
+
     return MasterPageWidget(
-      child: SingleChildScrollView(
-        child: Container(
-          child: Column(
-            children: [
-              _buildHeader(),
-              buildDateTimeSearch(),
-              _isLoading
-                  ? CircularProgressIndicator()
-                  : buildExchangeList(buys),
-            ],
-          ),
-        ),
-      ),
+      child: _loading
+          ? Center(
+              child: SpinKitFadingCircle(color: purple, size: 60),
+            )
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _header(),
+                  const SizedBox(height: 12),
+                  _dateFilterCard(purple),
+                  const SizedBox(height: 16),
+                  _buys.isEmpty
+                      ? _emptyCard()
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: _buys.length,
+                          itemBuilder: (_, i) => _buyCard(_buys[i], purple),
+                        ),
+                ],
+              ),
+            ),
     );
   }
 
-  Future<List<Buy>> _loadData() async {
-    var tempData = await _buyProvider?.get(null);
-    return tempData!;
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+  // ─────────────────── widgets ───────────────────
+  Widget _header() => Container(
+      padding: EdgeInsets.symmetric(horizontal: 50, vertical: 10),
       child: Text(
-        "Historija kupovina",
+        'Historija kupovina',
         style: TextStyle(
-          color: Colors.grey,
-          fontSize: 40,
-          fontWeight: FontWeight.w600,
+          fontSize: 32,
+          fontWeight: FontWeight.w700,
+          color: Colors.grey.shade600,
         ),
-      ),
-    );
-  }
+      ));
 
-  Widget buildDateTimeSearch() {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 10),
-      child: Column(
-        children: [
-          Text(
-            "Filtriraj po datumu:",
-            style: TextStyle(
-              fontSize: 20,
-              color: Colors.grey,
-              fontWeight: FontWeight.bold,
+  Widget _dateFilterCard(Color purple) => Center(
+        child: Card(
+          elevation: 2,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Filtriraj po datumu:',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.calendar_month_outlined),
+                  label: const Text('Odaberi datum'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: purple,
+                    side: BorderSide(color: purple),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(22)),
+                  ),
+                  onPressed: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: _selectedDate ?? DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2100),
+                    );
+                    if (picked != null) {
+                      _selectedDate = picked;
+                      await _loadData(
+                          dateFilter: DateFormat('yyyy-MM-dd').format(picked));
+                    }
+                  },
+                ),
+                if (_selectedDate != null) ...[
+                  const SizedBox(height: 8),
+                  TextButton.icon(
+                    icon: const Icon(Icons.clear, size: 18),
+                    label: const Text(
+                      'Prikaži sve',
+                      style: TextStyle(fontSize: 14),
+                    ),
+                    onPressed: () async {
+                      _selectedDate = null;
+                      await _loadData();
+                    },
+                  ),
+                ],
+              ],
             ),
           ),
-          ElevatedButton(
-            onPressed: () async {
-              DateTime? selectedDate = await showDatePicker(
-                context: context,
-                initialDate: DateTime.now(),
-                firstDate: DateTime(2000),
-                lastDate: DateTime(2100),
-              );
-
-              if (selectedDate != null) {
-                _selectedDate = selectedDate;
-                var dateFormatter = DateFormat('yyyy-MM-dd');
-                var formattedDate = dateFormatter.format(selectedDate);
-                var tmpData = await _buyProvider?.get({'datum': formattedDate});
-                print("ovo je tmpData razmjena: " + tmpData!.length.toString());
-                setState(() {
-                  buys = tmpData
-                      .where((buy) => buy.korisnikId == LoggedInUser.userId)
-                      .toList();
-                });
-              }
-            },
-            child: Text("Odaberi datum"),
-          ),
-
-          const SizedBox(width: 10),
-
-          /// ───────────  OČISTI  ───────────
-          if (_selectedDate != null)
-            OutlinedButton.icon(
-              icon: const Icon(Icons.clear),
-              label: const Text("Prikaži sve"),
-              onPressed: () async {
-                _selectedDate = null; // reset
-                await loadData(); // ponovno učitaj sve
-              },
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget buildExchangeList(List<Buy> buys) {
-    if (buys.isEmpty) {
-      return Container(
-        margin: EdgeInsets.symmetric(vertical: 10),
-        padding: EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Text(
-          "Trenutno nemate nijednu kupovinu u historiji kupovina",
-          style: TextStyle(fontWeight: FontWeight.bold),
         ),
       );
-    }
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      itemCount: buys.length,
-      itemBuilder: (context, index) {
-        Buy buy = buys[index];
 
-        return Container(
-          margin: EdgeInsets.symmetric(vertical: 10),
-          padding: EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey),
-            borderRadius: BorderRadius.circular(10),
+  Widget _emptyCard() => Card(
+        margin: const EdgeInsets.symmetric(vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: const Padding(
+          padding: EdgeInsets.all(16),
+          child: Text(
+            'Trenutno nemate nijednu kupovinu u historiji.',
+            style: TextStyle(fontWeight: FontWeight.w600),
           ),
+        ),
+      );
+
+  Widget _buyCard(Buy b, Color purple) => Card(
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "Naziv kupljeno proizvoda: (${buy.nazivProizvoda})",
-                style: TextStyle(fontWeight: FontWeight.bold),
+              // ❶ Ikona + naslov
+              Row(
+                children: [
+                  Icon(Icons.shopping_bag_outlined, color: purple, size: 18),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: RichText(
+                      text: TextSpan(
+                        style:
+                            const TextStyle(fontSize: 15, color: Colors.black),
+                        children: [
+                          const TextSpan(
+                              text: 'Naziv kupljenog proizvoda ',
+                              style: TextStyle(fontWeight: FontWeight.w600)),
+                          TextSpan(
+                              text: '(${b.nazivProizvoda})',
+                              style: TextStyle(color: purple)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              Text(
-                "Cijena: ${buy.cijena}",
-                style: TextStyle(fontWeight: FontWeight.bold),
+              const SizedBox(height: 6),
+              Text('Cijena: ${b.cijena} KM',
+                  style: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.w600)),
+              const SizedBox(height: 8),
+              // ❷ Ikona + datum
+              Row(
+                children: [
+                  Icon(Icons.calendar_month_outlined, color: purple, size: 16),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Datum kupovine: '
+                    '${DateFormat('dd.MM.yyyy • HH:mm').format(b.datum!)}',
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ],
               ),
-              SizedBox(height: 5),
-              Text("Datum kupovine: ${buy.datum}"),
             ],
           ),
-        );
-      },
-    );
-  }
+        ),
+      );
 }

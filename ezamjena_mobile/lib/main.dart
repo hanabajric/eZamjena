@@ -16,6 +16,7 @@ import 'package:ezamjena_mobile/providers/exchange_provider.dart';
 import 'package:ezamjena_mobile/providers/product_category_provider.dart';
 import 'package:ezamjena_mobile/providers/products_provider.dart';
 import 'package:ezamjena_mobile/providers/rating_provider.dart';
+import 'package:ezamjena_mobile/providers/report_provider.dart';
 import 'package:ezamjena_mobile/providers/user_provider.dart';
 import 'package:ezamjena_mobile/providers/wishlist_provider.dart';
 import 'package:ezamjena_mobile/providers/wishlistproduct_provider.dart';
@@ -42,6 +43,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => RatingProvider()),
         ChangeNotifierProvider(create: (context) => WishlistProvider()),
         ChangeNotifierProvider(create: (_) => WishlistProductProvider()),
+        ChangeNotifierProvider(create: (_) => ReportProvider()),
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey,

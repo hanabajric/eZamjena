@@ -1,3 +1,4 @@
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/single_child_widget.dart';
 
 import 'package:ezamjena_mobile/widets/master_page.dart';
@@ -23,171 +24,216 @@ class ExchangeHistoryPage extends StatefulWidget {
 }
 
 class _ExchangeHistoryPageState extends State<ExchangeHistoryPage> {
-  List<Trade> trades = [];
-  ExchangeProvider? _exchangeProvider = null;
-  bool _isLoading = true;
+  final List<Trade> _trades = [];
+  ExchangeProvider? _exchangeProvider;
+  bool _loading = true;
   DateTime? _selectedDate;
 
   @override
   void initState() {
     super.initState();
     _exchangeProvider = context.read<ExchangeProvider>();
-    loadData();
+    _loadData();
   }
 
-  Future loadData() async {
-    setState(() {
-      _isLoading = true;
-    });
-    var tempData = await _exchangeProvider?.get(null);
-    if (mounted && tempData != null) {
-      setState(() {
-        trades = tempData
-                .where((trade) =>
-                    (trade.korisnik1Id == LoggedInUser.userId ||
-                        trade.korisnik2Id == LoggedInUser.userId) &&
-                    trade.statusRazmjeneId == 2)
-                .toList() ??
-            [];
-        _isLoading = false;
-      });
+  Future<void> _loadData({String? dateFilter}) async {
+    setState(() => _loading = true);
+
+    final tmp = await _exchangeProvider?.get(
+      dateFilter == null ? null : {'datum': dateFilter},
+    );
+
+    if (mounted && tmp != null) {
+      _trades
+        ..clear()
+        ..addAll(tmp.where((t) =>
+            (t.korisnik1Id == LoggedInUser.userId ||
+                t.korisnik2Id == LoggedInUser.userId) &&
+            t.statusRazmjeneId == 2));
+
+      setState(() => _loading = false);
     }
-    print('Data loaded successfully.');
   }
 
   @override
   Widget build(BuildContext context) {
+    final purple = Theme.of(context).primaryColor;
+
     return MasterPageWidget(
-      child: SingleChildScrollView(
-        child: Container(
-          child: Column(
-            children: [
-              _buildHeader(),
-              buildDateTimeSearch(),
-              _isLoading
-                  ? CircularProgressIndicator()
-                  : buildExchangeList(trades),
-            ],
-          ),
-        ),
-      ),
+      child: _loading
+          ? Center(
+              child: SpinKitFadingCircle(
+                color: purple,
+                size: 60,
+              ),
+            )
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _header(),
+                  const SizedBox(height: 12),
+                  _dateFilterCard(purple),
+                  const SizedBox(height: 16),
+                  _trades.isEmpty
+                      ? _emptyCard()
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: _trades.length,
+                          itemBuilder: (_, i) => _tradeCard(_trades[i], purple),
+                        ),
+                ],
+              ),
+            ),
     );
   }
 
-  Widget _buildHeader() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+// ────────────────────  W I D G E T S  ───────────────────────────────────────
+  Widget _header() => Container(
+      padding: EdgeInsets.symmetric(horizontal: 50, vertical: 10),
       child: Text(
-        "Historija razmjena",
+        'Historija razmjena',
         style: TextStyle(
-          color: Colors.grey,
-          fontSize: 40,
-          fontWeight: FontWeight.w600,
+          fontSize: 32,
+          fontWeight: FontWeight.w700,
+          color: Colors.grey.shade600,
         ),
-      ),
-    );
-  }
+      ));
 
-  Widget buildDateTimeSearch() {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 10),
-      child: Column(
-        children: [
-          Text(
-            "Filtriraj po datumu:",
-            style: TextStyle(
-              fontSize: 20,
-              color: Colors.grey,
-              fontWeight: FontWeight.bold,
+  Widget _dateFilterCard(Color purple) => Center(
+        // ⬅️ dodano
+        child: Card(
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min, // kartica samo koliko treba
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Text(
+                  'Filtriraj po datumu:',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.calendar_month_outlined),
+                  label: const Text('Odaberi datum'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: purple,
+                    side: BorderSide(color: purple),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(22),
+                    ),
+                  ),
+                  onPressed: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: _selectedDate ?? DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2100),
+                    );
+                    if (picked != null) {
+                      _selectedDate = picked;
+                      await _loadData(
+                        dateFilter: DateFormat('yyyy-MM-dd').format(picked),
+                      );
+                    }
+                  },
+                ),
+                if (_selectedDate != null) ...[
+                  const SizedBox(height: 8),
+                  TextButton.icon(
+                    icon: const Icon(Icons.clear),
+                    label: const Text(
+                      'Prikaži sve',
+                      style: TextStyle(fontSize: 14),
+                    ),
+                    onPressed: () async {
+                      _selectedDate = null;
+                      await _loadData();
+                    },
+                  ),
+                ],
+              ],
             ),
           ),
-          ElevatedButton(
-            onPressed: () async {
-              DateTime? selectedDate = await showDatePicker(
-                context: context,
-                initialDate: DateTime.now(),
-                firstDate: DateTime(2000),
-                lastDate: DateTime(2100),
-              );
-
-              if (selectedDate != null) {
-                _selectedDate = selectedDate;
-                var dateFormatter = DateFormat('yyyy-MM-dd');
-                var formattedDate = dateFormatter.format(selectedDate);
-                print("ovo je formatirani datum : " + formattedDate);
-                var tmpData =
-                    await _exchangeProvider?.get({'datum': formattedDate});
-                print("ovo je tmpData razmjena: " + tmpData!.length.toString());
-                setState(() {
-                  trades = tmpData
-                      .where((trade) =>
-                          (trade.korisnik1Id == LoggedInUser.userId ||
-                              trade.korisnik2Id == LoggedInUser.userId) &&
-                          trade.statusRazmjeneId == 2)
-                      .toList();
-                });
-              }
-            },
-            child: Text("Odaberi datum"),
-          ),
-          const SizedBox(width: 10),
-          if (_selectedDate != null)
-            OutlinedButton.icon(
-              icon: const Icon(Icons.clear),
-              label: const Text("Prikaži sve"),
-              onPressed: () async {
-                _selectedDate = null;
-                await loadData();
-              },
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget buildExchangeList(List<Trade> trades) {
-    if (trades.isEmpty) {
-      return Container(
-        margin: EdgeInsets.symmetric(vertical: 10),
-        padding: EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Text(
-          "Trenutno nemate nijednu razmjenu u historiji razmjena",
-          style: TextStyle(fontWeight: FontWeight.bold),
         ),
       );
-    }
 
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      itemCount: trades.length,
-      itemBuilder: (context, index) {
-        Trade trade = trades[index];
-
-        return Container(
-          margin: EdgeInsets.symmetric(vertical: 10),
-          padding: EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey),
-            borderRadius: BorderRadius.circular(10),
+  /// Jedan “prazan” card kad nema rezultata
+  Widget _emptyCard() => Card(
+        margin: const EdgeInsets.symmetric(vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: const Padding(
+          padding: EdgeInsets.all(16),
+          child: Text(
+            'Trenutno nemate nijednu razmjenu u historiji.',
+            style: TextStyle(fontWeight: FontWeight.w600),
           ),
+        ),
+      );
+
+  /// Kartica za svaku pojedinačnu razmjenu
+  Widget _tradeCard(Trade t, Color purple) => Card(
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "Razmijenjen proizvod (${trade.proizvod1Naziv}) za proizvod (${trade.proizvod2Naziv})",
-                style: TextStyle(fontWeight: FontWeight.bold),
+              // ── ❶  Ikona swap + naslov  ────────────────────────────────────
+              Row(
+                children: [
+                  Icon(Icons.swap_horiz_outlined, color: purple, size: 18),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: RichText(
+                      text: TextSpan(
+                        style:
+                            const TextStyle(fontSize: 15, color: Colors.black),
+                        children: [
+                          const TextSpan(
+                              text: 'Razmijenjen proizvod ',
+                              style: TextStyle(fontWeight: FontWeight.w600)),
+                          TextSpan(
+                              text: '(${t.proizvod1Naziv}) ',
+                              style: TextStyle(color: purple)),
+                          const TextSpan(
+                              text: 'za proizvod ',
+                              style: TextStyle(fontWeight: FontWeight.w600)),
+                          TextSpan(
+                              text: '(${t.proizvod2Naziv})',
+                              style: TextStyle(color: purple)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              SizedBox(height: 5),
-              Text("Datum razmjene: ${trade.datum}"),
+              const SizedBox(height: 8),
+
+              // ── ❷  Ikona kalendara + datum  ─────────────────────────────────
+              Row(
+                children: [
+                  Icon(Icons.calendar_month_outlined, color: purple, size: 16),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Datum razmjene: '
+                    '${DateFormat('dd.MM.yyyy • HH:mm').format(t.datum!)}',
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ],
+              ),
             ],
           ),
-        );
-      },
-    );
-  }
+        ),
+      );
 }

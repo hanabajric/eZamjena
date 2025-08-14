@@ -1,5 +1,6 @@
 import 'package:ezamjena_desktop/key.dart';
 import 'package:ezamjena_desktop/main.dart';
+import 'package:ezamjena_desktop/pages/reports_page.dart';
 import 'package:ezamjena_desktop/pages/top3_profiles.dart';
 import 'package:ezamjena_desktop/utils/custom_alert_dialog_YesNo.dart';
 import 'package:ezamjena_desktop/utils/logged_in_usser.dart';
@@ -27,7 +28,7 @@ class _MainPageState extends State<MainPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(vsync: this, length: 5);
+    _tabController = TabController(vsync: this, length: 6);
   }
 
   @override
@@ -40,11 +41,11 @@ class _MainPageState extends State<MainPage>
     setState(() {
       switch (value) {
         case 'All Profiles':
-          _selectedIndex = 4; // Index UserProfilePage
+          _selectedIndex = 5; // Index UserProfilePage
           break;
         case 'Top 3 Profiles':
           _selectedIndex =
-              5; // Index TopThreeProfilesPage, koji je van standardnih tabova
+              6; // Index TopThreeProfilesPage, koji je van standardnih tabova
           break;
       }
     });
@@ -57,8 +58,9 @@ class _MainPageState extends State<MainPage>
       RequestOverviewPage(),
       RequestHistoryPage(),
       PurchaseHistoryPage(),
+      ReportsPage(),
       UserProfilePage(),
-      TopThreeProfilesPage(), // Dodato kao opcija van redovnih tabova
+      TopThreeProfilesPage(),
     ];
 
     return Scaffold(
@@ -88,7 +90,7 @@ class _MainPageState extends State<MainPage>
         bottom: TabBar(
           controller: _tabController,
           onTap: (index) {
-            if (index < 4) {
+            if (index < 5) {
               // Ako nije "Profil" tab
               setState(() {
                 _selectedIndex = index;
@@ -100,6 +102,7 @@ class _MainPageState extends State<MainPage>
             Tab(text: 'Zahtjevi'),
             Tab(text: 'Historija Razmjene'),
             Tab(text: 'Historija Kupovina'),
+            Tab(text: 'Prijave'),
             MouseRegion(
               onEnter: (event) => _showProfileMenu(context, event.position),
               child: Tab(text: 'Profil'),

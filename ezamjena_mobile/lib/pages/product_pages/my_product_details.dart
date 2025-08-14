@@ -8,6 +8,7 @@ import '../../providers/products_provider.dart';
 import '../../utils/logged_in_usser.dart';
 import '../../utils/utils.dart';
 import '../../widets/alert_dialog_widet.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class MyProductDetailsPage extends StatefulWidget {
   static const String routeName = "/my_product_details";
@@ -23,6 +24,7 @@ class _MyProductDetailsPageState extends State<MyProductDetailsPage> {
   ProductProvider? _productProvider = null;
   late String id;
   Product? data;
+  bool _loading = true;
 
   @override
   void initState() {
@@ -33,11 +35,13 @@ class _MyProductDetailsPageState extends State<MyProductDetailsPage> {
   }
 
   Future loadData() async {
+    setState(() => _loading = true);
     print('Loading data...');
     final tempData = await _productProvider?.getById(int.parse(id));
     if (mounted && tempData != null) {
       setState(() {
         data = tempData;
+        _loading = false;
       });
     }
     print('Data loaded successfully.');
@@ -46,85 +50,114 @@ class _MyProductDetailsPageState extends State<MyProductDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return MasterPageWidget(
-      child: SingleChildScrollView(
-        child: Container(
-          padding: EdgeInsets.all(10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+      child: _loading
+          // ─── Loader u primarnoj boji ───────────────────────────────
+          ? Center(
+              child: SpinKitFadingCircle(
+                color: Theme.of(context).primaryColor,
+                size: 60,
+              ),
+            )
+          // ─── Sadržaj kad se podaci učitaju ─────────────────────────
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  BackButton(), // Povratak na prethodnu stranicu
-                  Expanded(
-                    child: Text(
-                      'nazad',
-                      style: TextStyle(
-                        fontSize: 20,
-                      ),
-                    ),
-                  ),
+                  _headerRow(),
+                  const SizedBox(height: 16),
+                  _productCard(),
                 ],
               ),
-              SizedBox(height: 10),
-              productInfoWidget(),
-              SizedBox(height: 20),
-              Text(
-                'Opis proizvoda: ${data?.opis ?? ''}',
-                style: TextStyle(fontSize: 20),
-              ),
-              SizedBox(height: 10),
-            ],
-          ),
+            ),
+    );
+  }
+
+/*──────────────── HEADER ────────────────*/
+  Widget _headerRow() => const Row(
+        children: [
+          BackButton(),
+          Text('  Nazad', style: TextStyle(fontSize: 20)),
+        ],
+      );
+
+/*──────────── NICE-LOOKING CARD ─────────*/
+  Widget _productCard() {
+    if (data == null) return const SizedBox.shrink();
+
+    return Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              data!.naziv ?? '',
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: SizedBox(
+                    width: 120,
+                    height: 120,
+                    child: data!.slika != null
+                        ? imageFromBase64String(data!.slika!)
+                        : const Icon(Icons.image, size: 64, color: Colors.grey),
+                  ),
+                ),
+                const SizedBox(width: 20),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _kv('Kategorija', data!.nazivKategorijeProizvoda),
+                      _kv('Procijenjena cijena', '${data!.cijena} KM'),
+                      _kv('Korisnik', data!.nazivKorisnika),
+                      _kv('Stanje', data!.stanjeNovo! ? 'Novo' : 'Polovno'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const Divider(height: 32),
+            Text(
+              data!.opis ?? '',
+              style: const TextStyle(fontSize: 16),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget productInfoWidget() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Informacije o proizvodu - ${data?.naziv ?? ''}',
-          style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-        ),
-        SizedBox(height: 20),
-        Row(
+/*──────────── helper za ključ-vrijednost ────────────*/
+
+  Widget _kv(String label, String? value) => Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Row(
           children: [
-            Container(
-              width: 200,
-              height: 150,
-              color: Colors.grey, // Placeholder za sliku
-              child: data != null
-                  ? imageFromBase64String(data?.slika)
-                  : Container(),
-            ),
-            SizedBox(width: 30),
+            Icon(Icons.circle, size: 6, color: Colors.grey.shade600),
+            const SizedBox(width: 6),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Naziv: ${data?.naziv ?? ''}',
-                      style: TextStyle(fontSize: 15)),
-                  SizedBox(height: 15),
-                  Text('Kategorija: ${data?.nazivKategorijeProizvoda ?? ''}',
-                      style: TextStyle(fontSize: 15)),
-                  SizedBox(height: 15),
-                  Text('Procjenjena cijena: ${data?.cijena ?? ''}',
-                      style: TextStyle(fontSize: 15)),
-                  SizedBox(height: 15),
-                  Text('Korisnik: ${data?.nazivKorisnika ?? ''}',
-                      style: TextStyle(fontSize: 15)),
-                  SizedBox(height: 15),
-                  Text(
-                      'Stanje: ${data?.stanjeNovo == true ? 'Novo' : 'Polovno'}',
-                      style: TextStyle(fontSize: 15)),
-                ],
+              child: RichText(
+                text: TextSpan(
+                  style: const TextStyle(fontSize: 16, color: Colors.black),
+                  children: [
+                    TextSpan(
+                        // etiketa – BOLD
+                        text: '$label: ',
+                        style: const TextStyle(fontWeight: FontWeight.w600)),
+                    TextSpan(text: value ?? ''), // vrijednost – normal
+                  ],
+                ),
               ),
             ),
           ],
         ),
-      ],
-    );
-  }
+      );
 }

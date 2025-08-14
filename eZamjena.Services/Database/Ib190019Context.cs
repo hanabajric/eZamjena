@@ -34,6 +34,7 @@ namespace eZamjena.Services.Database
         public virtual DbSet<ListaZelja> ListaZeljas { get; set; } = null!;
         public virtual DbSet<ListaZeljaProizvod> ListaZeljaProizvods { get; set; } = null!;
         public virtual DbSet<NotifikacijaProizvod> NotifikacijaProizvods { get; set; } = null!;
+        public virtual DbSet<Prijava> Prijavas { get; set; } = null!;
 
 
         //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -249,6 +250,44 @@ namespace eZamjena.Services.Database
                       .WithMany(b => b.NotifikacijeProizvods)
                       .HasForeignKey(p => p.ProizvodId);
             });
+            modelBuilder.Entity<Prijava>(entity =>
+            {
+                entity.ToTable("Prijava");
+
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+
+                entity.Property(e => e.Razlog)
+                      .IsRequired()
+                      .HasMaxLength(100);
+
+                entity.Property(e => e.Poruka)
+                      .HasMaxLength(1000);
+
+                entity.Property(e => e.Datum)
+                      .HasColumnType("datetime")
+                      .HasDefaultValueSql("GETDATE()");
+
+                entity.Property(e => e.ProizvodId)
+                      .HasColumnName("ProizvodID");
+
+                entity.Property(e => e.PrijavioKorisnikId)
+                      .HasColumnName("PrijavioKorisnikID");
+
+                entity.HasOne(e => e.Proizvod)
+                      .WithMany(p => p.Prijavas)
+                      .HasForeignKey(e => e.ProizvodId)
+                      .OnDelete(DeleteBehavior.Cascade)         
+                      .HasConstraintName("FK_Prijava_Proizvod");
+
+                entity.HasOne(e => e.PrijavioKorisnik)
+                      .WithMany(k => k.Prijavas)
+                      .HasForeignKey(e => e.PrijavioKorisnikId)
+                      .OnDelete(DeleteBehavior.ClientSetNull)    
+                      .HasConstraintName("FK_Prijava_Korisnik");
+            });
+
 
             OnModelCreatingPartial(modelBuilder);
         }

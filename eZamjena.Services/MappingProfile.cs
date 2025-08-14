@@ -64,6 +64,13 @@ namespace eZamjena.Services
             CreateMap<Database.NotifikacijaProizvod, Model.NotifikacijaProizvod>();
             CreateMap<NotifikacijaProizvodUpsertRequest, Database.NotifikacijaProizvod>();
 
+            CreateMap<Database.Prijava, Model.Prijava>()
+             .ForMember(d => d.ProizvodNaziv,
+             opt => opt.MapFrom(s => s.Proizvod.Naziv))
+            .ForMember(d => d.PrijavioKorisnik,
+            opt => opt.MapFrom(s => s.PrijavioKorisnik.KorisnickoIme));
+            CreateMap<PrijavaUpsertRequest, Database.Prijava>();
+
 
         }
     }

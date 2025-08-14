@@ -57,6 +57,7 @@ builder.Services.AddTransient<IUlogaService, UlogaService>();
 builder.Services.AddTransient<IGradService, GradService>();
 builder.Services.AddTransient<IListaZeljaProizvodService, ListaZeljaProizvodService>();
 builder.Services.AddTransient<IListaZeljaService, ListaZeljaService>();
+builder.Services.AddTransient<IPrijavaService, PrijavaService>();
 builder.Services.AddTransient<INotifikacijaProizvodService, NotifikacijaProizvodService>();
 builder.Services.AddTransient<IService<eZamjena.Model.Uloga, BaseSearchObject>, BaseService<eZamjena.Model.Uloga, Uloga, BaseSearchObject >>();
 builder.Services.AddTransient<IEmailSender, EmailSender>();
@@ -134,7 +135,7 @@ using (var scope = app.Services.CreateScope())
 {
     var database = scope.ServiceProvider.GetService<Ib190019Context>();
     new DBSetup().Init(database);
-   new DBSetup().InsertData(database);
+    new DBSetup().InsertData(database);
 }
 
 app.Run();
