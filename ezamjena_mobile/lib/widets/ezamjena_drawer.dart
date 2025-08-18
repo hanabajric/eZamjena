@@ -1,3 +1,4 @@
+import 'package:ezamjena_mobile/pages/product_pages/notifications_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -134,6 +135,12 @@ class _eZamjenaDrawerState extends State<eZamjenaDrawer> {
                     title: 'Historija kupovina',
                     icon: Icons.shopping_bag_outlined,
                     onTap: () => nav.pushNamed(BuyHistoryPage.routeName),
+                  ),
+                  _buildItem(
+                    index: 6,
+                    title: 'Obavjesti',
+                    icon: Icons.circle_notifications,
+                    onTap: () => nav.pushNamed(NotificationsPage.routeName),
                   ),
                 ],
               ),

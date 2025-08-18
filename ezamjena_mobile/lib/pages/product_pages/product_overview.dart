@@ -16,6 +16,7 @@ import '../../providers/product_category_provider.dart';
 import '../../utils/logged_in_usser.dart';
 import '../../widets/ezamjena_drawer.dart';
 import '../../widets/master_page.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class ProductListPage extends StatefulWidget {
   static const String routeName = "/products";
@@ -108,6 +109,7 @@ class _ProductListPagetState extends State<ProductListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final purple = Theme.of(context).primaryColor;
     return MasterPageWidget(
       child: SingleChildScrollView(
         child: Column(
@@ -117,8 +119,11 @@ class _ProductListPagetState extends State<ProductListPage> {
             SizedBox(height: 40),
             _isLoading
                 ? Center(
-                    child:
-                        CircularProgressIndicator()) // Ako se podaci učitavaju, prikažite spinner
+                    child: SpinKitFadingCircle(
+                      color: purple,
+                      size: 60,
+                    ),
+                  )
                 : Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16),
                     child: GridView.count(

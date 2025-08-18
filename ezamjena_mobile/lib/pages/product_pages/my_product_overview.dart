@@ -12,6 +12,7 @@ import '../../utils/logged_in_usser.dart';
 import '../../utils/utils.dart';
 import '../../widets/alert_dialog_widet.dart';
 import '../../widets/master_page.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class MyProductListPage extends StatefulWidget {
   static const String routeName = "/myproducts";
@@ -25,8 +26,8 @@ class _MyProductListPage extends State<MyProductListPage> {
   ProductProvider?
       _productProvider; // prvo pokretanje null dok se ne izvrši initState
   List<Product> data = [];
-  //late BuildContext _context; // Dodajte varijablu za BuildContext
   bool _isLoading = true;
+
   @override
   void initState() {
     super.initState();
@@ -36,7 +37,7 @@ class _MyProductListPage extends State<MyProductListPage> {
 
   Future loadData() async {
     setState(() {
-      _isLoading = true; // Postavite učitavanje na true
+      _isLoading = true;
     });
     var tempData = await _productProvider?.get(null);
     if (mounted && tempData != null) {
@@ -53,20 +54,25 @@ class _MyProductListPage extends State<MyProductListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final purple = Theme.of(context).primaryColor;
+
     return MasterPageWidget(
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildHeader(),
-            SizedBox(height: 40),
-            _isLoading
-                ? Center(
-                    child:
-                        CircularProgressIndicator()) // Prikazuje spinner dok se podaci učitavaju
-                : _buildProductGrid()
-          ],
-        ),
-      ),
+      child: _isLoading
+          ? Center(
+              child: SpinKitFadingCircle(
+                color: purple,
+                size: 60,
+              ),
+            )
+          : SingleChildScrollView(
+              child: Column(
+                children: [
+                  _buildHeader(),
+                  const SizedBox(height: 16),
+                  _buildProductGrid(),
+                ],
+              ),
+            ),
     );
   }
 

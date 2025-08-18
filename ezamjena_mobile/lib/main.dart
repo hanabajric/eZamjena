@@ -3,6 +3,7 @@ import 'package:ezamjena_mobile/pages/exchange_pages/exchanege_requests.dart';
 import 'package:ezamjena_mobile/pages/payment/payment_page.dart';
 import 'package:ezamjena_mobile/pages/product_pages/my_product_details.dart';
 import 'package:ezamjena_mobile/pages/product_pages/new_product.dart';
+import 'package:ezamjena_mobile/pages/product_pages/notifications_page.dart';
 import 'package:ezamjena_mobile/pages/product_pages/wishlist_overview.dart';
 import 'package:ezamjena_mobile/pages/user_pages/my_profile_page.dart';
 import 'package:ezamjena_mobile/pages/exchange_pages/exchange_history.dart';
@@ -14,6 +15,7 @@ import 'package:ezamjena_mobile/providers/buy_provider.dart';
 import 'package:ezamjena_mobile/providers/city_provider.dart';
 import 'package:ezamjena_mobile/providers/exchange_provider.dart';
 import 'package:ezamjena_mobile/providers/product_category_provider.dart';
+import 'package:ezamjena_mobile/providers/product_notification_provider.dart';
 import 'package:ezamjena_mobile/providers/products_provider.dart';
 import 'package:ezamjena_mobile/providers/rating_provider.dart';
 import 'package:ezamjena_mobile/providers/report_provider.dart';
@@ -44,6 +46,7 @@ void main() async {
         ChangeNotifierProvider(create: (context) => WishlistProvider()),
         ChangeNotifierProvider(create: (_) => WishlistProductProvider()),
         ChangeNotifierProvider(create: (_) => ReportProvider()),
+        ChangeNotifierProvider(create: (_) => ProductNotificationProvider()),
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey,
@@ -103,6 +106,10 @@ void main() async {
           if (settings.name == WishlistScreen.routeName) {
             return MaterialPageRoute(
                 builder: ((context) => const WishlistScreen()));
+          }
+          if (settings.name == NotificationsPage.routeName) {
+            return MaterialPageRoute(
+                builder: ((context) => const NotificationsPage()));
           }
 
           var uri = Uri.parse(settings.name!);

@@ -61,35 +61,72 @@ namespace eZamjena.Services
         public override Model.Proizvod Update(int id, ProizvodUpsertRequest update)
         {
             var set = Context.Set<Database.Proizvod>();
-            var entity = set.Include(p => p.StatusProizvoda).FirstOrDefault(p => p.Id == id);
+            var entity = set
+                .Include(p => p.StatusProizvoda)
+                .FirstOrDefault(p => p.Id == id);
 
             if (entity == null) return null;
 
-            int? oldStatusId = entity.StatusProizvodaId;
-            Mapper.Map(update, entity);
+            var oldStatusId = entity.StatusProizvodaId;
 
+            // mapiranje promjena
+            Mapper.Map(update, entity);
             Context.SaveChanges();
 
-            // Provjeri da li je došlo do promjene na StanjeProizvodaId na 1
+            // 1) Ako je novostatus "U prodaji" (1), šalji postojeću RabbitMQ poruku
             if (oldStatusId != 1 && entity.StatusProizvodaId == 1)
             {
                 var modelEntity = Mapper.Map<Model.Proizvod>(entity);
+                var message = new ProizvodInserted { Proizvod = modelEntity };
 
-                ProizvodInserted message = new ProizvodInserted { Proizvod = modelEntity };
-
-                // Kreiraj novi bus s logovanjem
-                //var bus = RabbitHutch.CreateBus("host=localhost;username=guest;password=guest", x =>
-                //{
-                //    x.EnableConsoleLogger();
-                //    //x.EnableExceptionLogger();
-                //});
                 var bus = RabbitHutch.CreateBus("host=rabbitmq");
-                // bus.PubSub.Publish(message, cfg => cfg.WithTopic("product_inserted"));
                 bus.PubSub.Publish(message);
+            }
+
+            // 2) Ako je proizvod BIO u prodaji (1), a više NIJE -> kreiraj notifikacije
+            if (oldStatusId == 1 && entity.StatusProizvodaId != 1)
+            {
+                // korisnici koji imaju ovaj proizvod u listi želja
+                var korisnikIds = (from lzp in Context.ListaZeljaProizvods
+                                   join lz in Context.ListaZeljas on lzp.ListaZeljaId equals lz.Id
+                                   where lzp.ProizvodId == entity.Id
+                                   select lz.KorisnikId)
+                                   .Distinct()
+                                   .ToList();
+
+                if (korisnikIds.Count > 0)
+                {
+                    var sada = DateTime.UtcNow;
+                    var statusNaziv = entity.StatusProizvoda?.Naziv ?? entity.StatusProizvodaId.ToString();
+                    var poruka = $"Proizvod \"{entity.Naziv}\" više nije dostupan (status: {statusNaziv}).";
+
+                    // (opcionalno) anti-duplikat za isti proizvod unutar zadnjeg sata
+                    var recent = Context.NotifikacijaProizvods
+                        .Where(n => n.ProizvodId == entity.Id && n.VrijemeKreiranja > sada.AddHours(-1))
+                        .Select(n => n.KorisnikId)
+                        .ToList();
+                    var recentSet = recent.ToHashSet();
+
+                    foreach (var uid in korisnikIds)
+                    {
+                        if (recentSet.Contains(uid)) continue;
+
+                        Context.NotifikacijaProizvods.Add(new NotifikacijaProizvod
+                        {
+                            KorisnikId = uid,
+                            ProizvodId = entity.Id,
+                            Poruka = poruka,
+                            VrijemeKreiranja = sada
+                        });
+                    }
+
+                    Context.SaveChanges();
+                }
             }
 
             return Mapper.Map<Model.Proizvod>(entity);
         }
+
 
 
         public override Model.Proizvod GetById(int id)

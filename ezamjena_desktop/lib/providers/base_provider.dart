@@ -1,157 +1,184 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:http/io_client.dart';
-import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 
 import '../utils/utils.dart';
+import '../utils/friendly_error.dart';
 
 abstract class BaseProvider<T> with ChangeNotifier {
   static String? _baseUrl;
   String? _endpoint;
 
   String? publicUrl;
-  HttpClient client = new HttpClient();
+  HttpClient client = HttpClient();
   IOClient? http;
+
+  // timeout za sve zahtjeve
+  final Duration _timeout = const Duration(seconds: 12);
 
   BaseProvider(String endpoint) {
     _baseUrl = const String.fromEnvironment("baseUrl",
         defaultValue: "http://localhost:5238/");
-    print("baseurl: $_baseUrl");
-
-    if (_baseUrl!.endsWith("/") == false) {
-      _baseUrl = _baseUrl! + "/";
-    }
-
+    if (!_baseUrl!.endsWith("/")) _baseUrl = '$_baseUrl/';
     _endpoint = endpoint;
+
     client.badCertificateCallback = (cert, host, port) => true;
     http = IOClient(client);
     publicUrl = "$_baseUrl$_endpoint";
   }
-  void _notify() {
-    notifyListeners();
+
+  void _notify() => notifyListeners();
+
+  // ---------- CENTRALNO DEKODIRANJE + MAPIRANJE GREŠAKA ----------
+  dynamic _decodeOrThrow(Response res) {
+    if (res.statusCode >= 200 && res.statusCode < 300) {
+      if (res.statusCode == 204 || res.body.isEmpty) return null;
+      return jsonDecode(res.body);
+    }
+
+    String? msg;
+    try {
+      final m = jsonDecode(res.body);
+      msg = m['message'] ?? m['title'] ?? m['detail'];
+    } catch (_) {}
+
+    switch (res.statusCode) {
+      case 400:
+        throw FriendlyError(
+            'Neispravan zahtjev', msg ?? 'Provjerite unesene podatke.');
+      case 401:
+        throw FriendlyError(
+            'Neuspješna prijava', msg ?? 'Pogrešni kredencijali.');
+      case 403:
+        throw FriendlyError(
+            'Zabranjeno', msg ?? 'Nemate dozvolu za ovu radnju.');
+      case 404:
+        throw FriendlyError(
+            'Nije pronađeno', msg ?? 'Traženi resurs nije pronađen.');
+      default:
+        if (res.statusCode >= 500) {
+          throw FriendlyError(
+              'Greška na serveru', msg ?? 'Pokušajte ponovo kasnije.');
+        }
+        throw FriendlyError(
+            'Greška', msg ?? 'Neuspješan zahtjev (${res.statusCode}).');
+    }
   }
 
+  Never _throwNetwork(Object e) {
+    if (e is SocketException) {
+      throw FriendlyError('Nema veze sa serverom',
+          'Provjerite internet ili da li je API pokrenut.');
+    }
+    if (e is TimeoutException) {
+      throw FriendlyError(
+          'Isteklo vrijeme', 'Server se nije javio na vrijeme.');
+    }
+    throw FriendlyError('Neočekivana greška', e.toString());
+  }
+  // ---------------------------------------------------------------
+
   Future<T?> getById(int? id, [dynamic additionalData]) async {
-    print('Getting data for ID: $id');
-    var url = Uri.parse("$_baseUrl$_endpoint/$id");
+    final url = Uri.parse("$_baseUrl$_endpoint/$id");
+    final headers = createHeaders();
 
-    Map<String, String> headers = createHeaders();
-
-    var response = await http!.get(url, headers: headers);
-
-    print('Response status code: ${response.statusCode}');
-    print('Response body: ${response.body}');
-
-    if (response.statusCode == 204) {
-      return null;
-    } else if (isValidResponseCode(response)) {
-      var data = jsonDecode(response.body);
-      return fromJson(data);
-    } else {
-      throw Exception("Exception... handle this gracefully");
+    try {
+      final res = await http!.get(url, headers: headers).timeout(_timeout);
+      final data = _decodeOrThrow(res);
+      return data == null ? null : fromJson(data);
+    } on FriendlyError {
+      rethrow;
+    } catch (e) {
+      _throwNetwork(e);
     }
   }
 
   Future<List<T>> get([dynamic search]) async {
     var url = "$_baseUrl$_endpoint";
-    print('Endpoint za ovu strannicu je: $_endpoint');
     if (search != null) {
-      String queryString = getQueryString(search);
-      url = url + "?" + queryString;
+      final queryString = getQueryString(search);
+      url = "$url?$queryString";
     }
+    final uri = Uri.parse(url);
+    final headers = createHeaders();
 
-    var uri = Uri.parse(url);
-
-    Map<String, String> headers = createHeaders();
-    print("get me");
-    var response = await http!.get(uri, headers: headers);
-    print("done $response");
-    if (isValidResponseCode(response)) {
-      var data = jsonDecode(response.body);
-
-      return data.map((x) => fromJson(x)).cast<T>().toList();
-    } else {
-      throw Exception("Exception... handle this gracefully");
+    try {
+      final res = await http!.get(uri, headers: headers).timeout(_timeout);
+      final data = _decodeOrThrow(res);
+      // očekujemo listu
+      return (data as List).map((x) => fromJson(x)).cast<T>().toList();
+    } on FriendlyError {
+      rethrow;
+    } catch (e) {
+      _throwNetwork(e);
     }
   }
 
   Future<T?> insert(dynamic request) async {
-    var url = "$_baseUrl$_endpoint";
-    var uri = Uri.parse(url);
+    final uri = Uri.parse("$_baseUrl$_endpoint");
+    final headers = createHeaders();
 
-    Map<String, String> headers = createHeaders();
-    var jsonRequest = jsonEncode(request);
-    var response = await http!.post(uri, headers: headers, body: jsonRequest);
-
-    if (isValidResponseCode(response)) {
-      var data = jsonDecode(response.body);
+    try {
+      final res = await http!
+          .post(uri, headers: headers, body: jsonEncode(request))
+          .timeout(_timeout);
+      final data = _decodeOrThrow(res);
       _notify();
-      return fromJson(data) as T;
-    } else {
-      return null;
+      return data == null ? null : fromJson(data);
+    } on FriendlyError {
+      rethrow;
+    } catch (e) {
+      _throwNetwork(e);
     }
   }
 
   Future<T?> update(int? id, [dynamic request]) async {
-    var url = "$_baseUrl$_endpoint/$id";
-    var uri = Uri.parse(url);
-
-    Map<String, String> headers = createHeaders();
+    final uri = Uri.parse("$_baseUrl$_endpoint/$id");
+    final headers = createHeaders();
 
     try {
-      var response =
-          await http!.put(uri, headers: headers, body: jsonEncode(request));
-
-      if (isValidResponseCode(response)) {
-        var data = jsonDecode(response.body);
-        print("Response data: $data");
-        if (data != null && data is Map<String, dynamic>) {
-          _notify();
-          return fromJson(data) as T;
-        } else {
-          throw Exception('Invalid JSON data');
-        }
-      } else {
-        print("Invalid response: ${response.statusCode}");
-        return null;
-      }
+      final res = await http!
+          .put(uri, headers: headers, body: jsonEncode(request))
+          .timeout(_timeout);
+      final data = _decodeOrThrow(res);
+      _notify();
+      return data == null ? null : fromJson(data);
+    } on FriendlyError {
+      rethrow;
     } catch (e) {
-      print("Error during the update: $e");
-      return null;
+      _throwNetwork(e);
     }
   }
 
   Future<String> delete(int id) async {
-    var url = Uri.parse("$_baseUrl$_endpoint/$id");
+    final url = Uri.parse("$_baseUrl$_endpoint/$id");
+    final headers = createHeaders();
 
-    Map<String, String> headers = createHeaders();
-
-    var response = await http!.delete(url, headers: headers);
-
-    if (isValidResponseCode(response)) {
-      var data = jsonDecode(response.body);
+    try {
+      final res = await http!.delete(url, headers: headers).timeout(_timeout);
+      _decodeOrThrow(res); // samo validacija; ako je 2xx proći će
       _notify();
-      return response.body.toString();
-    } else {
-      throw Exception("An error occurred while deleting the product.");
+      return res.body.toString();
+    } on FriendlyError {
+      rethrow;
+    } catch (e) {
+      _throwNetwork(e);
     }
   }
 
   Map<String, String> createHeaders() {
-    String? username = Authorization.username;
-    String? password = Authorization.password;
-
-    String basicAuth =
+    final username = Authorization.username;
+    final password = Authorization.password;
+    final basicAuth =
         "Basic ${base64Encode(utf8.encode('$username:$password'))}";
-
-    var headers = {
+    return {
       "Content-Type": "application/json",
-      "Authorization": basicAuth
+      "Authorization": basicAuth,
     };
-    return headers;
   }
 
   T fromJson(data) {
@@ -162,55 +189,28 @@ abstract class BaseProvider<T> with ChangeNotifier {
       {String prefix = '', bool inRecursion = false}) {
     String query = '';
     params.forEach((key, value) {
+      var k = key;
       if (inRecursion) {
-        if (key is int) {
-          key = '[$key]';
-        } else if (value is List || value is Map) {
-          key = '.$key';
-        } else {
-          key = '.$key';
-        }
+        if (k is int)
+          k = '[$k]';
+        else
+          k = '.$k';
       }
-      if (value is String || value is int || value is double || value is bool) {
-        var encoded = Uri.encodeComponent(value.toString());
-        query += '${!query.isEmpty ? '&' : ''}$key=$encoded';
-      } else if (value is DateTime) {
-        var formattedDate =
-            DateFormat('yyyy-MM-ddTHH:mm:ss').format(value) + 'Z';
+      if (value is String || value is num || value is bool) {
         query +=
-            '${!query.isEmpty ? '&' : ''}$key=${Uri.encodeComponent(formattedDate)}';
+            '${query.isNotEmpty ? '&' : ''}$k=${Uri.encodeComponent(value.toString())}';
+      } else if (value is DateTime) {
+        final formatted = DateFormat('yyyy-MM-ddTHH:mm:ss').format(value) + 'Z';
+        query +=
+            '${query.isNotEmpty ? '&' : ''}$k=${Uri.encodeComponent(formatted)}';
       } else if (value is List || value is Map) {
-        if (value is List) value = value.asMap();
-        value.forEach((k, v) {
-          query += getQueryString({k: v},
-              prefix: '${!query.isEmpty ? '&' : ''}$key', inRecursion: true);
+        final map = value is List ? value.asMap() : value as Map;
+        map.forEach((kk, vv) {
+          query += getQueryString({kk: vv},
+              prefix: '${query.isNotEmpty ? '&' : ''}$k', inRecursion: true);
         });
       }
     });
     return query;
-  }
-
-  bool isValidResponseCode(Response response) {
-    if (response.statusCode == 200) {
-      if (response.body != "") {
-        return true;
-      } else {
-        return false;
-      }
-    } else if (response.statusCode == 204) {
-      return true;
-    } else if (response.statusCode == 400) {
-      throw Exception("Bad request");
-    } else if (response.statusCode == 401) {
-      throw Exception("Unauthorized");
-    } else if (response.statusCode == 403) {
-      throw Exception("Forbidden");
-    } else if (response.statusCode == 404) {
-      throw Exception("Not found");
-    } else if (response.statusCode == 500) {
-      throw Exception("Internal server error");
-    } else {
-      throw Exception("Exception... handle this gracefully");
-    }
   }
 }
