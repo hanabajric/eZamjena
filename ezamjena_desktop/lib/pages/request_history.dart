@@ -33,7 +33,8 @@ class _RequestHistoryPageState extends State<RequestHistoryPage> {
 
   Future<void> _loadTrades() async {
     try {
-      Map<String, dynamic> searchQuery = {};
+      final searchQuery = <String, dynamic>{};
+
       if (dateFrom != null) {
         searchQuery['DatumOd'] =
             DateFormat('yyyy-MM-ddTHH:mm:ss').format(dateFrom!) + 'Z';
@@ -43,16 +44,12 @@ class _RequestHistoryPageState extends State<RequestHistoryPage> {
             DateFormat('yyyy-MM-ddTHH:mm:ss').format(dateTo!) + 'Z';
       }
 
-      print("Search query: $searchQuery");
+      final loadedTrades = await _exchangeProvider?.get(searchQuery);
 
-      var loadedTrades = await _exchangeProvider?.get(searchQuery);
-      print("Loaded Trades: $loadedTrades");
-
-      if (loadedTrades != null) {
-        setState(() {
-          trades = loadedTrades;
-        });
-      }
+      if (!mounted) return;
+      setState(() {
+        trades = loadedTrades ?? [];
+      });
     } catch (e) {
       print("Failed to load trades: $e");
     }
@@ -70,23 +67,57 @@ class _RequestHistoryPageState extends State<RequestHistoryPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Od:'),
-                  SizedBox(width: 10),
+                  const Text('Od:'),
+                  const SizedBox(width: 10),
                   ElevatedButton(
                     onPressed: () => _selectDate(context, true),
-                    child: Text(dateFrom != null
-                        ? DateFormat('yyyy-MM-dd').format(dateFrom!)
-                        : 'Izaberite datum'),
+                    child: Text(
+                      dateFrom != null
+                          ? DateFormat('yyyy-MM-dd').format(dateFrom!)
+                          : 'Izaberite datum',
+                    ),
                   ),
-                  SizedBox(width: 20),
-                  Text('Do:'),
-                  SizedBox(width: 10),
+                  if (dateFrom != null) ...[
+                    const SizedBox(width: 6),
+                    Tooltip(
+                      message: 'Ukloni „Od”',
+                      child: IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: _clearFrom,
+                        splashRadius: 18,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(width: 20),
+                  const Text('Do:'),
+                  const SizedBox(width: 10),
                   ElevatedButton(
                     onPressed: () => _selectDate(context, false),
-                    child: Text(dateTo != null
-                        ? DateFormat('yyyy-MM-dd').format(dateTo!)
-                        : 'Izaberite datum'),
+                    child: Text(
+                      dateTo != null
+                          ? DateFormat('yyyy-MM-dd').format(dateTo!)
+                          : 'Izaberite datum',
+                    ),
                   ),
+                  if (dateTo != null) ...[
+                    const SizedBox(width: 6),
+                    Tooltip(
+                      message: 'Ukloni „Do”',
+                      child: IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: _clearTo,
+                        splashRadius: 18,
+                      ),
+                    ),
+                  ],
+                  if (dateFrom != null || dateTo != null) ...[
+                    const SizedBox(width: 16),
+                    TextButton.icon(
+                      icon: const Icon(Icons.filter_alt_off),
+                      label: const Text('Prikaži sve'),
+                      onPressed: _clearAll,
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -152,6 +183,24 @@ class _RequestHistoryPageState extends State<RequestHistoryPage> {
         _loadTrades(); // Reload trades with the new date filter
       });
     }
+  }
+
+  void _clearFrom() {
+    setState(() => dateFrom = null);
+    _loadTrades();
+  }
+
+  void _clearTo() {
+    setState(() => dateTo = null);
+    _loadTrades();
+  }
+
+  void _clearAll() {
+    setState(() {
+      dateFrom = null;
+      dateTo = null;
+    });
+    _loadTrades();
   }
 
   Future<void> generateReport() async {

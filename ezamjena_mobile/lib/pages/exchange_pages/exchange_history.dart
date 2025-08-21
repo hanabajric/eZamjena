@@ -1,3 +1,4 @@
+import 'package:ezamjena_mobile/widets/empty_state.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/single_child_widget.dart';
 
@@ -168,16 +169,17 @@ class _ExchangeHistoryPageState extends State<ExchangeHistoryPage> {
       );
 
   /// Jedan “prazan” card kad nema rezultata
-  Widget _emptyCard() => Card(
-        margin: const EdgeInsets.symmetric(vertical: 12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: const Padding(
-          padding: EdgeInsets.all(16),
-          child: Text(
-            'Trenutno nemate nijednu razmjenu u historiji.',
-            style: TextStyle(fontWeight: FontWeight.w600),
-          ),
-        ),
+  Widget _emptyCard() => EmptyState(
+        icon: Icons.swap_horiz_outlined,
+        title: 'Trenutno nemate nijednu razmjenu u historiji.',
+        subtitle: 'Kada završite razmjenu, ovdje će biti prikazana.',
+        actionText: _selectedDate != null ? 'Prikaži sve' : null,
+        onAction: _selectedDate != null
+            ? () async {
+                _selectedDate = null;
+                await _loadData();
+              }
+            : null,
       );
 
   /// Kartica za svaku pojedinačnu razmjenu

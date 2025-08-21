@@ -1,3 +1,4 @@
+import 'package:ezamjena_mobile/widets/empty_state.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/single_child_widget.dart';
@@ -156,16 +157,17 @@ class _BuyHistoryPageState extends State<BuyHistoryPage> {
         ),
       );
 
-  Widget _emptyCard() => Card(
-        margin: const EdgeInsets.symmetric(vertical: 12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: const Padding(
-          padding: EdgeInsets.all(16),
-          child: Text(
-            'Trenutno nemate nijednu kupovinu u historiji.',
-            style: TextStyle(fontWeight: FontWeight.w600),
-          ),
-        ),
+  Widget _emptyCard() => EmptyState(
+        icon: Icons.shopping_bag_outlined,
+        title: 'Trenutno nemate nijednu kupovinu u historiji.',
+        subtitle: 'Kada obavite kupovinu, ovdje će biti prikazana.',
+        actionText: _selectedDate != null ? 'Prikaži sve' : null,
+        onAction: _selectedDate != null
+            ? () async {
+                _selectedDate = null;
+                await _loadData();
+              }
+            : null,
       );
 
   Widget _buyCard(Buy b, Color purple) => Card(

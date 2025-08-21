@@ -1,3 +1,4 @@
+import 'package:ezamjena_mobile/widets/empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
@@ -154,14 +155,18 @@ class _NotificationsPageState extends State<NotificationsPage> {
         ),
       );
 
-  Widget _emptyCard() => Card(
-        margin: const EdgeInsets.symmetric(vertical: 12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: const Padding(
-          padding: EdgeInsets.all(16),
-          child: Text('Nemate notifikacija.',
-              style: TextStyle(fontWeight: FontWeight.w600)),
-        ),
+  Widget _emptyCard() => EmptyState(
+        icon: Icons.notifications_none,
+        title: 'Nemate notifikacija.',
+        subtitle: 'Kada proizvod s vaše liste želja više ne bude dostupan, '
+            'obavijest će se pojaviti ovdje.',
+        actionText: _selectedDate != null ? 'Prikaži sve' : null,
+        onAction: _selectedDate != null
+            ? () async {
+                _selectedDate = null;
+                await _load();
+              }
+            : null,
       );
 
   Widget _list(Color purple) => ListView.builder(

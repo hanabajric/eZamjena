@@ -69,7 +69,6 @@ namespace eZamjena.Services
 
             var oldStatusId = entity.StatusProizvodaId;
 
-            // mapiranje promjena
             Mapper.Map(update, entity);
             Context.SaveChanges();
 
@@ -98,9 +97,8 @@ namespace eZamjena.Services
                 {
                     var sada = DateTime.UtcNow;
                     var statusNaziv = entity.StatusProizvoda?.Naziv ?? entity.StatusProizvodaId.ToString();
-                    var poruka = $"Proizvod \"{entity.Naziv}\" više nije dostupan (status: {statusNaziv}).";
+                    var poruka = $"Proizvod \"{entity.Naziv}\" više nije dostupan .";
 
-                    // (opcionalno) anti-duplikat za isti proizvod unutar zadnjeg sata
                     var recent = Context.NotifikacijaProizvods
                         .Where(n => n.ProizvodId == entity.Id && n.VrijemeKreiranja > sada.AddHours(-1))
                         .Select(n => n.KorisnikId)
