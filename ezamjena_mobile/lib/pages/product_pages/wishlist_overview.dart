@@ -1,3 +1,4 @@
+import 'package:ezamjena_mobile/widets/empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
@@ -99,16 +100,12 @@ class _WishlistScreenState extends State<WishlistScreen> {
         ),
       );
 
-  Widget _emptyCard() => Card(
-        margin: const EdgeInsets.symmetric(vertical: 12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: const Padding(
-          padding: EdgeInsets.all(16),
-          child: Text(
-            'Vaša lista želja je trenutačno prazna.',
-            style: TextStyle(fontWeight: FontWeight.w600),
-          ),
-        ),
+  Widget _emptyCard() => EmptyState(
+        icon: Icons.favorite_border,
+        title: 'Vaša lista želja je trenutno prazna.',
+        subtitle: 'Dodajte proizvode u wishlistu da bi se pojavili ovdje.',
+        actionText: 'Prikaži proizvode',
+        onAction: () => Navigator.pushNamed(context, '/products'),
       );
 
   Widget _wishItemCard(dynamic item, Color purple) => Card(

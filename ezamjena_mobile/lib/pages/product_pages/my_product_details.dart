@@ -149,10 +149,9 @@ class _MyProductDetailsPageState extends State<MyProductDetailsPage> {
                   style: const TextStyle(fontSize: 16, color: Colors.black),
                   children: [
                     TextSpan(
-                        // etiketa – BOLD
                         text: '$label: ',
                         style: const TextStyle(fontWeight: FontWeight.w600)),
-                    TextSpan(text: value ?? ''), // vrijednost – normal
+                    TextSpan(text: value ?? ''),
                   ],
                 ),
               ),

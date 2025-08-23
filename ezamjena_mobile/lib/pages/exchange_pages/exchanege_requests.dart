@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'dart:async';
 
 import 'package:ezamjena_mobile/model/user.dart';
 import 'package:ezamjena_mobile/providers/user_provider.dart';
@@ -6,9 +6,12 @@ import 'package:ezamjena_mobile/utils/logged_in_usser.dart';
 import 'package:ezamjena_mobile/widets/master_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../model/trade.dart';
 import '../../providers/exchange_provider.dart';
-import '../../utils/utils.dart'; // Pretpostavljam da imaš nešto slično za obradu slika
+import '../../utils/utils.dart';
+import '../../widets/empty_state.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class ExchangeRequestsPage extends StatefulWidget {
   static const String routeName = "/exchange_requests";
@@ -22,38 +25,65 @@ class ExchangeRequestsPage extends StatefulWidget {
 class _ExchangeRequestsPageState extends State<ExchangeRequestsPage> {
   List<Trade> requests = [];
   ExchangeProvider? _exchangeProvider;
+  bool _loading = true;
 
   @override
   void initState() {
     super.initState();
     _exchangeProvider = context.read<ExchangeProvider>();
-    loadRequests();
+    _fetchRequests();
   }
 
-  Future loadRequests() async {
-    var tempData = await _exchangeProvider?.get(null);
-    if (mounted && tempData != null) {
+  Future<void> _fetchRequests() async {
+    setState(() => _loading = true);
+    try {
+      final tmp = await _exchangeProvider?.get(null);
+      if (!mounted) return;
       setState(() {
-        requests = tempData
+        requests = (tmp ?? [])
             .where((trade) =>
                 trade.proizvod2?.korisnikId == LoggedInUser.userId &&
                 trade.statusRazmjeneId == 1)
             .toList();
-        print(
-            'Loaded requests: $requests'); // This will print the data to the console.
+        _loading = false;
       });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _loading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Greška pri učitavanju zahtjeva: $e')),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final purple = Theme.of(context).primaryColor;
+
     return MasterPageWidget(
       child: SingleChildScrollView(
-        child: Container(
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 12),
           child: Column(
             children: [
-              _buildHeader(),
-              buildRequestsGrid(), // Ovo mijenjamo u grid prikaz
+              _header(),
+              const SizedBox(height: 8),
+              if (_loading)
+                Center(child: SpinKitFadingCircle(color: purple, size: 60))
+              else if (requests.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: EmptyState(
+                    icon: Icons.swap_horizontal_circle_outlined,
+                    title: 'Trenutno nemate zahtjeve za razmjenu.',
+                    subtitle:
+                        'Kada neko pošalje zahtjev za razmjenu, pojavit će se ovdje.',
+                    actionText: 'Osvježi',
+                    onAction: _fetchRequests,
+                  ),
+                )
+              else
+                _requestsGrid(),
             ],
           ),
         ),
@@ -61,128 +91,139 @@ class _ExchangeRequestsPageState extends State<ExchangeRequestsPage> {
     );
   }
 
-  Widget _buildHeader() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: Text(
-        "Zahtjevi za razmjenu",
-        style: TextStyle(fontSize: 40, fontWeight: FontWeight.w600),
-      ),
-    );
-  }
-
-  Widget buildRequestsGrid() {
-    if (requests.isEmpty) {
-      // If there are no requests, display a message.
-      return Center(
-        child: Padding(
-          padding: EdgeInsets.all(20),
+  Widget _header() => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: Center(
           child: Text(
-            "Trenutno nemate zahtjeve za razmjenu.",
-            style: TextStyle(fontSize: 18, color: Colors.grey),
+            'Zahtjevi za razmjenu',
             textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.w700,
+              color: Colors.grey.shade600,
+            ),
           ),
         ),
       );
-    }
-    // Koristimo GridView.builder umjesto ListView.builder
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2, // Dva elementa u redu
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
-        childAspectRatio: 1 / 1, // Odnos visine i širine za svaki element
-      ),
-      itemCount: requests.length,
-      itemBuilder: (context, index) {
-        Trade trade = requests[index];
-        return buildRequestCard(trade);
-      },
-    );
-  }
 
-  Widget buildRequestCard(Trade trade) {
+  Widget _requestsGrid() => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2, // 2 u redu
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+            childAspectRatio: 1 / 1,
+          ),
+          itemCount: requests.length,
+          itemBuilder: (_, i) => _requestCard(requests[i]),
+        ),
+      );
+
+  Widget _requestCard(Trade trade) {
+    final purple = Theme.of(context).primaryColor;
+
     return Card(
-      child: Column(
-        children: [
-          Expanded(
-            child: trade.proizvod2?.slika != null
-                ? Image.memory(
-                    base64Decode(trade.proizvod2!
-                        .slika!), // Korištenje ! jer smo već provjerili da nije null
-                    fit: BoxFit.cover,
-                  )
-                : Placeholder(), // Ili neki drugi widget za slučaj da nema slike
-          ),
-          Text(trade.proizvod2?.naziv ?? 'Nepoznat proizvod',
-              style: TextStyle(fontWeight: FontWeight.bold)),
-          Text(
-            'za ${trade.proizvod1?.naziv ?? ''}',
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          Text('Kategorija:${trade.proizvod2?.nazivKategorijeProizvoda}'),
-          Text('Procjenjena cijena:${trade.proizvod2?.cijena} '),
-          Text(
-              'Stanje:${trade.proizvod2?.stanjeNovo ?? false ? 'Novo' : 'Polovno'}'),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              IconButton(
-                icon: Icon(Icons.close),
-                onPressed: () {
-                  // Logika za odbijanje pojedinog zahtjeva
-                },
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          children: [
+            Expanded(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: (trade.proizvod2?.slika != null &&
+                        trade.proizvod2!.slika!.isNotEmpty)
+                    ? imageFromBase64String(trade.proizvod2!.slika!)
+                    : Container(
+                        color: Colors.grey.shade200,
+                        child: const Icon(Icons.image_not_supported, size: 36),
+                      ),
               ),
-              IconButton(
-                icon: Icon(Icons.check),
-                onPressed: () async {
-                  // Update the trade request status
-                  trade.statusRazmjeneId = 2;
-                  var request = {
-                    "statusRazmjeneId": 2,
-                    "datum": DateTime.now().toIso8601String(),
-                    "proizvod1Id": trade.proizvod1Id,
-                    "proizvod2Id": trade.proizvod2Id,
-                  };
-
-                  var updateResult =
-                      await _exchangeProvider!.update(trade.id, request);
-                  _updateUserActiveProducts(trade.korisnik1Id!);
-                  _updateUserActiveProducts(trade.korisnik2Id!);
-
-                  // If the update is successful, reload the requests
-                  await loadRequests();
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text("Zahtjev je uspješno prihvaćen.")));
-                },
-              ),
-            ],
-          ),
-        ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              trade.proizvod2?.naziv ?? 'Nepoznat proizvod',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            Text(
+              'za ${trade.proizvod1?.naziv ?? ''}',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 6),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                IconButton(
+                  tooltip: 'Odbij',
+                  icon: const Icon(Icons.close, color: Colors.red),
+                  onPressed: () async {
+                    // TODO: tvoja logika “odbij”
+                    // nakon akcije samo refresh:
+                    await _fetchRequests();
+                  },
+                ),
+                IconButton(
+                  tooltip: 'Prihvati',
+                  icon: Icon(Icons.check, color: purple),
+                  onPressed: () async {
+                    await _acceptTrade(trade);
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  // Method to update the number of active products for a user
+  Future<void> _acceptTrade(Trade trade) async {
+    setState(() => _loading = true);
+    try {
+      trade.statusRazmjeneId = 2;
+      final payload = {
+        "statusRazmjeneId": 2,
+        "datum": DateTime.now().toIso8601String(),
+        "proizvod1Id": trade.proizvod1Id,
+        "proizvod2Id": trade.proizvod2Id,
+      };
+
+      await _exchangeProvider!.update(trade.id, payload);
+      await _updateUserActiveProducts(trade.korisnik1Id!);
+      await _updateUserActiveProducts(trade.korisnik2Id!);
+
+      await _fetchRequests();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Zahtjev je uspješno prihvaćen.")),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _loading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Greška pri prihvatanju: $e")),
+      );
+    }
+  }
+
+  // Ažuriranje broja aktivnih proizvoda za korisnika
   Future<void> _updateUserActiveProducts(int userId) async {
-    var userProvider = Provider.of<UserProvider>(context, listen: false);
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final userData = await userProvider.getById(userId);
+    if (userData == null) return;
 
-    // Retrieve current user data
-    User? userData = await userProvider.getById(userId);
-    var updatedActiveProducts =
-        userData!.brojAktivnihArtikala! - 1; // Increment the count
-
-    // Update the user data with the new count of active products
-    var updateUser = {
-      ...userData.toJson(), // Convert existing data to JSON
-      'brojAktivnihArtikala': updatedActiveProducts
+    final updatedActiveProducts = (userData.brojAktivnihArtikala ?? 0) - 1;
+    final updateUser = {
+      ...userData.toJson(),
+      'brojAktivnihArtikala': updatedActiveProducts,
     };
 
-    await userProvider.update(
-        userId, updateUser); // Assuming you have such a method
+    await userProvider.update(userId, updateUser);
   }
 }
