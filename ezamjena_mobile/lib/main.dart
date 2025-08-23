@@ -24,6 +24,7 @@ import 'package:ezamjena_mobile/providers/wishlist_provider.dart';
 import 'package:ezamjena_mobile/providers/wishlistproduct_provider.dart';
 import 'package:ezamjena_mobile/utils/logged_in_usser.dart';
 import 'package:ezamjena_mobile/utils/utils.dart';
+import 'package:ezamjena_mobile/widets/api_exceptions.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
@@ -181,7 +182,15 @@ class _HomePageState extends State<HomePage> {
         }
       }
     } catch (e) {
-      _showAlert('Greška', 'Došlo je do greške prilikom prijave: $e');
+      String msg;
+      if (e is ApiException) {
+        msg = e.userMessage;
+      } else if (e is NetworkException) {
+        msg = e.userMessage;
+      } else {
+        msg = 'Nešto je pošlo po zlu. Pokušajte ponovo.';
+      }
+      _showAlert('Greška', msg);
     }
   }
 

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
+import 'package:ezamjena_mobile/widets/api_exceptions.dart';
 import 'package:http/http.dart';
 import 'package:http/io_client.dart';
 import 'package:flutter/foundation.dart';
@@ -14,6 +15,7 @@ abstract class BaseProvider<T> with ChangeNotifier {
   String? publicUrl;
   HttpClient client = new HttpClient();
   IOClient? http;
+  Duration get _timeout => const Duration(seconds: 15);
 
   BaseProvider(String endpoint) {
     _baseUrl = const String.fromEnvironment("baseUrl",
@@ -30,121 +32,104 @@ abstract class BaseProvider<T> with ChangeNotifier {
     publicUrl = "$_baseUrl$_endpoint";
   }
 
-  Future<T?> getById(int? id, [dynamic additionalData]) async {
-    print('Getting data for ID: $id');
-    var url = Uri.parse("$_baseUrl$_endpoint/$id");
+  Future<Response> _safe(Future<Response> future, {String? path}) async {
+    try {
+      final res = await future.timeout(_timeout);
+      if (res.statusCode == 204) return res;
 
-    Map<String, String> headers = createHeaders();
-
-    var response = await http!.get(url, headers: headers);
-
-    print('Response status code: ${response.statusCode}');
-    print('Response body: ${response.body}');
-
-    if (response.statusCode == 204) {
-      return null; // ili druga indikacija da nema dostupnih podataka
-    } else if (isValidResponseCode(response)) {
-      var data = jsonDecode(response.body);
-      return fromJson(data);
-    } else {
-      throw Exception("Exception... handle this gracefully");
-    }
-  }
-
-  /* Future<List<T>> get([dynamic search]) async {
-    var url = "$_baseUrl$_endpoint";
-    print('Endpoint za ovu strannicu je: $_endpoint');
-    if (search != null) {
-      String queryString = getQueryString(search);
-      url = url + "?" + queryString;
-    }
-
-    var uri = Uri.parse(url);
-
-    Map<String, String> headers = createHeaders();
-    print("get me");
-    var response = await http!.get(uri, headers: headers);
-    print("done $response");
-    if (isValidResponseCode(response)) {
-      var data = jsonDecode(response.body);
-      if (data == null) {
-        return <T>[];
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        return res;
       }
-      return data.map((x) => fromJson(x)).cast<T>().toList();
-    } else {
-      throw Exception("Exception... handle this gracefully");
+
+      String? serverMsg;
+      try {
+        final b = res.body;
+        if (b.isNotEmpty) {
+          final decoded = jsonDecode(b);
+          if (decoded is Map && decoded['message'] is String) {
+            serverMsg = decoded['message'] as String;
+          } else if (decoded is String) {
+            serverMsg = decoded;
+          }
+        }
+      } catch (_) {
+        serverMsg = res.body;
+      }
+
+      throw ApiException(
+        statusCode: res.statusCode,
+        serverMessage: serverMsg,
+        userMessage: friendlyMessage(
+          status: res.statusCode,
+          serverMessage: serverMsg,
+          path: path,
+        ),
+      );
+    } on SocketException {
+      throw NetworkException('Provjerite internet vezu i pokušajte ponovo.');
+    } on TimeoutException {
+      throw NetworkException('Veza je istekla. Pokušajte ponovo.');
     }
   }
-*/
-  Future<List<T>> get([Map<String, dynamic>? search]) async {
-    // 1) osnovni uri
-    var uri = Uri.parse('$_baseUrl$_endpoint');
 
-    // 2) dodaj upitne parametre (ako ih ima)
+  Future<T?> getById(int? id, [dynamic additionalData]) async {
+    final url = Uri.parse("$_baseUrl$_endpoint/$id");
+    final res = await _safe(http!.get(url, headers: createHeaders()),
+        path: 'GET $_endpoint/$id');
+
+    if (res.statusCode == 204 || res.body.isEmpty) return null;
+    final data = jsonDecode(res.body);
+    return fromJson(data);
+  }
+
+  Future<List<T>> get([Map<String, dynamic>? search]) async {
+    var uri = Uri.parse('$_baseUrl$_endpoint');
     if (search != null && search.isNotEmpty) {
-      // .map() da sve bude String → String
       final qp = search.map((k, v) => MapEntry(k, v.toString()));
       uri = uri.replace(queryParameters: qp);
     }
 
-    debugPrint('[GET] $uri'); //  ←  vidiš točan URL
+    final res = await _safe(
+      http!.get(uri, headers: createHeaders()),
+      path: 'GET $_endpoint',
+    );
 
-    final response = await http!.get(uri, headers: createHeaders());
-
-    if (!isValidResponseCode(response)) {
-      throw Exception('GET $_endpoint : ${response.statusCode}');
-    }
-
-    final data = jsonDecode(response.body);
+    if (res.statusCode == 204 || res.body.isEmpty) return <T>[];
+    final data = jsonDecode(res.body);
     return (data ?? []).map<T>((e) => fromJson(e)).toList();
   }
 
   Future<T?> insert(dynamic request) async {
-    var url = "$_baseUrl$_endpoint";
-    var uri = Uri.parse(url);
+    final uri = Uri.parse("$_baseUrl$_endpoint");
+    final res = await _safe(
+      http!.post(uri, headers: createHeaders(), body: jsonEncode(request)),
+      path: 'POST $_endpoint',
+    );
 
-    Map<String, String> headers = createHeaders();
-    var jsonRequest = jsonEncode(request);
-    var response = await http!.post(uri, headers: headers, body: jsonRequest);
-
-    if (isValidResponseCode(response)) {
-      var data = jsonDecode(response.body);
-      return fromJson(data) as T;
-    } else {
-      return null;
-    }
+    if (res.statusCode == 204 || res.body.isEmpty) return null;
+    return fromJson(jsonDecode(res.body)) as T;
   }
 
   Future<T?> update(int? id, [dynamic request]) async {
-    var url = "$_baseUrl$_endpoint/$id";
-    var uri = Uri.parse(url);
+    final uri = Uri.parse("$_baseUrl$_endpoint/$id");
+    final res = await _safe(
+      http!.put(uri, headers: createHeaders(), body: jsonEncode(request)),
+      path: 'PUT $_endpoint/$id',
+    );
 
-    Map<String, String> headers = createHeaders();
-
-    var response =
-        await http!.put(uri, headers: headers, body: jsonEncode(request));
-
-    if (isValidResponseCode(response)) {
-      var data = jsonDecode(response.body);
-      return fromJson(data) as T;
-    } else {
-      return null;
-    }
+    if (res.statusCode == 204 || res.body.isEmpty) return null;
+    return fromJson(jsonDecode(res.body)) as T;
   }
 
   Future<String> delete(int id) async {
-    var url = Uri.parse("$_baseUrl$_endpoint/$id");
+    final url = Uri.parse("$_baseUrl$_endpoint/$id");
+    final res = await _safe(
+      http!.delete(url, headers: createHeaders()),
+      path: 'DELETE $_endpoint/$id',
+    );
 
-    Map<String, String> headers = createHeaders();
-
-    var response = await http!.delete(url, headers: headers);
-
-    if (isValidResponseCode(response)) {
-      var data = jsonDecode(response.body);
-      return response.body.toString(); // Signalizirajte da je brisanje uspješno
-    } else {
-      throw Exception("An error occurred while deleting the product.");
-    }
+    // Neki API-jevi vraćaju prazan body pri 204 – vrati prazan string
+    return res.body.isNotEmpty ? res.body.toString() : '';
   }
 
   Map<String, String> createHeaders() {
@@ -199,25 +184,40 @@ abstract class BaseProvider<T> with ChangeNotifier {
 
   bool isValidResponseCode(Response response) {
     if (response.statusCode == 200) {
-      if (response.body != "") {
-        return true;
-      } else {
-        return false;
-      }
+      return response.body.isNotEmpty;
     } else if (response.statusCode == 204) {
       return true;
     } else if (response.statusCode == 400) {
-      throw Exception("Bad request");
+      throw ApiException(
+        statusCode: 400,
+        userMessage: 'Neispravan zahtjev. Provjerite unesene podatke.',
+      );
     } else if (response.statusCode == 401) {
-      throw Exception("Unauthorized");
+      throw ApiException(
+        statusCode: 401,
+        userMessage:
+            'Prijava nije uspjela. Provjerite korisničko ime i lozinku.',
+      );
     } else if (response.statusCode == 403) {
-      throw Exception("Forbidden");
+      throw ApiException(
+        statusCode: 403,
+        userMessage: 'Nemate dozvolu za ovu radnju.',
+      );
     } else if (response.statusCode == 404) {
-      throw Exception("Not found");
+      throw ApiException(
+        statusCode: 404,
+        userMessage: 'Traženi resurs nije pronađen.',
+      );
     } else if (response.statusCode == 500) {
-      throw Exception("Internal server error");
+      throw ApiException(
+        statusCode: 500,
+        userMessage: 'Došlo je do greške na serveru. Pokušajte kasnije.',
+      );
     } else {
-      throw Exception("Exception... handle this gracefully");
+      throw ApiException(
+        statusCode: response.statusCode,
+        userMessage: 'Neočekivana greška. Pokušajte ponovo.',
+      );
     }
   }
 }
