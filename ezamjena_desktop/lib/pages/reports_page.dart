@@ -17,6 +17,8 @@ class _ReportsPageState extends State<ReportsPage> {
   final List<Report> _items = [];
   ReportProvider? _reportProvider;
   bool _loading = true;
+  final _hCtrl = ScrollController();
+  final _vCtrl = ScrollController();
 
   @override
   void initState() {
@@ -53,6 +55,8 @@ class _ReportsPageState extends State<ReportsPage> {
   void dispose() {
     _reportProvider?.removeListener(_onProviderRefresh);
     _reasonCtl.dispose();
+    _hCtrl.dispose();
+    _vCtrl.dispose();
     super.dispose();
   }
 
@@ -101,69 +105,83 @@ class _ReportsPageState extends State<ReportsPage> {
               ),
             ),
             Expanded(
-              child: _loading
-                  ? const Center(child: CircularProgressIndicator())
-                  : _items.isEmpty
-                      ? const Center(child: Text('Nema prijava.'))
-                      : Scrollbar(
-                          thumbVisibility: true,
-                          child: SingleChildScrollView(
-                            scrollDirection:
-                                Axis.horizontal, // ⬅️ dodan horizontalni
-                            child: ConstrainedBox(
-                              constraints: BoxConstraints(
-                                minWidth: MediaQuery.of(context).size.width,
-                              ),
-                              child: SingleChildScrollView(
-                                // ⬅️ vertikalni
-                                child: DataTable(
-                                  columns: const [
-                                    DataColumn(label: Text('Proizvod')),
-                                    DataColumn(label: Text('Prijavio')),
-                                    DataColumn(label: Text('Razlog')),
-                                    DataColumn(label: Text('Poruka')),
-                                    DataColumn(label: Text('Datum')),
-                                  ],
-                                  rows: _items.map((r) {
-                                    final dt = r.datum != null
-                                        ? DateFormat('yyyy-MM-dd HH:mm')
-                                            .format(r.datum!)
-                                        : '';
-                                    return DataRow(cells: [
-                                      DataCell(Text(r.proizvodNaziv ??
-                                          (r.proizvodId?.toString() ?? ''))),
-                                      DataCell(Text(
-                                        r.prijavioKorisnik ??
-                                            (r.prijavioKorisnikId?.toString() ??
-                                                ''),
-                                        overflow: TextOverflow.ellipsis,
-                                      )),
-                                      DataCell(Text(r.razlog ?? '')),
-                                      DataCell(SizedBox(
-                                        width: 300,
-                                        child: Text(
-                                          (r.poruka == null ||
-                                                  r.poruka!.trim().isEmpty)
-                                              ? 'Nema poruke'
-                                              : r.poruka!,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: (r.poruka == null ||
-                                                  r.poruka!.trim().isEmpty)
-                                              ? const TextStyle(
-                                                  fontStyle: FontStyle.italic,
-                                                  color: Colors.grey)
-                                              : null,
-                                        ),
-                                      )),
-                                      DataCell(Text(dt)),
-                                    ]);
-                                  }).toList(),
+                child: _loading
+                    ? const Center(child: CircularProgressIndicator())
+                    : _items.isEmpty
+                        ? const Center(child: Text('Nema prijava.'))
+                        : Scrollbar(
+                            controller: _hCtrl, // ⇐ daje scroll position
+                            thumbVisibility: true,
+                            notificationPredicate: (notif) =>
+                                notif.metrics.axis ==
+                                Axis.horizontal, // ⇐ ovaj scrollbar sluša H
+                            child: SingleChildScrollView(
+                              controller: _hCtrl, // ⇐ isti kontroler
+                              scrollDirection: Axis.horizontal,
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  minWidth: MediaQuery.of(context).size.width,
+                                ),
+                                child: Scrollbar(
+                                  controller: _vCtrl, // ⇐ drugi scrollbar za V
+                                  thumbVisibility: true,
+                                  notificationPredicate: (notif) =>
+                                      notif.metrics.axis ==
+                                      Axis.vertical, // ⇐ sluša V
+                                  child: SingleChildScrollView(
+                                    controller: _vCtrl, // ⇐ isti kontroler
+                                    scrollDirection: Axis.vertical,
+                                    child: DataTable(
+                                      columns: const [
+                                        DataColumn(label: Text('Proizvod')),
+                                        DataColumn(label: Text('Prijavio')),
+                                        DataColumn(label: Text('Razlog')),
+                                        DataColumn(label: Text('Poruka')),
+                                        DataColumn(label: Text('Datum')),
+                                      ],
+                                      rows: _items.map((r) {
+                                        final dt = r.datum != null
+                                            ? DateFormat('yyyy-MM-dd HH:mm')
+                                                .format(r.datum!)
+                                            : '';
+                                        return DataRow(cells: [
+                                          DataCell(Text(r.proizvodNaziv ??
+                                              (r.proizvodId?.toString() ??
+                                                  ''))),
+                                          DataCell(Text(
+                                            r.prijavioKorisnik ??
+                                                (r.prijavioKorisnikId
+                                                        ?.toString() ??
+                                                    ''),
+                                            overflow: TextOverflow.ellipsis,
+                                          )),
+                                          DataCell(Text(r.razlog ?? '')),
+                                          DataCell(SizedBox(
+                                            width: 300,
+                                            child: Text(
+                                              (r.poruka == null ||
+                                                      r.poruka!.trim().isEmpty)
+                                                  ? 'Nema poruke'
+                                                  : r.poruka!,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: (r.poruka == null ||
+                                                      r.poruka!.trim().isEmpty)
+                                                  ? const TextStyle(
+                                                      fontStyle:
+                                                          FontStyle.italic,
+                                                      color: Colors.grey)
+                                                  : null,
+                                            ),
+                                          )),
+                                          DataCell(Text(dt)),
+                                        ]);
+                                      }).toList(),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ),
-            )
+                          ))
           ],
         ),
       ),

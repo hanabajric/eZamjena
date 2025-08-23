@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
+import 'package:ezamjena_desktop/main.dart';
 import 'package:ezamjena_desktop/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -25,7 +26,7 @@ class UserProfilePage extends StatefulWidget {
   _UserProfilePageState createState() => _UserProfilePageState();
 }
 
-class _UserProfilePageState extends State<UserProfilePage> {
+class _UserProfilePageState extends State<UserProfilePage> with RouteAware {
   String? selectedCityId;
   String filterByUsername = '';
   List<User> users = [];
@@ -34,6 +35,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
   UserProvider? _userProvider = null;
   File? _imageFile; // To hold the picked image file
   final ImagePicker _picker = ImagePicker();
+  final _hCtrl = ScrollController();
 
   @override
   void initState() {
@@ -41,6 +43,25 @@ class _UserProfilePageState extends State<UserProfilePage> {
     _userProvider = context.read<UserProvider>();
     _loadCities();
     _loadUsers();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void dispose() {
+    _hCtrl.dispose();
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  /// Poziva se kad se vratiš NAZAD na ovaj ekran (npr. iz Top3 profila ili edit dijaloga)
+  @override
+  void didPopNext() {
+    _loadUsers(silent: true); // povuci svježe, ali bez prikaza loadera
   }
 
   Future<void> _pickImage() async {
@@ -62,10 +83,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
     }
   }
 
-  Future<void> _loadUsers() async {
-    isLoading = true;
+  Future<void> _loadUsers({bool silent = false}) async {
+    if (!silent) {
+      setState(() => isLoading = true);
+    }
     try {
-      Map<String, dynamic> searchQuery = {};
+      final Map<String, dynamic> searchQuery = {};
       if (filterByUsername.isNotEmpty) {
         searchQuery['KorisnickoIme'] = filterByUsername;
       }
@@ -73,16 +96,16 @@ class _UserProfilePageState extends State<UserProfilePage> {
         searchQuery['grad.Id'] = selectedCityId;
       }
 
-      var tmpData = await _userProvider?.get(searchQuery);
+      final tmpData = await _userProvider?.get(searchQuery);
       if (tmpData != null) {
         setState(() {
           users = tmpData;
         });
       }
     } finally {
-      setState(() {
-        isLoading = false;
-      });
+      if (!silent) {
+        setState(() => isLoading = false);
+      }
     }
   }
 
@@ -151,54 +174,59 @@ class _UserProfilePageState extends State<UserProfilePage> {
                   : users.isEmpty
                       ? Center(
                           child: Text('Trenutno nemate aktivnih korisnika'))
-                      : SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: DataTable(
-                            columns: const <DataColumn>[
-                              DataColumn(label: Text('Korisničko ime')),
-                              DataColumn(label: Text('Grad')),
-                              DataColumn(label: Text('Broj telefona')),
-                              DataColumn(label: Text('Email')),
-                              DataColumn(label: Text('Broj razmjena')),
-                              DataColumn(label: Text('Broj kupovina')),
-                              DataColumn(label: Text('Uredi')),
-                              DataColumn(label: Text('Obriši')),
-                            ],
-                            rows: users.map<DataRow>((user) {
-                              return DataRow(cells: [
-                                DataCell(Text(user.korisnickoIme ?? 'N/A')),
-                                DataCell(Text(user.nazivGrada ?? 'N/A')),
-                                DataCell(Text(user.telefon ?? 'N/A')),
-                                DataCell(Text(user.email ?? 'N/A')),
-                                DataCell(Text(user.brojRazmjena.toString())),
-                                DataCell(Text(user.brojKupovina.toString())),
-                                DataCell(IconButton(
-                                  icon: Icon(Icons.edit),
-                                  onPressed: () async {
-                                    if (_userProvider != null) {
-                                      User? userDetails =
-                                          await _userProvider?.getById(user.id);
-                                      if (userDetails != null) {
-                                        _showEditDialog(userDetails);
+                      : Scrollbar(
+                          controller: _hCtrl,
+                          thumbVisibility: true, // po želji
+                          child: SingleChildScrollView(
+                            controller: _hCtrl,
+                            scrollDirection: Axis.horizontal,
+                            child: DataTable(
+                              columns: const <DataColumn>[
+                                DataColumn(label: Text('Korisničko ime')),
+                                DataColumn(label: Text('Grad')),
+                                DataColumn(label: Text('Broj telefona')),
+                                DataColumn(label: Text('Email')),
+                                DataColumn(label: Text('Broj razmjena')),
+                                DataColumn(label: Text('Broj kupovina')),
+                                DataColumn(label: Text('Uredi')),
+                                DataColumn(label: Text('Obriši')),
+                              ],
+                              rows: users.map<DataRow>((user) {
+                                return DataRow(cells: [
+                                  DataCell(Text(user.korisnickoIme ?? 'N/A')),
+                                  DataCell(Text(user.nazivGrada ?? 'N/A')),
+                                  DataCell(Text(user.telefon ?? 'N/A')),
+                                  DataCell(Text(user.email ?? 'N/A')),
+                                  DataCell(Text(user.brojRazmjena.toString())),
+                                  DataCell(Text(user.brojKupovina.toString())),
+                                  DataCell(IconButton(
+                                    icon: Icon(Icons.edit),
+                                    onPressed: () async {
+                                      if (_userProvider != null) {
+                                        User? userDetails = await _userProvider
+                                            ?.getById(user.id);
+                                        if (userDetails != null) {
+                                          _showEditDialog(userDetails);
+                                        } else {
+                                          print('User details not found');
+                                        }
                                       } else {
-                                        print('User details not found');
+                                        print('User provider not initialized');
                                       }
-                                    } else {
-                                      print('User provider not initialized');
-                                    }
-                                  },
-                                )),
-                                DataCell(
-                                  IconButton(
-                                    padding: EdgeInsets.zero,
-                                    constraints: BoxConstraints(),
-                                    icon: Icon(Icons.delete),
-                                    onPressed: () =>
-                                        _showDeleteUserDialog(user),
+                                    },
+                                  )),
+                                  DataCell(
+                                    IconButton(
+                                      padding: EdgeInsets.zero,
+                                      constraints: BoxConstraints(),
+                                      icon: Icon(Icons.delete),
+                                      onPressed: () =>
+                                          _showDeleteUserDialog(user),
+                                    ),
                                   ),
-                                ),
-                              ]);
-                            }).toList(),
+                                ]);
+                              }).toList(),
+                            ),
                           ),
                         ),
             ),

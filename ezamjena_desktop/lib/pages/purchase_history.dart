@@ -23,6 +23,7 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage> {
   DateTime? dateFrom;
   DateTime? dateTo;
   BuyProvider? _buyProvider;
+  final _scrollCtrl = ScrollController();
 
   @override
   void initState() {
@@ -31,6 +32,12 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage> {
       _buyProvider = Provider.of<BuyProvider>(context, listen: false);
       _loadPurchases();
     });
+  }
+
+  @override
+  void dispose() {
+    _scrollCtrl.dispose();
+    super.dispose();
   }
 
   Future<void> _loadPurchases() async {
@@ -128,31 +135,36 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage> {
             ),
             Expanded(
               child: purchases.isEmpty
-                  ? Center(child: Text('Trenutno nemate kupovina u historiji'))
-                  : SingleChildScrollView(
-                      scrollDirection:
-                          Axis.vertical, // Ensures only vertical scrolling
-                      child: DataTable(
-                        columns: const <DataColumn>[
-                          DataColumn(label: Text('Korisnik')),
-                          DataColumn(label: Text('Proizvod')),
-                          DataColumn(label: Text('Cijena')),
-                          DataColumn(label: Text('Datum kupovine')),
-                        ],
-                        rows: purchases
-                            .map<DataRow>((Buy buy) => DataRow(cells: [
-                                  DataCell(
-                                      Text(buy.nazivKorisnika ?? 'Unknown')),
-                                  DataCell(
-                                      Text(buy.nazivProizvoda ?? 'No product')),
-                                  DataCell(Text(
-                                      buy.cijena?.toString() ?? 'No price')),
-                                  DataCell(Text(buy.datum != null
-                                      ? DateFormat('yyyy-MM-dd')
-                                          .format(buy.datum!)
-                                      : 'No date')),
-                                ]))
-                            .toList(),
+                  ? const Center(
+                      child: Text('Trenutno nemate kupovina u historiji'))
+                  : Scrollbar(
+                      controller: _scrollCtrl, // ⇐ ISTI KONTROLER
+                      thumbVisibility: true, // po želji
+                      child: SingleChildScrollView(
+                        controller: _scrollCtrl, // ⇐ ISTI KONTROLER
+                        scrollDirection: Axis.vertical,
+                        child: DataTable(
+                          columns: const <DataColumn>[
+                            DataColumn(label: Text('Korisnik')),
+                            DataColumn(label: Text('Proizvod')),
+                            DataColumn(label: Text('Cijena')),
+                            DataColumn(label: Text('Datum kupovine')),
+                          ],
+                          rows: purchases
+                              .map<DataRow>((Buy buy) => DataRow(cells: [
+                                    DataCell(
+                                        Text(buy.nazivKorisnika ?? 'Unknown')),
+                                    DataCell(Text(
+                                        buy.nazivProizvoda ?? 'No product')),
+                                    DataCell(Text(
+                                        buy.cijena?.toString() ?? 'No price')),
+                                    DataCell(Text(buy.datum != null
+                                        ? DateFormat('yyyy-MM-dd')
+                                            .format(buy.datum!)
+                                        : 'No date')),
+                                  ]))
+                              .toList(),
+                        ),
                       ),
                     ),
             ),

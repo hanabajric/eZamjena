@@ -21,6 +21,8 @@ import 'package:ezamjena_desktop/providers/products_provider.dart';
 import 'package:ezamjena_desktop/utils/logged_in_usser.dart';
 import 'package:ezamjena_desktop/utils/utils.dart';
 
+final RouteObserver<ModalRoute> routeObserver = RouteObserver<ModalRoute>();
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(MultiProvider(
@@ -34,6 +36,7 @@ void main() {
       ChangeNotifierProvider(create: (_) => ReportProvider()),
     ],
     child: MaterialApp(
+      navigatorObservers: [routeObserver],
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
