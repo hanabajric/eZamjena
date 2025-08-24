@@ -27,7 +27,7 @@ class UserProfilePage extends StatefulWidget {
 }
 
 class _UserProfilePageState extends State<UserProfilePage> with RouteAware {
-  String? selectedCityId;
+  int? selectedCityId;
   String filterByUsername = '';
   List<User> users = [];
   List<City> cities = [];
@@ -36,6 +36,7 @@ class _UserProfilePageState extends State<UserProfilePage> with RouteAware {
   File? _imageFile; // To hold the picked image file
   final ImagePicker _picker = ImagePicker();
   final _hCtrl = ScrollController();
+  int _loadStamp = 0;
 
   @override
   void initState() {
@@ -74,36 +75,35 @@ class _UserProfilePageState extends State<UserProfilePage> with RouteAware {
   }
 
   Future<void> _loadCities() async {
-    var cityProvider = Provider.of<CityProvider>(context, listen: false);
-    var tmpData = await cityProvider.get();
+    final cityProvider = Provider.of<CityProvider>(context, listen: false);
+    final tmpData = await cityProvider.get();
     if (tmpData != null) {
-      setState(() {
-        cities = [City(id: null, naziv: "Svi gradovi")] + tmpData;
-      });
+      setState(() => cities = tmpData);
     }
   }
 
   Future<void> _loadUsers({bool silent = false}) async {
-    if (!silent) {
-      setState(() => isLoading = true);
-    }
+    final int myStamp = ++_loadStamp; // <- uzmi svoj stamp
+
+    if (!silent) setState(() => isLoading = true);
     try {
-      final Map<String, dynamic> searchQuery = {};
+      final searchQuery = <String, dynamic>{};
+
       if (filterByUsername.isNotEmpty) {
         searchQuery['KorisnickoIme'] = filterByUsername;
       }
       if (selectedCityId != null) {
-        searchQuery['grad.Id'] = selectedCityId;
+        searchQuery['GradId'] = selectedCityId; // filtriraj samo kad nije null
       }
 
       final tmpData = await _userProvider?.get(searchQuery);
-      if (tmpData != null) {
-        setState(() {
-          users = tmpData;
-        });
+
+      // prihvati samo ako je ovo najnoviji poziv
+      if (myStamp == _loadStamp && mounted && tmpData != null) {
+        setState(() => users = tmpData);
       }
     } finally {
-      if (!silent) {
+      if (myStamp == _loadStamp && mounted && !silent) {
         setState(() => isLoading = false);
       }
     }
@@ -126,22 +126,24 @@ class _UserProfilePageState extends State<UserProfilePage> with RouteAware {
                 children: <Widget>[
                   Expanded(
                     flex: 3,
-                    child: DropdownButton<String>(
+                    child: DropdownButton<int?>(
                       isExpanded: true,
                       value: selectedCityId,
-                      hint: Text("Odaberite grad"),
-                      onChanged: (newValue) {
-                        setState(() {
-                          selectedCityId = newValue;
-                          _loadUsers();
-                        });
+                      hint: const Text("Odaberite grad"),
+                      onChanged: (int? newValue) {
+                        setState(() => selectedCityId = newValue);
+                        _loadUsers();
                       },
-                      items: cities.map((City city) {
-                        return DropdownMenuItem<String>(
-                          value: city.id?.toString(),
-                          child: Text(city.naziv ?? "N/A"),
-                        );
-                      }).toList(),
+                      items: <DropdownMenuItem<int?>>[
+                        const DropdownMenuItem<int?>(
+                          value: null, // "Svi gradovi"
+                          child: Text('Svi gradovi'),
+                        ),
+                        ...cities.map((c) => DropdownMenuItem<int?>(
+                              value: c.id,
+                              child: Text(c.naziv ?? 'N/A'),
+                            )),
+                      ],
                     ),
                   ),
                   SizedBox(width: 30),
@@ -302,11 +304,11 @@ class _UserProfilePageState extends State<UserProfilePage> with RouteAware {
 
     final pdf = pw.Document();
     String title = 'User Report';
-    if (selectedCityId != null &&
-        cities.any((c) => c.id.toString() == selectedCityId)) {
+    if (selectedCityId != null && cities.any((c) => c.id == selectedCityId)) {
       title += ' for city ' +
-          cities.firstWhere((c) => c.id.toString() == selectedCityId).naziv!;
+          (cities.firstWhere((c) => c.id == selectedCityId).naziv ?? '');
     }
+
     if (filterByUsername.isNotEmpty) {
       title += ' filtered by username: $filterByUsername';
     }

@@ -13,7 +13,10 @@ namespace eZamjena.Services
         public MappingProfile(){
             CreateMap<Database.Korisnik,Model.Korisnik>();
             CreateMap<KorisnikInsertRequest, Database.Korisnik>();
-            CreateMap<KorisnikUpdateRequest, Database.Korisnik>();
+            CreateMap<KorisnikUpdateRequest, Database.Korisnik>()
+               .ForAllMembers(opt =>
+               opt.Condition((src, dest, srcMember) => srcMember != null));
+
             CreateMap<AdminKorisnikUpdateRequest, Database.Korisnik>().ForMember(dest => dest.LozinkaHash, opt => opt.Ignore())  // Ignoriraj hash lozinke
                 .ForMember(dest => dest.LozinkaSalt, opt => opt.Ignore()); ;
 

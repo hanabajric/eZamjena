@@ -6,6 +6,7 @@ import 'package:ezamjena_desktop/providers/user_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:provider/provider.dart';
+import 'package:ezamjena_desktop/main.dart';
 
 class TopThreeProfilesPage extends StatefulWidget {
   static const String routeName = '/top3Profiles';
@@ -15,7 +16,8 @@ class TopThreeProfilesPage extends StatefulWidget {
   _TopThreeProfilesPageState createState() => _TopThreeProfilesPageState();
 }
 
-class _TopThreeProfilesPageState extends State<TopThreeProfilesPage> {
+class _TopThreeProfilesPageState extends State<TopThreeProfilesPage>
+    with RouteAware {
   List<User> topUsers = [];
   bool isLoading = false;
 
@@ -25,27 +27,39 @@ class _TopThreeProfilesPageState extends State<TopThreeProfilesPage> {
     _loadTopUsers();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    _loadTopUsers();
+  }
+
   Future<void> _loadTopUsers() async {
     setState(() => isLoading = true);
 
     try {
-      // ───────────────── providers ─────────────────
       final userProv = context.read<UserProvider>();
       final cityProv = context.read<CityProvider>();
 
-      // 1) mapa gradId → naziv
       final gradovi = await cityProv.get();
       final gradNazivMap = {for (var g in gradovi) g.id: g.naziv};
 
-      // 2) svi korisnici
       final sviKorisnici = await userProv.get();
 
-      // 3) popuni nazivGrada (ako ga API ne vraća)
       for (var k in sviKorisnici) {
         k.nazivGrada ??= gradNazivMap[k.gradId] ?? 'N/A';
       }
 
-      // 4) sortiraj po (kupovine + razmjene) i uzmi top‑3
       final sortirani = sviKorisnici
           .where((k) => k.brojKupovina != null && k.brojRazmjena != null)
           .toList()

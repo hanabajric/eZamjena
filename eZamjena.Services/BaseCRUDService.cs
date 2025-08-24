@@ -60,7 +60,7 @@ namespace eZamjena.Services
                 BeforeUpdate(entity, update);
             }
             else { return null; }
-            Context.Entry(entity).CurrentValues.SetValues(update);
+            //Context.Entry(entity).CurrentValues.SetValues(update);
             Context.SaveChanges();
 
             return Mapper.Map<T>(entity);

@@ -126,16 +126,20 @@ namespace eZamjena.Services
         public override IQueryable<Database.Korisnik> AddFilter(IQueryable<Database.Korisnik> query, KorisnikSearchObject search = null)
         {
             var filtrirano = base.AddFilter(query, search);
-            if (!String.IsNullOrWhiteSpace(search?.KorisnickoIme))
+
+            if (!string.IsNullOrWhiteSpace(search?.KorisnickoIme))
             {
-                filtrirano=filtrirano.Where(x=>x.KorisnickoIme.Contains(search.KorisnickoIme));
+                filtrirano = filtrirano.Where(x => x.KorisnickoIme.Contains(search.KorisnickoIme));
             }
-            if (search?.grad != null && search.grad.Id != -1)
+
+            if (search?.GradId.HasValue == true && search.GradId.Value != -1)
             {
-                filtrirano = filtrirano.Where(x => x.Grad.Id == search.grad.Id);
+                filtrirano = filtrirano.Where(x => x.GradId == search.GradId.Value);
             }
+
             return filtrirano;
         }
+
 
         public async Task<Model.Korisnik> Login(string username, string password)
         {
