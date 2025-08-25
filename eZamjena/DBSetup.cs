@@ -16,7 +16,7 @@ namespace eZamjena
             var currentDirectory = Directory.GetCurrentDirectory();
             Console.WriteLine("Current Directory: " + currentDirectory);
 
-             var path = Path.Combine(currentDirectory, "Script", "script2.sql");
+             var path = Path.Combine(currentDirectory, "Script", "script_new.sql");
             //var path = Path.Combine("/app", "Script", "script2.sql");
             Console.WriteLine("Full path to setup.sql: " + path);
 
